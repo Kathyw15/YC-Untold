@@ -2,6 +2,8 @@ import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native
 
 // An in-app copy of the iOS contacts permission alert, for demo mode and the web, where the real one
 // cannot appear. The wording matches the system alert; the body is the sentence from app.json.
+const TITLE = "Allow \u201CSeal\u201D to access your contacts?";
+const DENY = "Don\u2019t Allow";
 const BODY =
   "Seal checks your contacts to find the people you know who are already here. Names never leave your phone.";
 
@@ -16,7 +18,7 @@ export function ContactsPermissionAlert({ visible, onAllow, onDeny }: ContactsPe
     <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={onDeny}>
       <View style={styles.backdrop} testID="contacts-alert">
         <View style={styles.card} accessibilityRole="alert">
-          <Text style={styles.title}>Allow \u201CSeal\u201D to access your contacts?</Text>
+          <Text style={styles.title}>{TITLE}</Text>
           <Text style={styles.body}>{BODY}</Text>
           <View style={styles.buttons}>
             <Pressable
@@ -24,14 +26,18 @@ export function ContactsPermissionAlert({ visible, onAllow, onDeny }: ContactsPe
               accessibilityRole="button"
               onPress={onDeny}
               style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
-              <Text style={styles.label}>Don\u2019t Allow</Text>
+              <Text style={styles.label} numberOfLines={1}>
+                {DENY}
+              </Text>
             </Pressable>
             <Pressable
               testID="contacts-alert-allow"
               accessibilityRole="button"
               onPress={onAllow}
               style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
-              <Text style={[styles.label, styles.primary]}>Continue</Text>
+              <Text style={[styles.label, styles.primary]} numberOfLines={1}>
+                Continue
+              </Text>
             </Pressable>
           </View>
         </View>
@@ -57,7 +63,7 @@ const styles = StyleSheet.create({
     padding: 22,
     paddingTop: 26,
     borderRadius: 34,
-    backgroundColor: "rgba(240, 239, 236, 0.96)",
+    backgroundColor: "#F1F0ED",
     shadowColor: "#000",
     shadowOpacity: 0.18,
     shadowRadius: 30,
@@ -75,6 +81,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(120, 120, 128, 0.2)",
   },
   pressed: { opacity: 0.6 },
-  label: { ...system, fontSize: 17, fontWeight: "500", color: "#000" },
+  label: { ...system, fontSize: 17, fontWeight: "500", color: "#000", textAlign: "center" },
   primary: { fontWeight: "600" },
 });
