@@ -17,29 +17,30 @@ import { radius, space, tones } from "@/theme";
 
 type Match = (typeof api.matches.list)["_returnType"][number];
 
-export default function ConnectionsScreen() {
+export default function ConversationsScreen() {
   const matches = useQuery(api.matches.list);
   const router = useRouter();
 
   const invited = matches?.filter((match) => match.state === "invited") ?? [];
   const waiting = matches?.filter((match) => match.state === "waiting") ?? [];
-  const revealed = matches?.filter((match) => match.state === "revealed") ?? [];
+  const open = matches?.filter((match) => match.state === "revealed" && !match.closed) ?? [];
+  const closed = matches?.filter((match) => match.state === "revealed" && match.closed) ?? [];
 
-  function open(match: Match) {
+  function enter(match: Match) {
     if (match.conversation && hasWitnessedReveal(match.id)) router.push(`/chat/${match.conversation.id}`);
     else router.push(`/match/${match.id}`);
   }
 
   return (
-    <Screen scene="mist" aboveTabBar testID="connections-screen">
+    <Screen scene="mist" aboveTabBar testID="conversations-screen">
       <Rise>
         <Text variant="label" soft>
-          Connections
+          Conversations
         </Text>
       </Rise>
       {matches?.length === 0 ? (
         <EmptyState
-          testID="connections-empty"
+          testID="conversations-empty"
           title="Nothing has surfaced yet."
           body="When your words and someone else's find each other, you'll both be asked before anything is revealed."
         />
@@ -48,10 +49,10 @@ export default function ConnectionsScreen() {
         <Rise order={1} style={styles.scroll}>
           <ScrollView contentContainerStyle={styles.sections} showsVerticalScrollIndicator={false}>
             {invited.length > 0 ? (
-              <Section title="Possible connections">
+              <Section title="Invitations">
                 {invited.map((match) => (
                   <Breathing key={match.id} scale={0.012} dim={0.12}>
-                    <Row testID="connection-invited" onPress={() => open(match)}>
+                    <Row testID="conversation-invited" onPress={() => enter(match)}>
                       <Text variant="quote">
                         {match.question ?? "Two sealed messages seem to reach for each other."}
                       </Text>
@@ -69,7 +70,7 @@ export default function ConnectionsScreen() {
               <Section title="Waiting">
                 {waiting.map((match) => (
                   <Breathing key={match.id} scale={0.012} dim={0.3}>
-                    <Row testID="connection-waiting" onPress={() => open(match)}>
+                    <Row testID="conversation-waiting" onPress={() => enter(match)}>
                       <Text variant="quote">You said yes.</Text>
                       <Text variant="caption" soft>
                         Nothing is shown unless they say yes too.
@@ -79,25 +80,30 @@ export default function ConnectionsScreen() {
                 ))}
               </Section>
             ) : null}
-            {revealed.length > 0 ? (
-              <Section title="Conversations">
-                {revealed.map((match) => (
-                  <Row key={match.id} testID="connection-revealed" onPress={() => open(match)} horizontal>
-                    <Avatar uri={match.other?.avatarUrl ?? null} name={match.other?.name ?? null} size={48} />
-                    <View style={styles.person}>
-                      <Text variant="quote">{match.other?.name}</Text>
-                      {match.conversation ? (
-                        <Countdown
-                          expiresAt={match.conversation.expiresAt}
-                          suffix=" left to talk"
-                          closedLabel="Closed. The words stay."
-                        />
-                      ) : null}
-                    </View>
-                  </Row>
-                ))}
-              </Section>
-            ) : null}
+            {[
+              { title: "Open", testID: "conversation-open", group: open },
+              { title: "Closed", testID: "conversation-closed", group: closed },
+            ].map(({ title, testID, group }) =>
+              group.length > 0 ? (
+                <Section key={title} title={title}>
+                  {group.map((match) => (
+                    <Row key={match.id} testID={testID} onPress={() => enter(match)} horizontal>
+                      <Avatar uri={match.other?.avatarUrl ?? null} name={match.other?.name ?? null} size={48} />
+                      <View style={styles.person}>
+                        <Text variant="quote">{match.other?.name}</Text>
+                        {match.conversation ? (
+                          <Countdown
+                            expiresAt={match.closed ? 0 : match.conversation.expiresAt}
+                            suffix=" left to talk"
+                            closedLabel="Closed. The words stay."
+                          />
+                        ) : null}
+                      </View>
+                    </Row>
+                  ))}
+                </Section>
+              ) : null,
+            )}
           </ScrollView>
         </Rise>
       ) : null}

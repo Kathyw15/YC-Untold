@@ -56,8 +56,8 @@ The Clerk instance needs phone sign-up and sign-in enabled, email and password d
 
 ```
 app/                 expo-router routes
-  (auth)/            phone, verify, profile-setup
-  (tabs)/            Home, People, Connections, Profile
+  (auth)/            phone, verify, profile-setup, onboarding
+  (tabs)/            Home, People, Conversations, Profile (the tab bar's centre plus opens compose/question)
 src/
   theme/             tokens, typography, background scenes
   components/        Atmosphere, Breathing, Rise, Text, BreathingButton, ...

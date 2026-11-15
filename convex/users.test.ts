@@ -24,7 +24,7 @@ describe("users.ensure", () => {
     const first = await asAlex.mutation(api.users.ensure, {});
     const second = await asAlex.mutation(api.users.ensure, {});
 
-    expect(first).toEqual({ id: first.id, name: null, avatarUrl: null });
+    expect(first).toEqual({ id: first.id, name: null, avatarUrl: null, onboarded: false });
     expect(second.id).toBe(first.id);
     const users = await t.run((ctx) => ctx.db.query("users").collect());
     expect(users).toHaveLength(1);
@@ -113,7 +113,7 @@ describe("users.me", () => {
 
     const me = await t.withIdentity(alex).query(api.users.me, {});
 
-    expect(me).toEqual({ id: created.id, name: null, avatarUrl: null });
+    expect(me).toEqual({ id: created.id, name: null, avatarUrl: null, onboarded: false });
   });
 });
 
