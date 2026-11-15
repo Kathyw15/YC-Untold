@@ -35,6 +35,18 @@ async function questionText(ctx: QueryCtx, match: Doc<"matches">) {
   return match.questionId ? ((await ctx.db.get(match.questionId))?.text ?? null) : null;
 }
 
+async function questionLook(ctx: QueryCtx, match: Doc<"matches">, me: Id<"users">) {
+  const question = match.questionId ? await ctx.db.get(match.questionId) : null;
+  if (!question) return null;
+  return {
+    id: question._id,
+    mine: question.authorId === me,
+    gradient: question.gradient ?? null,
+    photo: question.photo ?? (question.isDaily ? "daily" : null),
+    imageUrl: question.imageId ? await ctx.storage.getUrl(question.imageId) : null,
+  };
+}
+
 export const list = query({
   args: {},
   handler: async (ctx) => {
@@ -122,6 +134,7 @@ export const get = query({
       type: match.type,
       state,
       question: await questionText(ctx, match),
+      questionLook: await questionLook(ctx, match, me),
       revealed,
     };
   },

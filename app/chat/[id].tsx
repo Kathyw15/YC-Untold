@@ -51,7 +51,7 @@ export default function ChatScreen() {
     <Screen
       scene="base"
       testID="chat-screen"
-      contentStyle={{ paddingHorizontal: 0, paddingTop: insets.top + 6, paddingBottom: insets.bottom + space.sm }}>
+      contentStyle={{ backgroundColor: colors.white, paddingHorizontal: 0, paddingTop: insets.top + 6, paddingBottom: insets.bottom + space.sm }}>
       <View style={styles.header}>
         <Pressable
           testID="chat-back"

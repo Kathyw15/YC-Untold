@@ -13,7 +13,7 @@ import { Card } from "@/components/Card";
 import { useRemaining } from "@/components/Countdown";
 import { IconButton } from "@/components/IconButton";
 import { CloudPair, MatchTitle, Pill, SaidCards, Tag, TextLink, timeLeft } from "@/components/MatchParts";
-import { gradientFor } from "@/components/QuestionCard";
+import { QuestionBackground } from "@/components/QuestionBackground";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { StickerArt, type StickerView } from "@/components/Sticker";
@@ -108,19 +108,19 @@ export default function MatchScreen() {
                 {match.type === "social" ? (
                   <>
                     <Text style={[styles.centered, styles.lead]}>
-                      Someone’s answer to the question resonated with yours. Want to reveal and start a conversation?
+                      Someone’s answer to {match.questionLook?.mine ? "your" : "the"} question resonated with yours. Want to
+                      reveal and start a conversation?
                     </Text>
                     {match.question ? (
                       <View style={styles.chip}>
-                        <LinearGradient
-                          colors={gradientFor(id)}
-                          start={{ x: 0.35, y: 0 }}
-                          end={{ x: 0.65, y: 1 }}
-                          style={styles.thumb}
-                        />
+                        <View style={styles.thumb}>
+                          {match.questionLook ? (
+                            <QuestionBackground question={match.questionLook} style={styles.thumbFill} />
+                          ) : null}
+                        </View>
                         <View style={styles.grow}>
                           <Text variant="label" soft>
-                            A question you answered
+                            {match.questionLook?.mine ? "Your question" : "A question you answered"}
                           </Text>
                           <Text style={styles.chipText} numberOfLines={3}>
                             {match.question}
@@ -365,6 +365,7 @@ const styles = StyleSheet.create({
     boxShadow: shadows.card,
   },
   thumb: { width: 56, height: 56, borderRadius: radius.thumb },
+  thumbFill: { borderRadius: radius.thumb },
   chipText: { fontSize: 15, lineHeight: 20, fontWeight: "600", marginTop: 2 },
   cloudsWaiting: { marginTop: 62 },
   waiting: { marginTop: 44 },
