@@ -8,8 +8,13 @@
  * @module
  */
 
+import type * as crons from "../crons.js";
+import type * as daily from "../daily.js";
 import type * as lib_authz from "../lib/authz.js";
 import type * as lib_phone from "../lib/phone.js";
+import type * as matching from "../matching.js";
+import type * as questions from "../questions.js";
+import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 
 import type {
@@ -19,8 +24,13 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  crons: typeof crons;
+  daily: typeof daily;
   "lib/authz": typeof lib_authz;
   "lib/phone": typeof lib_phone;
+  matching: typeof matching;
+  questions: typeof questions;
+  seed: typeof seed;
   users: typeof users;
 }>;
 
