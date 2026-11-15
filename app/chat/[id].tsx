@@ -1,25 +1,30 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useMutation, useQuery } from "convex/react";
+import { LinearGradient } from "expo-linear-gradient";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
+import { FlatList, Platform, Pressable, StyleSheet, Text as PlainText, TextInput, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Avatar } from "@/components/Avatar";
-import { Countdown, useRemaining } from "@/components/Countdown";
-import { IconButton } from "@/components/IconButton";
-import { Rise } from "@/components/Rise";
+import { useRemaining } from "@/components/Countdown";
+import { SaidCards, timeLeft } from "@/components/MatchParts";
 import { Screen } from "@/components/Screen";
 import { StickerArt } from "@/components/Sticker";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { shortDate } from "@/lib/dates";
 import { useSession } from "@/lib/session";
-import { colors, radius, space, tones, type } from "@/theme";
+import { colors, shadows, space, type } from "@/theme";
 
-const tone = tones.light;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const webInput = { outlineStyle: "none" } as object;
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams<{ id: Id<"conversations"> }>();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const { status } = useSession();
   const chat = useQuery(api.chat.list, status === "ready" ? { conversationId: id } : "skip");
   const sticker = useQuery(api.stickers.forMatch, chat ? { matchId: chat.matchId } : "skip");
@@ -38,36 +43,56 @@ export default function ChatScreen() {
   if (status === "loading") return null;
   if (status !== "ready") return <Redirect href="/" />;
 
+  const first = chat?.other.name?.trim().split(" ")[0] || "";
+  const unlockedAt = chat ? chat.expiresAt - DAY_MS : 0;
+  const unlockedDay = new Date(unlockedAt).toDateString() === new Date().toDateString() ? "Today" : shortDate(unlockedAt);
+
   return (
-    <Screen scene="base" testID="chat-screen">
+    <Screen
+      scene="base"
+      testID="chat-screen"
+      contentStyle={{ paddingHorizontal: 0, paddingTop: insets.top + 6, paddingBottom: insets.bottom + space.sm }}>
       <View style={styles.header}>
-        <IconButton icon="chevron-back" label="Back" onPress={() => router.back()} testID="chat-back" />
-        {chat ? <Countdown testID="chat-countdown" expiresAt={chat.expiresAt} suffix=" left" /> : null}
-      </View>
-      {chat ? (
-        <>
-          <Rise style={styles.title}>
-            <Avatar uri={chat.other.avatarUrl} emoji={chat.other.avatarEmoji} name={chat.other.name} size={44} />
+        <Pressable
+          testID="chat-back"
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          hitSlop={space.sm}
+          onPress={() => router.back()}
+          style={({ pressed }) => [styles.plain, pressed && styles.pressed]}>
+          <Ionicons name="chevron-back" size={24} color={colors.ink} />
+        </Pressable>
+        {chat ? (
+          <>
+            <Avatar uri={chat.other.avatarUrl} emoji={chat.other.avatarEmoji} name={chat.other.name} size={42} />
             <View style={styles.who}>
-              <Text variant="title" testID="chat-name">
-                {chat.other.name}
+              <Text style={styles.title} numberOfLines={1} testID={sticker ? "chat-sticker-title" : undefined}>
+                {sticker?.title ?? chat.other.name}
               </Text>
-              {sticker ? (
-                <Text variant="caption" soft numberOfLines={1} testID="chat-sticker-title">
-                  {sticker.title}
-                </Text>
-              ) : null}
+              <Text variant="caption" soft numberOfLines={1}>
+                <PlainText testID="chat-name">{first}</PlainText>
+                {" · "}
+                <PlainText testID="chat-countdown">{closed ? "Ended" : timeLeft(remaining ?? 0) + " left"}</PlainText>
+              </Text>
             </View>
             {sticker ? (
               <Pressable
                 testID="chat-sticker"
                 accessibilityRole="button"
                 accessibilityLabel="Open sticker"
-                onPress={() => router.push(`/sticker/${sticker.id}`)}>
-                <StickerArt sticker={sticker} size={64} />
+                onPress={() => router.push(`/sticker/${sticker.id}`)}
+                style={({ pressed }) => [styles.round, pressed && styles.pressed]}>
+                <StickerArt sticker={sticker} size={28} />
               </Pressable>
             ) : null}
-          </Rise>
+            <View style={styles.plain} accessibilityLabel="More">
+              <Ionicons name="ellipsis-horizontal" size={22} color={colors.ink} />
+            </View>
+          </>
+        ) : null}
+      </View>
+      {chat ? (
+        <>
           <FlatList
             inverted
             style={styles.list}
@@ -76,32 +101,33 @@ export default function ChatScreen() {
             keyboardShouldPersistTaps="handled"
             data={chat.messages.toReversed()}
             keyExtractor={(message) => message.id}
-            renderItem={({ item }) => (
-              <View style={[styles.bubble, item.mine ? styles.mine : styles.theirs]}>
-                <Text>{item.body}</Text>
-              </View>
-            )}
+            renderItem={({ item }) =>
+              item.mine ? (
+                <LinearGradient colors={["#4F96FF", "#2F7CF6"]} style={[styles.bubble, styles.mine]}>
+                  <Text style={[styles.bubbleText, styles.mineText]}>{item.body}</Text>
+                </LinearGradient>
+              ) : (
+                <View style={styles.theirRow}>
+                  <Avatar uri={chat.other.avatarUrl} emoji={chat.other.avatarEmoji} name={chat.other.name} size={30} />
+                  <View style={[styles.bubble, styles.theirs]}>
+                    <Text style={styles.bubbleText}>{item.body}</Text>
+                  </View>
+                </View>
+              )
+            }
             ListFooterComponent={
               <View style={styles.opening}>
-                <Text variant="label" soft>
-                  Where this began
-                </Text>
-                <Text variant="quote" style={styles.openingTheirs}>
-                  {chat.opening.theirs}
-                </Text>
-                <Text variant="quote" style={styles.openingMine}>
-                  {chat.opening.mine}
+                <SaidCards mine={chat.opening.mine} theirs={chat.opening.theirs} name={first} minHeight={150} sparkle={44} />
+                <Text variant="caption" soft style={styles.unlocked}>
+                  Conversation unlocked · {unlockedDay}
                 </Text>
               </View>
             }
           />
           {closed ? (
-            <View style={styles.closed} testID="chat-closed">
-              <Text variant="quote" style={styles.centered}>
-                This conversation has closed.
-              </Text>
-              <Text variant="caption" soft style={styles.centered}>
-                What you said to each other stays here.
+            <View style={styles.ended} testID="chat-closed">
+              <Text soft style={styles.endedText}>
+                This conversation has ended.
               </Text>
             </View>
           ) : (
@@ -111,22 +137,24 @@ export default function ChatScreen() {
                 accessibilityLabel="Message"
                 value={draft}
                 onChangeText={setDraft}
-                placeholder="Say it"
-                placeholderTextColor={tone.hairline}
-                selectionColor={tone.text}
+                placeholder="Message…"
+                placeholderTextColor="#8E8E96"
+                selectionColor={colors.blue}
                 multiline
-                style={[type.body, styles.input]}
+                rows={1}
+                style={[type.row, styles.input, Platform.OS === "web" && webInput]}
               />
-              <Pressable
-                testID="chat-send"
-                accessibilityRole="button"
-                accessibilityLabel="Send"
-                disabled={!body}
-                hitSlop={space.md}
-                onPress={onSend}
-                style={({ pressed }) => ({ opacity: !body ? 0.35 : pressed ? 0.5 : 1 })}>
-                <Text variant="button">Send</Text>
-              </Pressable>
+              {body ? (
+                <Pressable
+                  testID="chat-send"
+                  accessibilityRole="button"
+                  accessibilityLabel="Send"
+                  hitSlop={space.sm}
+                  onPress={onSend}
+                  style={({ pressed }) => [styles.send, pressed && styles.pressed]}>
+                  <Ionicons name="arrow-up" size={20} color={colors.white} />
+                </Pressable>
+              ) : null}
             </View>
           )}
         </>
@@ -136,33 +164,70 @@ export default function ChatScreen() {
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  title: { flexDirection: "row", alignItems: "center", gap: space.md },
-  who: { flex: 1 },
-  list: { flex: 1, marginTop: space.md },
-  messages: { gap: space.sm, paddingVertical: space.md },
-  bubble: {
-    maxWidth: "82%",
-    paddingVertical: space.sm + 2,
-    paddingHorizontal: space.md,
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderColor: tone.hairline,
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    minHeight: 52,
+    paddingLeft: 8,
+    paddingRight: 14,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.line,
   },
-  mine: { alignSelf: "flex-end", backgroundColor: tone.surface, borderBottomRightRadius: space.xs },
-  theirs: { alignSelf: "flex-start", backgroundColor: "rgba(201, 211, 214, 0.5)", borderBottomLeftRadius: space.xs },
-  opening: { gap: space.sm, paddingBottom: space.lg },
-  openingTheirs: { paddingRight: space.xl },
-  openingMine: { textAlign: "right", paddingLeft: space.xl },
+  plain: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+  round: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.95)",
+    backgroundColor: "rgba(255, 255, 255, 0.72)",
+    boxShadow: shadows.card,
+  },
+  pressed: { opacity: 0.5 },
+  who: { flex: 1, minWidth: 0 },
+  title: { fontSize: 17, lineHeight: 21, fontWeight: "700", letterSpacing: -0.34 },
+  list: { flex: 1 },
+  messages: { flexGrow: 1, justifyContent: "flex-end", paddingHorizontal: 16, paddingVertical: space.sm, gap: space.sm },
+  opening: { paddingTop: 28 },
+  unlocked: { textAlign: "center", fontWeight: "500", marginTop: 20, marginBottom: 6 },
+  bubble: { maxWidth: "74%", paddingVertical: 11, paddingHorizontal: 15, borderRadius: 22 },
+  bubbleText: { fontSize: 16, lineHeight: 22, letterSpacing: -0.16 },
+  mine: { alignSelf: "flex-end", borderBottomRightRadius: 7 },
+  mineText: { color: colors.white },
+  theirRow: { flexDirection: "row", alignItems: "flex-end", gap: 8 },
+  theirs: { backgroundColor: colors.bubble, borderBottomLeftRadius: 7, flexShrink: 1 },
   composer: {
     flexDirection: "row",
     alignItems: "flex-end",
-    gap: space.md,
-    paddingTop: space.md,
-    borderTopWidth: StyleSheet.hairlineWidth * 2,
-    borderTopColor: tone.hairline,
+    gap: 8,
+    minHeight: 46,
+    marginHorizontal: 16,
+    marginTop: 8,
+    paddingLeft: 18,
+    paddingRight: 5,
+    paddingVertical: 5,
+    borderRadius: 23,
+    backgroundColor: "#EFEFF3",
   },
-  input: { flex: 1, maxHeight: 120, paddingVertical: 0, color: colors.ink },
-  closed: { gap: space.xs, paddingTop: space.lg },
-  centered: { textAlign: "center" },
+  input: { flex: 1, minHeight: 36, maxHeight: 120, paddingVertical: 7, fontWeight: "400", color: colors.ink },
+  send: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.blue,
+  },
+  ended: {
+    marginHorizontal: 16,
+    marginTop: 6,
+    padding: 14,
+    borderRadius: 999,
+    backgroundColor: "#F0F0F4",
+  },
+  endedText: { textAlign: "center", fontSize: 14, lineHeight: 18, fontWeight: "500" },
 });
