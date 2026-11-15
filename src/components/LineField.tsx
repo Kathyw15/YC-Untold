@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 import { StyleSheet, TextInput, type TextInputProps, View } from "react-native";
 
-import { space, tones, type } from "@/theme";
+import { colors, radius, space, tones, type } from "@/theme";
 
 import { useTone } from "./Atmosphere";
+import { Glass } from "./Glass";
 import { Text } from "./Text";
 
 type LineFieldProps = TextInputProps & {
@@ -13,24 +14,25 @@ type LineFieldProps = TextInputProps & {
 };
 
 export function LineField({ label, prefix, message, style, ...input }: LineFieldProps) {
-  const tone = tones[useTone()];
+  const toneName = useTone();
+  const tone = tones[toneName];
   return (
-    <View>
+    <View style={styles.root}>
       <Text variant="label" soft>
         {label}
       </Text>
-      <View style={[styles.row, { borderBottomColor: tone.hairline }]}>
+      <Glass style={styles.field}>
         {prefix}
         <TextInput
           accessibilityLabel={label}
-          placeholderTextColor={tone.hairline}
-          selectionColor={tone.text}
-          keyboardAppearance={tone === tones.dark ? "dark" : "light"}
+          placeholderTextColor={tone.textMute}
+          selectionColor={colors.pink}
+          keyboardAppearance={toneName}
           {...input}
           style={[type.input, styles.input, { color: tone.text }, style]}
         />
-      </View>
-      <Text variant="caption" soft style={styles.message} accessibilityLiveRegion="polite">
+      </Glass>
+      <Text variant="caption" soft accessibilityLiveRegion="polite">
         {message ?? " "}
       </Text>
     </View>
@@ -38,13 +40,14 @@ export function LineField({ label, prefix, message, style, ...input }: LineField
 }
 
 const styles = StyleSheet.create({
-  row: {
+  root: { gap: space.sm },
+  field: {
+    height: 58,
+    borderRadius: radius.field,
     flexDirection: "row",
     alignItems: "center",
-    gap: space.sm,
-    marginTop: space.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth * 2,
+    gap: space.sm + 4,
+    paddingHorizontal: 18,
   },
-  input: { flex: 1, paddingVertical: space.md, lineHeight: undefined },
-  message: { marginTop: space.sm },
+  input: { flex: 1, height: "100%", lineHeight: undefined },
 });

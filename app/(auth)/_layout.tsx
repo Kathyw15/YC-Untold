@@ -17,8 +17,8 @@ export default function AuthLayout() {
       screenOptions={{
         headerShown: false,
         animation: "fade",
-        animationDuration: 500,
-        contentStyle: { backgroundColor: colors.forest },
+        animationDuration: 250,
+        contentStyle: { backgroundColor: colors.cloud },
       }}
     />
   );

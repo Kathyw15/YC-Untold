@@ -45,7 +45,7 @@ export default function ComposeQuestionScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="compose-question-screen">
+    <Screen scene="dusk" testID="compose-question-screen">
       <Sealing
         sealed={sealed}
         title="Sealed."
@@ -144,6 +144,6 @@ const styles = StyleSheet.create({
   action: { gap: space.md, marginTop: space.md },
   audiences: { flexDirection: "row", justifyContent: "center", gap: space.xl },
   audience: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingVertical: space.sm },
-  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },
+  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.pink },
   centered: { textAlign: "center" },
 });

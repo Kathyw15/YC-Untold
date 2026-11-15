@@ -1,12 +1,9 @@
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { createContext, type ReactNode, use } from "react";
-import { Image as TiledImage, type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
-import Animated, { useAnimatedStyle } from "react-native-reanimated";
+import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
 
-import { grain, layout, motion, type SceneName, scenes, type Tone, tones } from "@/theme";
-
-import { useBreath } from "./Breathing";
+import { type SceneName, scenes, type Tone } from "@/theme";
 
 const ToneContext = createContext<Tone>("light");
 
@@ -21,23 +18,29 @@ type AtmosphereProps = {
 };
 
 export function Atmosphere({ scene, children, style }: AtmosphereProps) {
-  const { source, tone } = scenes[scene];
-  const drift = useBreath(motion.drift);
-  const driftStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1.03 + 0.04 * drift.get() }] }));
+  const { tone, ground, photo, fit, veil, veilStops, ...rest } = scenes[scene];
+  const veilHeight = "veilHeight" in rest ? rest.veilHeight : undefined;
 
   return (
     <ToneContext value={tone}>
-      <View style={[styles.root, { backgroundColor: tones[tone].ground }, style]}>
-        <Animated.View style={[StyleSheet.absoluteFill, driftStyle]} pointerEvents="none">
-          <Image source={source} style={StyleSheet.absoluteFill} contentFit="cover" transition={600} />
-        </Animated.View>
+      <View style={[styles.root, { backgroundColor: ground }, style]}>
+        {photo ? (
+          <Image
+            source={photo}
+            style={fit === "top" ? styles.top : StyleSheet.absoluteFill}
+            contentFit="cover"
+            contentPosition="top"
+            transition={300}
+          />
+        ) : null}
         <LinearGradient
-          colors={tones[tone].veil}
-          locations={[0, 0.4, 1]}
-          style={StyleSheet.absoluteFill}
+          colors={veil}
+          locations={veilStops}
+          start={photo ? { x: 0.5, y: 0 } : { x: 1, y: 0 }}
+          end={photo ? { x: 0.5, y: 1 } : { x: 0, y: 1 }}
+          style={veilHeight ? [styles.top, { aspectRatio: undefined, height: veilHeight }] : StyleSheet.absoluteFill}
           pointerEvents="none"
         />
-        <TiledImage source={grain} resizeMode="repeat" style={styles.grain} pointerEvents="none" />
         {children}
       </View>
     </ToneContext>
@@ -46,5 +49,5 @@ export function Atmosphere({ scene, children, style }: AtmosphereProps) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, overflow: "hidden" },
-  grain: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, width: "100%", height: "100%", opacity: layout.grainOpacity },
+  top: { position: "absolute", top: 0, left: 0, right: 0, aspectRatio: 848 / 1264 },
 });

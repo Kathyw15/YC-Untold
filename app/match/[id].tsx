@@ -80,7 +80,7 @@ export default function MatchScreen() {
   if (status !== "ready") return <Redirect href="/" />;
 
   return (
-    <Screen scene={isRevealed ? "wheat" : "mist"} testID="match-screen">
+    <Screen scene={isRevealed ? "golden" : match?.state === "waiting" ? "pastel" : "dusk"} testID="match-screen">
       <View style={styles.back}>
         <QuietLink label="Back" onPress={() => router.back()} testID="match-back" />
       </View>
@@ -188,10 +188,10 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth * 2,
     width: 48,
     marginVertical: space.sm,
-    backgroundColor: colors.inkSoft,
+    backgroundColor: colors.ink2,
     opacity: 0.3,
   },
-  threadLit: { height: 2, backgroundColor: colors.wheat, opacity: 1 },
+  threadLit: { height: 2, backgroundColor: colors.pink, opacity: 1 },
   after: { gap: space.lg },
   centered: { textAlign: "center" },
 });

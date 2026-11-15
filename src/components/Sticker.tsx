@@ -1,11 +1,11 @@
 import { Image } from "expo-image";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, radius, space, tones } from "@/theme";
+import { radius, space } from "@/theme";
 
-import { useTone } from "./Atmosphere";
 import { Breathing } from "./Breathing";
 import { BreathingButton } from "./BreathingButton";
+import { stickerShadow } from "./Deco";
 import { Text } from "./Text";
 
 export type StickerView = {
@@ -16,45 +16,46 @@ export type StickerView = {
   collected: boolean;
 };
 
+const STAR = require("@/assets/deco/star.png") as number;
+const HEART = require("@/assets/deco/heart.png") as number;
+
 type StickerArtProps = {
   sticker: Pick<StickerView, "status" | "title" | "imageUrl">;
   size?: number;
 };
 
 export function StickerArt({ sticker, size = 96 }: StickerArtProps) {
-  const tone = tones[useTone()];
-  const frame = { width: size, height: size, borderRadius: Math.min(radius.card, size / 4) };
-
   if (sticker.status === "ready" && sticker.imageUrl) {
     return (
-      <Image
-        testID="sticker-image"
-        source={{ uri: sticker.imageUrl }}
-        style={{ width: size, height: size }}
-        contentFit="contain"
-        transition={600}
-        accessibilityLabel={sticker.title ? "Sticker: " + sticker.title : "Sticker"}
-      />
+      <View style={stickerShadow}>
+        <Image
+          testID="sticker-image"
+          source={{ uri: sticker.imageUrl }}
+          style={{ width: size, height: size }}
+          contentFit="contain"
+          transition={400}
+          accessibilityLabel={sticker.title ? "Sticker: " + sticker.title : "Sticker"}
+        />
+      </View>
     );
   }
 
   const pending = sticker.status === "pending";
   return (
-    <View
-      testID={pending ? "sticker-pending" : "sticker-fallback"}
-      style={[styles.blank, frame, { borderColor: tone.hairline, backgroundColor: tone.surface }]}>
-      <Breathing
-        active={pending}
-        scale={0.08}
-        dim={0.35}
-        style={[
-          styles.seal,
-          { width: size * 0.42, height: size * 0.42, borderRadius: size * 0.21 },
-          { borderColor: pending ? tone.text : colors.wheat },
-        ]}>
-        <View style={[styles.core, { backgroundColor: pending ? tone.text : colors.wheat }]} />
-      </Breathing>
-    </View>
+    <Breathing
+      active={pending}
+      period={1600}
+      scale={0.05}
+      dim={0.3}
+      style={[styles.blank, { width: size, height: size, borderRadius: Math.min(radius.tile, size / 4) }]}>
+      <View testID={pending ? "sticker-pending" : "sticker-fallback"}>
+        <Image
+          source={pending ? STAR : HEART}
+          style={{ width: size * 0.5, height: size * 0.5 }}
+          contentFit="contain"
+        />
+      </View>
+    </Breathing>
   );
 }
 
@@ -72,7 +73,7 @@ export function StickerKeepsake({ sticker, onCollect, onOpen, size = 168 }: Stic
       <Pressable accessibilityRole="button" accessibilityLabel="Open sticker" disabled={!onOpen || pending} onPress={onOpen}>
         <StickerArt sticker={sticker} size={size} />
       </Pressable>
-      <Text variant="quote" style={styles.centered} testID="sticker-title">
+      <Text variant="title" style={styles.centered} testID="sticker-title">
         {pending ? "Your sticker is on its way." : sticker.title}
       </Text>
       {pending ? (
@@ -111,7 +112,7 @@ export function StickerGrid({ stickers, onOpen }: StickerGridProps) {
           onPress={() => onOpen(sticker.id)}
           style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
           <StickerArt sticker={sticker} size={TILE} />
-          <Text variant="caption" soft numberOfLines={2} style={styles.centered}>
+          <Text variant="label" numberOfLines={2} style={styles.centered}>
             {sticker.title}
           </Text>
         </Pressable>
@@ -121,9 +122,14 @@ export function StickerGrid({ stickers, onOpen }: StickerGridProps) {
 }
 
 const styles = StyleSheet.create({
-  blank: { alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth * 2 },
-  seal: { alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth * 2 },
-  core: { width: 6, height: 6, borderRadius: 3, opacity: 0.7 },
+  blank: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 2,
+    borderStyle: "dashed",
+    borderColor: "rgba(20, 20, 28, 0.15)",
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+  },
   keepsake: { alignItems: "center", gap: space.sm },
   collect: { alignSelf: "stretch", marginTop: space.sm },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },

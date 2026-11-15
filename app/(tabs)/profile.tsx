@@ -25,7 +25,7 @@ export default function ProfileScreen() {
   const phone = user?.primaryPhoneNumber?.phoneNumber;
 
   return (
-    <Screen scene="dawn" aboveTabBar testID="profile-screen">
+    <Screen scene="soft" aboveTabBar testID="profile-screen">
       <Rise>
         <Text variant="label" soft>
           Profile

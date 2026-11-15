@@ -3,12 +3,13 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
-import { colors, space } from "@/theme";
+import { space } from "@/theme";
 
 import { Atmosphere } from "./Atmosphere";
 import { Breathing } from "./Breathing";
 import { QuietLink } from "./QuietLink";
 import { Text } from "./Text";
+import { Wordmark } from "./Wordmark";
 
 const PATIENCE_MS = 12000;
 
@@ -25,13 +26,15 @@ export function QuietLoading({ stalled }: { stalled: boolean }) {
 
   return (
     <View style={StyleSheet.absoluteFill} testID="loading-screen">
-      <Atmosphere scene="forest">
+      <Atmosphere scene="sky">
         <View style={styles.center}>
-          <Breathing scale={0.5} dim={0.6} style={styles.dot} />
+          <Breathing period={1800} scale={0.06} dim={0.3}>
+            <Wordmark style={styles.mark} />
+          </Breathing>
         </View>
         {offerWayOut ? (
           <Animated.View entering={FadeIn.duration(600)} style={styles.wayOut}>
-            <Text variant="caption" soft style={styles.centered}>
+            <Text variant="caption" style={styles.centered}>
               We couldn't open your account just now.
             </Text>
             <QuietLink label="Sign out and try again" onPress={() => void signOut()} testID="loading-sign-out" />
@@ -44,7 +47,7 @@ export function QuietLoading({ stalled }: { stalled: boolean }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  dot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.paper },
+  mark: { fontSize: 56, lineHeight: 64, letterSpacing: -3.4 },
   wayOut: { position: "absolute", left: space.xl, right: space.xl, bottom: space.xxl * 2, gap: space.sm },
   centered: { textAlign: "center" },
 });

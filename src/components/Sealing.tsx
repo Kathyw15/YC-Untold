@@ -12,11 +12,13 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { layout, space, tones } from "@/theme";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useTone } from "./Atmosphere";
-import { Breathing } from "./Breathing";
-import { QuietLink } from "./QuietLink";
+import { layout, space } from "@/theme";
+
+import { Atmosphere, useTone } from "./Atmosphere";
+import { BreathingButton } from "./BreathingButton";
+import { Deco } from "./Deco";
 import { Text } from "./Text";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
@@ -35,7 +37,7 @@ type SealingProps = {
 
 export function Sealing({ sealed, children, title, body, onDone }: SealingProps) {
   const toneName = useTone();
-  const tone = tones[toneName];
+  const insets = useSafeAreaInsets();
   const progress = useSharedValue(0);
 
   useEffect(() => {
@@ -61,17 +63,26 @@ export function Sealing({ sealed, children, title, body, onDone }: SealingProps)
         <Animated.View
           testID="sealed-afterword"
           entering={FadeIn.duration(900).delay(SEAL_MS - 600)}
-          style={[StyleSheet.absoluteFill, styles.afterword]}>
-          <Breathing scale={0.08} dim={0.35} style={[styles.seal, { borderColor: tone.text }]}>
-            <View style={[styles.core, { backgroundColor: tone.text }]} />
-          </Breathing>
-          <Text variant="title" style={styles.centered}>
-            {title}
-          </Text>
-          <Text soft style={[styles.centered, styles.body]}>
-            {body}
-          </Text>
-          <QuietLink testID="sealed-done" label="Done" onPress={onDone} />
+          style={[
+            styles.afterword,
+            { top: -(insets.top + space.md), bottom: -(insets.bottom + space.lg) },
+          ]}>
+          <Atmosphere scene="pastel" style={[styles.page, { paddingBottom: insets.bottom + space.lg }]}>
+            <View style={styles.middle}>
+              <View style={styles.stickers}>
+                <Deco name="star" width={34} rotate={-12} style={styles.star} />
+                <Deco name="envelope" width={190} rotate={-5} />
+                <Deco name="lock" width={84} rotate={8} style={styles.lock} />
+              </View>
+              <Text variant="hero" style={styles.centered}>
+                {title}
+              </Text>
+              <Text soft style={[styles.centered, styles.body]}>
+                {body}
+              </Text>
+            </View>
+            <BreathingButton testID="sealed-done" label="Done" onPress={onDone} />
+          </Atmosphere>
         </Animated.View>
       ) : null}
     </View>
@@ -87,17 +98,12 @@ const styles = StyleSheet.create({
     left: -layout.screenPadding,
     right: -layout.screenPadding,
   },
-  afterword: { alignItems: "center", justifyContent: "center", gap: space.md },
-  seal: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: space.md,
-  },
-  core: { width: 6, height: 6, borderRadius: 3, opacity: 0.7 },
+  afterword: { position: "absolute", left: -layout.screenPadding, right: -layout.screenPadding },
+  page: { paddingHorizontal: layout.screenPadding },
+  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.sm },
+  stickers: { marginBottom: space.lg },
+  star: { position: "absolute", top: -14, left: -22, zIndex: 1 },
+  lock: { position: "absolute", right: -18, bottom: -34 },
   centered: { textAlign: "center" },
-  body: { maxWidth: 280, marginBottom: space.lg },
+  body: { maxWidth: 280 },
 });

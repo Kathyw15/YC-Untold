@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { colors } from "@/theme";
+import { colors, fonts } from "@/theme";
 
 import { Text, type TextProps } from "./Text";
 
@@ -39,7 +39,7 @@ export function Countdown({ expiresAt, suffix = "", closedLabel = "Closed", styl
       variant="caption"
       accessibilityLabel={"Time left " + formatRemaining(remaining)}
       {...rest}
-      style={[{ color: colors.wheat, fontVariant: ["tabular-nums"] }, style]}>
+      style={[{ color: colors.pink, fontFamily: fonts.heavy, fontVariant: ["tabular-nums"] }, style]}>
       {formatRemaining(remaining) + suffix}
     </Text>
   );

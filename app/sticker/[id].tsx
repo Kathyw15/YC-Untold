@@ -23,7 +23,7 @@ export default function StickerScreen() {
   if (status !== "ready") return <Redirect href="/" />;
 
   return (
-    <Screen scene="wheat" testID="sticker-screen">
+    <Screen scene="golden" testID="sticker-screen">
       <View style={styles.back}>
         <QuietLink label="Back" onPress={() => router.back()} testID="sticker-back" />
       </View>

@@ -67,7 +67,7 @@ export default function VerifyScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="verify-screen">
+    <Screen scene="blush" testID="verify-screen">
       <Rise>
         <Wordmark />
       </Rise>

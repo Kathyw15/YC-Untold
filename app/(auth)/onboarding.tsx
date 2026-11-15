@@ -24,7 +24,7 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="onboarding-screen">
+    <Screen scene="cloud" testID="onboarding-screen">
       <OnboardingSlide
         headline={HEADLINES[page]}
         index={page}

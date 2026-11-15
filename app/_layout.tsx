@@ -5,7 +5,6 @@ import { ConvexProviderWithClerk } from "convex/react-clerk";
 import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
@@ -31,7 +30,7 @@ export default function RootLayout() {
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.forest }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.cloud }}>
       <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
         <ConvexProviderWithClerk client={convex} useAuth={useAuthWithConvexTemplate}>
           <SessionProvider>
@@ -45,16 +44,14 @@ export default function RootLayout() {
 
 function RootNavigator() {
   const session = useSession();
-  const ready = session.status === "ready";
   return (
     <>
-      <StatusBar style={ready ? "dark" : "light"} />
       <Stack
         screenOptions={{
           headerShown: false,
           animation: "fade",
-          animationDuration: 500,
-          contentStyle: { backgroundColor: colors.forest },
+          animationDuration: 250,
+          contentStyle: { backgroundColor: colors.cloud },
         }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(auth)" />

@@ -51,7 +51,7 @@ export default function PhoneScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="phone-screen">
+    <Screen scene="blush" testID="phone-screen">
       <Rise>
         <Wordmark />
       </Rise>

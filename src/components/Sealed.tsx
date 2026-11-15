@@ -1,6 +1,6 @@
 import { BlurView } from "expo-blur";
 import { type ReactNode, useEffect } from "react";
-import { type StyleProp, StyleSheet, View, type ViewStyle } from "react-native";
+import { type StyleProp, StyleSheet, type ViewStyle } from "react-native";
 import Animated, {
   Easing,
   useAnimatedProps,
@@ -10,9 +10,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { radius, space, tones } from "@/theme";
+import { radius, space } from "@/theme";
 
-import { useTone } from "./Atmosphere";
+import { Glass } from "./Glass";
 
 const AnimatedBlurView = Animated.createAnimatedComponent(BlurView);
 
@@ -27,7 +27,6 @@ type SealedProps = {
 };
 
 export function Sealed({ children, open, style }: SealedProps) {
-  const tone = tones[useTone()];
   const clarity = useSharedValue(0);
 
   useEffect(() => {
@@ -45,18 +44,14 @@ export function Sealed({ children, open, style }: SealedProps) {
   }));
 
   return (
-    <View style={[styles.card, { borderColor: tone.hairline, backgroundColor: tone.surface }, style]}>
+    <Glass style={style}>
       <Animated.View style={[styles.words, words]}>{children}</Animated.View>
-      <AnimatedBlurView animatedProps={veil} tint="light" style={StyleSheet.absoluteFill} pointerEvents="none" />
-    </View>
+      <AnimatedBlurView animatedProps={veil} tint="light" style={styles.veil} pointerEvents="none" />
+    </Glass>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    overflow: "hidden",
-  },
+  veil: { position: "absolute", top: 0, right: 0, bottom: 0, left: 0, borderRadius: radius.card, overflow: "hidden" },
   words: { padding: space.lg, gap: space.md },
 });

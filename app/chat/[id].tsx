@@ -38,7 +38,7 @@ export default function ChatScreen() {
   if (status !== "ready") return <Redirect href="/" />;
 
   return (
-    <Screen scene="mist" testID="chat-screen">
+    <Screen scene="cloud" testID="chat-screen">
       <View style={styles.header}>
         <QuietLink label="Back" onPress={() => router.back()} testID="chat-back" />
         {chat ? <Countdown testID="chat-countdown" expiresAt={chat.expiresAt} suffix=" left" /> : null}
@@ -111,8 +111,8 @@ export default function ChatScreen() {
                 value={draft}
                 onChangeText={setDraft}
                 placeholder="Say it"
-                placeholderTextColor={tone.hairline}
-                selectionColor={tone.text}
+                placeholderTextColor={tone.textMute}
+                selectionColor={colors.pink}
                 multiline
                 style={[type.body, styles.input]}
               />
@@ -144,12 +144,10 @@ const styles = StyleSheet.create({
     maxWidth: "82%",
     paddingVertical: space.sm + 2,
     paddingHorizontal: space.md,
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderColor: tone.hairline,
+    borderRadius: radius.bubble,
   },
-  mine: { alignSelf: "flex-end", backgroundColor: tone.surface, borderBottomRightRadius: space.xs },
-  theirs: { alignSelf: "flex-start", backgroundColor: "rgba(201, 211, 214, 0.5)", borderBottomLeftRadius: space.xs },
+  mine: { alignSelf: "flex-end", backgroundColor: colors.lilac, borderBottomRightRadius: 7 },
+  theirs: { alignSelf: "flex-start", backgroundColor: colors.white, borderBottomLeftRadius: 7 },
   opening: { gap: space.sm, paddingBottom: space.lg },
   openingTheirs: { paddingRight: space.xl },
   openingMine: { textAlign: "right", paddingLeft: space.xl },
@@ -161,7 +159,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth * 2,
     borderTopColor: tone.hairline,
   },
-  input: { flex: 1, maxHeight: 120, paddingVertical: 0, color: colors.forest },
+  input: { flex: 1, maxHeight: 120, paddingVertical: 0, color: colors.ink },
   closed: { gap: space.xs, paddingTop: space.lg },
   centered: { textAlign: "center" },
 });

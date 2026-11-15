@@ -11,5 +11,6 @@ export type TextProps = NativeTextProps & {
 
 export function Text({ variant = "body", soft = false, style, ...rest }: TextProps) {
   const tone = tones[useTone()];
-  return <NativeText {...rest} style={[type[variant], { color: soft ? tone.textSoft : tone.text }, style]} />;
+  const quiet = variant === "caption" || variant === "label" ? tone.textMute : tone.textSoft;
+  return <NativeText {...rest} style={[type[variant], { color: soft ? quiet : tone.text }, style]} />;
 }

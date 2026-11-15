@@ -55,7 +55,7 @@ function ComposeDirect() {
   }
 
   return (
-    <Screen scene="forest" testID="compose-direct-screen">
+    <Screen scene="dusk" testID="compose-direct-screen">
       <Sealing
         sealed={phase === "sealed"}
         title="Sealed."

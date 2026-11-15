@@ -19,7 +19,7 @@ export default function QuestionScreen() {
   const question = useQuery(api.questions.get, { questionId: id as Id<"questions"> });
 
   return (
-    <Screen scene="mist" testID="question-screen">
+    <Screen scene="sky" testID="question-screen">
       <View style={styles.back}>
         <QuietLink testID="question-back" label="Back" onPress={() => router.back()} />
       </View>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: space.sm },
   meta: { gap: space.xs },
   sealed: { gap: space.md, marginTop: space.lg },
-  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },
+  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.pink },
   action: { gap: space.md },
   centered: { textAlign: "center" },
 });

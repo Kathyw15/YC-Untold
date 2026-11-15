@@ -27,7 +27,7 @@ export default function PersonScreen() {
   if (!ready) return <Redirect href="/" />;
 
   return (
-    <Screen scene="mist" testID="person-screen">
+    <Screen scene="soft" testID="person-screen">
       <View style={styles.back}>
         <QuietLink label="Back" onPress={() => router.back()} testID="person-back" />
       </View>

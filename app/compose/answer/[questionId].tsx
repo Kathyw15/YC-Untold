@@ -38,7 +38,7 @@ export default function ComposeAnswerScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="compose-answer-screen">
+    <Screen scene="dusk" testID="compose-answer-screen">
       <Sealing
         sealed={sealed}
         title="Sealed."

@@ -2,10 +2,14 @@ import type { FunctionReturnType } from "convex/server";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import type { api } from "@/convex/_generated/api";
-import { colors, radius, space, tones } from "@/theme";
+import Feather from "@expo/vector-icons/Feather";
 
-import { useTone } from "./Atmosphere";
+import { colors, fonts, radius, space } from "@/theme";
+
 import { Avatar } from "./Avatar";
+import { Deco } from "./Deco";
+import { Glass } from "./Glass";
+import { Label } from "./Label";
 import { Text } from "./Text";
 
 export type QuestionSummary = NonNullable<FunctionReturnType<typeof api.questions.today>>;
@@ -31,7 +35,6 @@ type QuestionCardProps = {
 };
 
 export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
-  const tone = tones[useTone()];
   const sealedNote = question.isMine
     ? "Your answer is sealed inside."
     : question.hasAnswered
@@ -44,55 +47,64 @@ export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
       accessibilityRole="button"
       accessibilityLabel={question.text}
       onPress={onPress}
-      style={({ pressed }) => [
-        styles.card,
-        { borderColor: tone.hairline, backgroundColor: tone.surface },
-        pressed && styles.pressed,
-      ]}>
-      {question.isDaily ? (
-        <Text variant="label" soft>
-          {askedBy(question)}
-        </Text>
-      ) : (
-        <View style={styles.row}>
-          <Avatar uri={question.author?.avatarUrl ?? null} name={question.author?.name ?? null} size={28} />
-          <Text variant="caption" soft>
-            {askedBy(question)}
-          </Text>
-        </View>
-      )}
-      <Text variant={question.isDaily ? "title" : "quote"}>{question.text}</Text>
-      {question.tags.length > 0 ? (
-        <Text variant="caption" soft>
-          {question.tags.join(" · ")}
-        </Text>
-      ) : null}
-      <View style={styles.foot}>
-        <Text variant="caption" soft>
-          {quietResponses(question.responseCount)}
-        </Text>
-        {sealedNote ? (
+      style={({ pressed }) => pressed && styles.pressed}>
+      <Glass solid={question.isMine} style={styles.card}>
+        {question.isDaily ? (
+          <>
+            <Label fill="sun">{askedBy(question)}</Label>
+            <Deco name="heart" width={46} rotate={12} style={styles.deco} />
+          </>
+        ) : (
           <View style={styles.row}>
-            <View style={styles.dot} />
-            <Text variant="caption" soft>
-              {sealedNote}
+            <Avatar uri={question.author?.avatarUrl ?? null} name={question.author?.name ?? null} size={32} />
+            <Text variant="row" style={styles.author}>
+              {askedBy(question)}
             </Text>
           </View>
+        )}
+        <Text variant={question.isDaily ? "title" : "row"} style={question.isDaily ? null : styles.question}>
+          {question.text}
+        </Text>
+        {question.tags.length > 0 ? (
+          <Text variant="caption" soft>
+            {question.tags.join(" · ")}
+          </Text>
         ) : null}
-      </View>
+        <View style={styles.foot}>
+          <Text variant="caption" soft style={styles.count}>
+            {sealedNote ?? quietResponses(question.responseCount)}
+          </Text>
+          {sealedNote ? (
+            <Feather name="chevron-right" size={18} color="#B5B6C4" />
+          ) : (
+            <View style={styles.pill}>
+              <Feather name="lock" size={13} color={colors.white} />
+              <Text style={styles.pillText}>Answer privately</Text>
+            </View>
+          )}
+        </View>
+      </Glass>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    padding: space.lg,
-    gap: space.md,
+  card: { padding: space.md, gap: space.sm + 2 },
+  pressed: { opacity: 0.8 },
+  deco: { position: "absolute", top: -10, right: 8 },
+  row: { flexDirection: "row", alignItems: "center", gap: space.sm + 2 },
+  author: { fontSize: 14, lineHeight: 19 },
+  question: { fontSize: 18, lineHeight: 23 },
+  foot: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: space.sm, minHeight: 36 },
+  count: { flex: 1 },
+  pill: {
+    height: 36,
+    paddingHorizontal: space.md,
+    borderRadius: radius.pill,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    backgroundColor: colors.ink,
   },
-  pressed: { opacity: 0.7 },
-  row: { flexDirection: "row", alignItems: "center", gap: space.sm },
-  foot: { gap: space.xs },
-  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },
+  pillText: { fontFamily: fonts.heavy, fontSize: 14, lineHeight: 18, color: colors.white },
 });

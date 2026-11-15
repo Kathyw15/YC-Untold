@@ -3,17 +3,17 @@ import { useRouter } from "expo-router";
 import type { ReactNode } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 
-import { useTone } from "@/components/Atmosphere";
 import { Avatar } from "@/components/Avatar";
 import { Breathing } from "@/components/Breathing";
 import { Countdown } from "@/components/Countdown";
 import { EmptyState } from "@/components/EmptyState";
+import { Glass } from "@/components/Glass";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
 import { hasWitnessedReveal } from "@/lib/reveals";
-import { radius, space, tones } from "@/theme";
+import { space } from "@/theme";
 
 type Match = (typeof api.matches.list)["_returnType"][number];
 
@@ -32,7 +32,7 @@ export default function ConversationsScreen() {
   }
 
   return (
-    <Screen scene="mist" aboveTabBar testID="conversations-screen">
+    <Screen scene="soft" aboveTabBar testID="conversations-screen">
       <Rise>
         <Text variant="label" soft>
           Conversations
@@ -130,19 +130,9 @@ type RowProps = {
 };
 
 function Row({ children, onPress, horizontal = false, testID }: RowProps) {
-  const tone = tones[useTone()];
   return (
-    <Pressable
-      testID={testID}
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.row,
-        horizontal && styles.horizontal,
-        { borderColor: tone.hairline, backgroundColor: tone.surface },
-        pressed && styles.pressed,
-      ]}>
-      {children}
+    <Pressable testID={testID} accessibilityRole="button" onPress={onPress} style={({ pressed }) => pressed && styles.pressed}>
+      <Glass style={[styles.row, horizontal && styles.horizontal]}>{children}</Glass>
     </Pressable>
   );
 }
@@ -151,12 +141,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, marginTop: space.lg },
   sections: { gap: space.xl, paddingBottom: space.xl },
   section: { gap: space.md },
-  row: {
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    padding: space.lg,
-    gap: space.sm,
-  },
+  row: { padding: space.md, gap: space.xs },
   horizontal: { flexDirection: "row", alignItems: "center", gap: space.md },
   person: { flex: 1, gap: space.xs },
   pressed: { opacity: 0.6 },

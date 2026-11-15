@@ -1,9 +1,8 @@
 import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
-import { tones } from "@/theme";
+import { colors, fonts, shadows } from "@/theme";
 
-import { useTone } from "./Atmosphere";
 import { Text } from "./Text";
 
 type AvatarProps = {
@@ -12,16 +11,25 @@ type AvatarProps = {
   size?: number;
 };
 
+const FILLS = [colors.lilac, colors.pink, colors.sky, colors.tangerine] as const;
+
 export function Avatar({ uri, name, size = 96 }: AvatarProps) {
-  const tone = tones[useTone()];
-  const shape = { width: size, height: size, borderRadius: size / 2 };
+  const border = size >= 80 ? 5 : 2;
+  const shape = { width: size, height: size, borderRadius: size / 2, borderWidth: border };
+  const initial = name?.trim().charAt(0).toUpperCase() ?? "";
   return (
-    <View style={[styles.frame, shape, { borderColor: tone.hairline, backgroundColor: tone.surface }]}>
+    <View style={[styles.frame, shape, { backgroundColor: FILLS[(initial.charCodeAt(0) || 0) % FILLS.length] }]}>
       {uri ? (
-        <Image source={{ uri }} style={shape} contentFit="cover" transition={400} accessibilityLabel="Profile photo" />
+        <Image
+          source={{ uri }}
+          style={{ width: size - border * 2, height: size - border * 2, borderRadius: size / 2 }}
+          contentFit="cover"
+          transition={300}
+          accessibilityLabel="Profile photo"
+        />
       ) : (
-        <Text variant="title" soft style={{ fontSize: size * 0.4, lineHeight: size * 0.5 }}>
-          {name?.trim().charAt(0).toUpperCase() ?? ""}
+        <Text style={{ fontFamily: fonts.black, fontSize: size * 0.4, lineHeight: size * 0.5, color: colors.white }}>
+          {initial}
         </Text>
       )}
     </View>
@@ -32,7 +40,7 @@ const styles = StyleSheet.create({
   frame: {
     alignItems: "center",
     justifyContent: "center",
-    overflow: "hidden",
-    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderColor: colors.white,
+    boxShadow: shadows.avatar,
   },
 });

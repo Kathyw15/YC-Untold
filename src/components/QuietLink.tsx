@@ -1,7 +1,8 @@
 import { Pressable } from "react-native";
 
-import { space } from "@/theme";
+import { fonts, space, tones } from "@/theme";
 
+import { useTone } from "./Atmosphere";
 import { Text } from "./Text";
 
 type QuietLinkProps = {
@@ -12,6 +13,7 @@ type QuietLinkProps = {
 };
 
 export function QuietLink({ label, onPress, disabled = false, testID }: QuietLinkProps) {
+  const toneName = useTone();
   return (
     <Pressable
       testID={testID}
@@ -22,7 +24,13 @@ export function QuietLink({ label, onPress, disabled = false, testID }: QuietLin
       hitSlop={space.md}
       onPress={onPress}
       style={({ pressed }) => ({ opacity: disabled ? 0.45 : pressed ? 0.5 : 1, paddingVertical: space.sm })}>
-      <Text variant="caption" soft style={{ textAlign: "center", textDecorationLine: "underline" }}>
+      <Text
+        style={{
+          fontFamily: fonts.heavy,
+          textAlign: "center",
+          textDecorationLine: "underline",
+          color: toneName === "dark" ? tones.dark.text : tones.light.textSoft,
+        }}>
         {label}
       </Text>
     </Pressable>

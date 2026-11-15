@@ -1,9 +1,8 @@
 import { StyleSheet, View } from "react-native";
 
-import { space, tones } from "@/theme";
+import { space } from "@/theme";
 
-import { useTone } from "./Atmosphere";
-import { Breathing } from "./Breathing";
+import { Deco } from "./Deco";
 import { Rise } from "./Rise";
 import { Text } from "./Text";
 
@@ -14,20 +13,18 @@ type EmptyStateProps = {
 };
 
 export function EmptyState({ title, body, testID }: EmptyStateProps) {
-  const tone = tones[useTone()];
   return (
     <View style={styles.root} testID={testID}>
-      <Rise order={1}>
-        <Breathing scale={0.08} dim={0.35} style={[styles.seal, { borderColor: tone.text }]}>
-          <View style={[styles.core, { backgroundColor: tone.text }]} />
-        </Breathing>
+      <Rise style={styles.stickers}>
+        <Deco name="daisy" width={76} rotate={-10} />
+        <Deco name="heart" width={70} rotate={12} style={styles.second} />
       </Rise>
-      <Rise order={2}>
+      <Rise order={1}>
         <Text variant="title" style={styles.centered}>
           {title}
         </Text>
       </Rise>
-      <Rise order={3}>
+      <Rise order={2}>
         <Text soft style={[styles.centered, styles.body]}>
           {body}
         </Text>
@@ -37,17 +34,9 @@ export function EmptyState({ title, body, testID }: EmptyStateProps) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.md },
-  seal: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: space.md,
-  },
-  core: { width: 6, height: 6, borderRadius: 3, opacity: 0.7 },
+  root: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.sm },
+  stickers: { flexDirection: "row", alignItems: "center", marginBottom: space.md },
+  second: { marginLeft: space.md, marginTop: space.lg },
   centered: { textAlign: "center" },
-  body: { maxWidth: 280 },
+  body: { maxWidth: 300 },
 });
