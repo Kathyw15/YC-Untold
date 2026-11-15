@@ -1,17 +1,15 @@
 import { useSignIn, useSignUp } from "@clerk/expo";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 
+import { AuthStep } from "@/components/AuthStep";
+import { BoxField } from "@/components/BoxField";
 import { BreathingButton } from "@/components/BreathingButton";
-import { LineField } from "@/components/LineField";
 import { Rise } from "@/components/Rise";
-import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
-import { Wordmark } from "@/components/Wordmark";
 import { authErrorCode, describeAuthError } from "@/lib/authErrors";
 import { DIAL_PREFIX, formatNational, nationalToE164, nextNationalDigits } from "@/lib/phone";
-import { space } from "@/theme";
 
 export default function PhoneScreen() {
   const router = useRouter();
@@ -51,20 +49,38 @@ export default function PhoneScreen() {
   }
 
   return (
-    <Screen scene="base" testID="phone-screen">
+    <AuthStep
+      testID="phone-screen"
+      backTestID="phone-back"
+      backDisabled={busy}
+      onBack={() => (router.canGoBack() ? router.back() : router.replace("/welcome"))}
+      footer={
+        <BreathingButton
+          testID="phone-continue"
+          label={busy ? "Sending" : "Next"}
+          onPress={onContinue}
+          disabled={!phone || busy}
+        />
+      }>
       <Rise>
-        <Wordmark />
+        <Text variant="display" style={styles.title}>
+          {"What’s your\nnumber?"}
+        </Text>
       </Rise>
-      <View style={styles.middle}>
-        <Rise order={1}>
-          <Text variant="display">The things you never said finally have somewhere to go.</Text>
-        </Rise>
-      </View>
-      <Rise order={2} style={styles.form}>
-        <LineField
+      <Rise order={1}>
+        <Text soft style={styles.lead}>
+          We’ll text you a code. We never message your contacts.
+        </Text>
+      </Rise>
+      <Rise order={2}>
+        <BoxField
           testID="phone-input"
           label="Your phone number"
-          prefix={<Text variant="input" soft>{DIAL_PREFIX}</Text>}
+          prefix={
+            <Text variant="input" style={styles.prefix}>
+              {DIAL_PREFIX}
+            </Text>
+          }
           value={formatNational(digits)}
           onChangeText={(text) => {
             setDigits(nextNationalDigits(text, digits));
@@ -76,20 +92,15 @@ export default function PhoneScreen() {
           autoComplete="tel-national"
           returnKeyType="done"
           onSubmitEditing={onContinue}
-          message={message ?? "We'll text you a code. Your number is never shown to anyone."}
-        />
-        <BreathingButton
-          testID="phone-continue"
-          label={busy ? "Sending" : "Continue"}
-          onPress={onContinue}
-          disabled={!phone || busy}
+          message={message}
         />
       </Rise>
-    </Screen>
+    </AuthStep>
   );
 }
 
 const styles = StyleSheet.create({
-  middle: { flex: 1, justifyContent: "center", paddingVertical: space.xl },
-  form: { gap: space.lg },
+  title: { marginTop: 20, marginBottom: 12 },
+  lead: { marginBottom: 18 },
+  prefix: { fontSize: 20, fontWeight: "700" },
 });

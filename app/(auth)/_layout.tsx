@@ -8,9 +8,8 @@ export default function AuthLayout() {
   const screen = useSegments().at(-1);
 
   if (status === "ready") return <Redirect href="/" />;
-  if (status === "needsProfile" && screen !== "profile-setup") return <Redirect href="/profile-setup" />;
   if (status === "needsOnboarding" && screen !== "onboarding") return <Redirect href="/onboarding" />;
-  if (status === "signedOut" && (screen === "profile-setup" || screen === "onboarding")) return <Redirect href="/welcome" />;
+  if (status === "signedOut" && screen === "onboarding") return <Redirect href="/welcome" />;
 
   return (
     <Stack
