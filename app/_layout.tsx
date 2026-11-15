@@ -56,12 +56,8 @@ function RootNavigator() {
           animationDuration: 500,
           contentStyle: { backgroundColor: colors.forest },
         }}>
-        <Stack.Protected guard={ready}>
-          <Stack.Screen name="(tabs)" />
-        </Stack.Protected>
-        <Stack.Protected guard={!ready}>
-          <Stack.Screen name="(auth)" />
-        </Stack.Protected>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="(auth)" />
       </Stack>
       {session.status === "loading" ? <QuietLoading stalled={session.stalled} /> : null}
     </>
