@@ -23,5 +23,5 @@ build:
                     - if [ ! -d ios ]; then npx expo prebuild --platform ios --no-install; fi
                     - sed -i '' 's/compiler(>=6.4)/compiler(>=99)/' node_modules/expo-dev-launcher/ios/SwiftUI/Navigation/DevLauncherToolbar.swift
                 build_commands:
-                    - cd ios && if [ ! -d Pods ]; then pod install; fi && WS=$(ls -d *.xcworkspace | head -n 1) && xcodebuild -workspace "$WS" -scheme "${WS%.xcworkspace}" -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' ARCHS=arm64 -derivedDataPath build
+                    - export EXPO_PUBLIC_DEMO_MODE=1 && cd ios && if [ ! -d Pods ]; then pod install; fi && WS=$(ls -d *.xcworkspace | head -n 1) && xcodebuild -workspace "$WS" -scheme "${WS%.xcworkspace}" -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' ARCHS=arm64 -derivedDataPath build
                 output_path: ios/build/Build/Products/Release-iphonesimulator/*.app

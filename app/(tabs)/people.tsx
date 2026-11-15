@@ -128,8 +128,8 @@ export default function PeopleScreen() {
       {contacts === null && access === "denied" ? (
         <QuietLink testID="contacts-settings" label="Turn on contacts in Settings" onPress={() => void Linking.openSettings()} />
       ) : null}
-      {__DEV__ ? (
-        <QuietLink testID="load-sample-contacts" label="Load sample contacts (dev)" onPress={() => void bring(SAMPLE_CONTACTS)} />
+      {__DEV__ || process.env.EXPO_PUBLIC_DEMO_MODE === "1" ? (
+        <QuietLink testID="load-sample-contacts" label="Load sample contacts" onPress={() => void bring(SAMPLE_CONTACTS)} />
       ) : null}
     </View>
   );
