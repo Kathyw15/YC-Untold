@@ -1,3 +1,5 @@
+import "@/lib/demoFrame";
+
 import { ClerkProvider, useAuth } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { ConvexReactClient } from "convex/react";
@@ -7,6 +9,7 @@ import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
+import { Platform, useWindowDimensions, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { MatchPopup } from "@/components/MatchPopup";
@@ -29,10 +32,17 @@ export default function RootLayout() {
     if (fontsLoaded || fontError) SplashScreen.hide();
   }, [fontError, fontsLoaded]);
 
+  const framed = useWindowDimensions().width > 500 && Platform.OS === "web";
+
   if (!fontsLoaded && !fontError) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: colors.forest }}>
+    <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: framed ? "#E4E2DC" : colors.forest }}>
+    <GestureHandlerRootView
+      style={[
+        { flex: 1, width: "100%", backgroundColor: colors.forest },
+        framed && { maxWidth: 414, maxHeight: 896, borderRadius: 32, overflow: "hidden" },
+      ]}>
       <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
         <ConvexProviderWithClerk client={convex} useAuth={useAuthWithConvexTemplate}>
           <SessionProvider>
@@ -41,6 +51,7 @@ export default function RootLayout() {
         </ConvexProviderWithClerk>
       </ClerkProvider>
     </GestureHandlerRootView>
+    </View>
   );
 }
 

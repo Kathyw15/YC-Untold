@@ -49,6 +49,12 @@ With EXPO_PUBLIC_DEMO_MODE=1, People skips the contacts permission and loads six
 
 To start a demo from a clean slate, run "npx convex run devSeed:resetDemo". It deletes everything people wrote (sealed messages, answers, their questions, invitations, conversations, stickers, synced contacts) and keeps the accounts, today's question, and the seeded questions. Run it before opening the apps.
 
+## Web demo
+
+"scripts/publish-web.sh" exports the web build with demo mode on and force-pushes it to the gh-pages branch of chloezql/seal, which GitHub Pages serves at https://chloezql.github.io/seal/. The root is the landing page in web/landing: the app twice, side by side, each in its own iframe, with the two demo accounts. The app alone is under /app/. Set PAGES_REPO=owner/name to publish somewhere else; the base path follows the repository name.
+
+The two iframes share an origin, so src/lib/demoFrame.ts gives each named frame (seal-left, seal-right) its own cookies and local storage. That is what lets each side hold its own Clerk session. It does nothing outside those frames.
+
 ## Environment variables
 
 | Name | Where it lives | Purpose |
