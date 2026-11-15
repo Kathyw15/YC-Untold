@@ -1,4 +1,5 @@
 import { ConvexError, v } from "convex/values";
+import { internal } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
 import { mutation, query, type QueryCtx } from "./_generated/server";
 import { findUserByToken, requireIdentity, requireUser } from "./lib/authz";
@@ -58,6 +59,14 @@ export const ensure = mutation({
       if (entry.recipientUserId !== undefined) continue;
       await ctx.db.patch(entry._id, { recipientUserId: userId });
       await ctx.db.insert("notices", { userId, kind: "sealedReceived", refId: entry._id });
+      await ctx.scheduler.runAfter(0, internal.matching.onEntryCreated, { entryId: entry._id });
+    }
+    const listedBy = await ctx.db
+      .query("contacts")
+      .withIndex("by_phoneHmac", (q) => q.eq("phoneHmac", phoneHmac))
+      .collect();
+    for (const contact of listedBy) {
+      await ctx.db.patch(contact._id, { matchedUserId: userId });
     }
     return { id: userId, name: null, avatarUrl: null };
   },
