@@ -30,6 +30,9 @@ export default defineSchema({
     responseCount: v.number(),
     isDaily: v.boolean(),
     dailyDate: v.optional(v.string()),
+    gradient: v.optional(v.number()),
+    imageId: v.optional(v.id("_storage")),
+    photo: v.optional(v.string()),
   })
     .index("by_author", ["authorId"])
     .index("by_audience_time", ["audience"])

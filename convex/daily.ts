@@ -44,6 +44,7 @@ export async function publishDaily(ctx: MutationCtx) {
     responseCount: 0,
     isDaily: true,
     dailyDate,
+    gradient: Math.floor(now / 86_400_000) % 5,
   });
 }
 

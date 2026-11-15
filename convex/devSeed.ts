@@ -147,12 +147,13 @@ export const resetDemo = internalMutation({
           audience: "everyone",
           responseCount: asked.responses,
           isDaily: false,
+          gradient: asked.text.length % 5,
         });
         await ctx.db.insert("sealedEntries", { kind: "answer", authorId, body: asked.answer, questionId });
       }
     }
     const feed = new Map<string, { questionId: Id<"questions">; answerId: Id<"sealedEntries">; responses: number }>();
-    for (const question of [...FEED].reverse()) {
+    for (const [index, question] of [...FEED].reverse().entries()) {
       const authorId = people.get(question.by)!;
       const questionId = await ctx.db.insert("questions", {
         authorId,
@@ -161,6 +162,8 @@ export const resetDemo = internalMutation({
         audience: "everyone",
         responseCount: question.responses,
         isDaily: false,
+        gradient: index % 5,
+        photo: question.photo,
       });
       const answerId = await ctx.db.insert("sealedEntries", {
         kind: "answer",

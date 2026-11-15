@@ -46,6 +46,14 @@ function findMyEntry(ctx: QueryCtx, me: Doc<"users">, questionId: Id<"questions"
     .first();
 }
 
+async function background(ctx: QueryCtx, question: Doc<"questions">) {
+  return {
+    gradient: question.gradient ?? null,
+    photo: question.photo ?? null,
+    imageUrl: question.imageId ? await ctx.storage.getUrl(question.imageId) : null,
+  };
+}
+
 async function toCard(
   ctx: QueryCtx,
   me: Doc<"users">,
@@ -61,6 +69,7 @@ async function toCard(
     isDaily: question.isDaily,
     createdAt: question._creationTime,
     responseCount: question.responseCount,
+    ...(await background(ctx, question)),
     author: question.isDaily
       ? null
       : {
@@ -79,6 +88,8 @@ export const create = mutation({
     audience: v.union(v.literal("friends"), v.literal("everyone")),
     answer: v.string(),
     tags: v.optional(v.array(v.string())),
+    gradient: v.optional(v.number()),
+    imageId: v.optional(v.id("_storage")),
   },
   handler: async (ctx, args) => {
     const me = await requireUser(ctx);
@@ -93,9 +104,19 @@ export const create = mutation({
       audience: args.audience,
       responseCount: 0,
       isDaily: false,
+      gradient: Math.abs(Math.floor(args.gradient ?? Math.random() * 5)) % 5,
+      imageId: args.imageId,
     });
     await ctx.db.insert("sealedEntries", { kind: "answer", authorId: me._id, body, questionId });
     return questionId;
+  },
+});
+
+export const generateUploadUrl = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireUser(ctx);
+    return await ctx.storage.generateUploadUrl();
   },
 });
 
@@ -193,6 +214,7 @@ export const mine = query({
           audience: question.audience,
           createdAt: question._creationTime,
           responseCount: question.responseCount,
+          ...(await background(ctx, question)),
           myAnswer: myEntry?.body ?? null,
         };
       }),
