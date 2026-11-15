@@ -91,8 +91,6 @@
         text-decoration: none;
         box-shadow: 0 10px 24px rgba(11, 11, 15, 0.2);
       }
-      .pill span { animation: nudge 1.8s ease-in-out infinite; }
-      @keyframes nudge { 50% { transform: translateY(4px); } }
 
       .demo {
         min-height: 100vh;
@@ -102,10 +100,6 @@
         align-items: center;
         justify-content: center;
         gap: 10px;
-        background:
-          radial-gradient(70% 34% at 8% 104%, rgba(255, 196, 170, 0.85), transparent 70%),
-          radial-gradient(60% 30% at 52% 108%, rgba(222, 245, 150, 0.9), transparent 70%),
-          radial-gradient(70% 34% at 98% 102%, rgba(208, 192, 255, 0.9), transparent 70%);
       }
       .stage { display: flex; align-items: center; justify-content: center; gap: 32px; }
       .slot { width: calc(413px * var(--s)); height: calc(867px * var(--s)); flex: none; }
@@ -143,7 +137,7 @@
       .account.left { text-align: left; }
       .account b { display: block; font-size: 20px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
       .number { font-size: 21px; font-weight: 800; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; user-select: all; }
-      .account .number { border-bottom: 1.5px dashed var(--ink3); }
+      .account .number { text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
       .arrow { width: 62px; height: 28px; flex: none; fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
       .account.right .arrow { transform: scaleX(-1) rotate(4deg); }
       .account.left .arrow { transform: rotate(-3deg); }
@@ -153,9 +147,9 @@
       .copied.done { background: #e2f7a1; color: #344407; }
       .steps { margin-top: 14px; padding: 6px; border-radius: 24px; list-style: none; counter-reset: step; text-align: left; font-size: 15px; line-height: 1.35; }
       .steps li { counter-increment: step; position: relative; padding: 8px 10px 8px 40px; }
-      .steps li::before { content: counter(step); position: absolute; left: 10px; top: 8px; width: 21px; height: 21px; border-radius: 50%; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+      .steps li::before { content: counter(step); position: absolute; left: 10px; top: 8px; width: 21px; height: 21px; border-radius: 50%; background: var(--fill); color: var(--ink2); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
       .note { font-size: 13px; color: var(--ink2); text-align: center; }
-      .note a { color: inherit; font-weight: 600; text-underline-offset: 3px; }
+      .note a { color: inherit; font-weight: 600; text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
 
       .small-screen {
         display: flex; min-height: 100vh; padding: 32px; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 16px;
