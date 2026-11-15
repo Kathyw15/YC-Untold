@@ -1,6 +1,6 @@
 import { useUser } from "@clerk/expo";
 import { useMutation, useQuery } from "convex/react";
-import { useFocusEffect, useRouter } from "expo-router";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Linking, SectionList, StyleSheet, View } from "react-native";
 
@@ -27,6 +27,7 @@ import { space } from "@/theme";
 
 export default function PeopleScreen() {
   const router = useRouter();
+  const { hint } = useLocalSearchParams<{ hint?: string }>();
   const myPhone = useUser().user?.primaryPhoneNumber?.phoneNumber;
   const sync = useMutation(api.contacts.sync);
   const markRead = useMutation(api.notices.markRead);
@@ -91,16 +92,16 @@ export default function PeopleScreen() {
     });
   }
 
-  const onUntold = new Map(matched.map((person) => [person.contactId, person]));
+  const onSeal = new Map(matched.map((person) => [person.contactId, person]));
   const sealedFor = new Set(sent.map((entry) => entry.contactId));
   const everyone = (contacts ?? []).filter((contact) => contact.phone !== myPhone);
-  const here = everyone.filter((contact) => onUntold.has(contactIds?.[contact.phone] as Id<"contacts">));
+  const here = everyone.filter((contact) => onSeal.has(contactIds?.[contact.phone] as Id<"contacts">));
   const notHere = everyone.filter((contact) => !here.includes(contact));
   const sections = [
-    { key: "here", title: "On Untold", hint: null, data: here },
+    { key: "here", title: "On Seal", hint: null, data: here },
     {
       key: "not-here",
-      title: "Not here yet",
+      title: "Not on Seal yet",
       hint: "You can still write to them. Your words will wait until they arrive.",
       data: notHere,
     },
@@ -113,7 +114,18 @@ export default function PeopleScreen() {
           People
         </Text>
       </Rise>
-      {notices.length > 0 ? <SealedNotice several={notices.length > 1} unread={unreadIds.length > 0} /> : null}
+      {notices.length > 0 ? (
+        <SealedNotice
+          several={notices.length > 1}
+          unread={unreadIds.length > 0}
+          onPress={() => router.push("/notice")}
+        />
+      ) : null}
+      {hint ? (
+        <Text variant="caption" testID="people-hint">
+          Pick the person you want to say something to.
+        </Text>
+      ) : null}
     </View>
   );
 
@@ -164,10 +176,10 @@ export default function PeopleScreen() {
               <PersonRow
                 testID={"person-" + item.phone}
                 name={item.name}
-                avatarUrl={section.key === "here" ? onUntold.get(contactId)?.avatarUrl : null}
-                note={sealedFor.has(contactId) ? "Something of yours is sealed here." : null}
+                avatarUrl={section.key === "here" ? onSeal.get(contactId)?.avatarUrl : null}
+                note={sealedFor.has(contactId) ? "You left words" : null}
                 onPress={() => {
-                  const userId = onUntold.get(contactId)?.userId;
+                  const userId = onSeal.get(contactId)?.userId;
                   if (!userId) return writeTo(item, section.key === "here");
                   router.push({ pathname: "/person/[id]", params: { id: userId, name: item.name, phone: item.phone } });
                 }}

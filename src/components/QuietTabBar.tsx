@@ -1,7 +1,9 @@
+import { useQuery } from "convex/react";
 import { Tabs, useRouter } from "expo-router";
 import type { ComponentProps } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
+import { api } from "@/convex/_generated/api";
 import { colors, fonts, layout, space, type } from "@/theme";
 
 import { Text } from "./Text";
@@ -11,6 +13,14 @@ type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>["tabBar"]>
 export function QuietTabBar({ state, descriptors, emitter, navigateToTab, insets }: TabBarProps) {
   const router = useRouter();
   const centre = Math.ceil(state.routes.length / 2);
+  const notices = useQuery(api.notices.list);
+  const matches = useQuery(api.matches.list);
+  const news: Record<string, boolean | undefined> = {
+    people: notices?.some((notice) => notice.kind === "sealedReceived" && !notice.read),
+    conversations: matches?.some(
+      (match) => match.state === "invited" || (match.state === "revealed" && !match.closed && !match.conversation),
+    ),
+  };
 
   const tabs = state.routes.map((route, index) => {
     const focused = state.index === index;
@@ -27,6 +37,7 @@ export function QuietTabBar({ state, descriptors, emitter, navigateToTab, insets
           if (!focused && !event.defaultPrevented) navigateToTab(route.key);
         }}
         style={styles.tab}>
+        {news[route.name] ? <View testID={"tab-" + title.toLowerCase() + "-news"} style={styles.news} /> : null}
         <Text
           numberOfLines={1}
           style={[
@@ -78,6 +89,15 @@ const styles = StyleSheet.create({
   tab: { flexGrow: 1, alignItems: "center", justifyContent: "center", gap: space.sm - 2 },
   label: { fontFamily: fonts.sansLight, fontSize: 12, lineHeight: 18, letterSpacing: 0.2 },
   dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },
+  news: {
+    position: "absolute",
+    top: space.md - 2,
+    right: space.sm,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.wheat,
+  },
   ask: {
     width: ASK_SIZE,
     height: ASK_SIZE,

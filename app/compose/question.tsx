@@ -11,7 +11,7 @@ import { Sealing } from "@/components/Sealing";
 import { Text } from "@/components/Text";
 import { WritingField } from "@/components/WritingField";
 import { api } from "@/convex/_generated/api";
-import { colors, space } from "@/theme";
+import { colors, radius, space, tones } from "@/theme";
 
 const AUDIENCES = [
   { value: "everyone", label: "Everyone" },
@@ -20,12 +20,15 @@ const AUDIENCES = [
 
 type Audience = (typeof AUDIENCES)[number]["value"];
 
+const TOPICS = ["Family", "Growing up", "Love", "Work", "Friendship"];
+
 export default function ComposeQuestionScreen() {
   const router = useRouter();
   const create = useMutation(api.questions.create);
   const [step, setStep] = useState<"question" | "answer">("question");
   const [text, setText] = useState("");
   const [audience, setAudience] = useState<Audience>("everyone");
+  const [topic, setTopic] = useState<string | null>(null);
   const [answer, setAnswer] = useState("");
   const [busy, setBusy] = useState(false);
   const [sealed, setSealed] = useState(false);
@@ -36,7 +39,7 @@ export default function ComposeQuestionScreen() {
     setBusy(true);
     setMessage(null);
     try {
-      await create({ text, audience, answer });
+      await create({ text, audience, answer, tags: topic ? [topic] : [] });
       setSealed(true);
     } catch {
       setMessage("That didn't go through. Try once more.");
@@ -48,8 +51,8 @@ export default function ComposeQuestionScreen() {
     <Screen scene="forest" testID="compose-question-screen">
       <Sealing
         sealed={sealed}
-        title="Sealed."
-        body="Your question is out there now. Your answer waits where only you can read it."
+        title="Posted."
+        body="Your question is out there now. Your answer is sealed where only you can read it."
         onDone={() => router.back()}>
         <View style={styles.close}>
           {step === "question" ? (
@@ -72,6 +75,28 @@ export default function ComposeQuestionScreen() {
               />
             </Rise>
             <Rise order={2} style={styles.action}>
+              <View style={styles.topics}>
+                <Text variant="caption" soft>
+                  Topic (optional)
+                </Text>
+                {TOPICS.map((option) => {
+                  const selected = option === topic;
+                  return (
+                    <Pressable
+                      key={option}
+                      testID={"topic-" + option.toLowerCase().replace(" ", "-")}
+                      accessibilityRole="button"
+                      accessibilityLabel={option}
+                      accessibilityState={{ selected }}
+                      onPress={() => setTopic(selected ? null : option)}
+                      style={[styles.topic, { borderColor: selected ? tones.dark.text : tones.dark.hairline }]}>
+                      <Text variant="caption" soft={!selected}>
+                        {option}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
               <View style={styles.audiences}>
                 {AUDIENCES.map((option) => {
                   const selected = option.value === audience;
@@ -95,7 +120,7 @@ export default function ComposeQuestionScreen() {
               </View>
               <BreathingButton
                 testID="question-continue"
-                label="Continue"
+                label="Next: seal your answer"
                 onPress={() => setStep("answer")}
                 disabled={text.trim().length === 0}
               />
@@ -125,7 +150,7 @@ export default function ComposeQuestionScreen() {
               </Text>
               <BreathingButton
                 testID="seal-question"
-                label={busy ? "Sealing" : "Seal and ask"}
+                label={busy ? "Posting" : "Post question"}
                 onPress={seal}
                 disabled={busy || answer.trim().length === 0}
               />
@@ -142,6 +167,13 @@ const styles = StyleSheet.create({
   question: { marginTop: space.lg, marginBottom: space.lg },
   writing: { flex: 1, marginTop: space.lg },
   action: { gap: space.md, marginTop: space.md },
+  topics: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: space.sm },
+  topic: {
+    borderRadius: radius.pill,
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    paddingHorizontal: space.md,
+    paddingVertical: space.xs,
+  },
   audiences: { flexDirection: "row", justifyContent: "center", gap: space.xl },
   audience: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingVertical: space.sm },
   dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },

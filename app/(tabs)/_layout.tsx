@@ -9,7 +9,7 @@ export default function TabsLayout() {
   if (status === "loading") return null;
   if (status === "needsProfile") return <Redirect href="/profile-setup" />;
   if (status === "needsOnboarding") return <Redirect href="/onboarding" />;
-  if (status !== "ready") return <Redirect href="/phone" />;
+  if (status !== "ready") return <Redirect href="/welcome" />;
 
   return (
     <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <QuietTabBar {...props} />}>

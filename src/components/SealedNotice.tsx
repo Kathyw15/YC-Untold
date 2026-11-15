@@ -1,4 +1,4 @@
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 
 import { colors, radius, space, tones } from "@/theme";
 
@@ -10,26 +10,32 @@ import { Text } from "./Text";
 type SealedNoticeProps = {
   several: boolean;
   unread: boolean;
+  onPress: () => void;
 };
 
-export function SealedNotice({ several, unread }: SealedNoticeProps) {
+export function SealedNotice({ several, unread, onPress }: SealedNoticeProps) {
   const tone = tones[useTone()];
   return (
     <Rise>
-      <View
+      <Pressable
         testID="sealed-notice"
-        accessibilityRole="text"
-        style={[styles.card, { borderColor: tone.hairline, backgroundColor: tone.surface }]}>
+        accessibilityRole="button"
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.card,
+          { borderColor: tone.hairline, backgroundColor: tone.surface },
+          pressed && styles.pressed,
+        ]}>
         <Breathing active={unread} scale={0.5} dim={0.5} style={[styles.dot, !unread && styles.settled]} />
         <View style={styles.words}>
           <Text variant="quote" soft={!unread}>
-            {several ? "There are a few messages waiting for you on Untold." : "Someone left you a message on Untold."}
+            {several ? "A few Seals are waiting for you." : "Someone left you a Seal."}
           </Text>
           <Text variant="caption" soft>
             {several ? "They" : "It"} will stay sealed unless you both choose to open {several ? "them" : "it"}.
           </Text>
         </View>
-      </View>
+      </Pressable>
     </Rise>
   );
 }
@@ -45,4 +51,5 @@ const styles = StyleSheet.create({
   dot: { width: 8, height: 8, borderRadius: 4, marginTop: 12, backgroundColor: colors.wheat },
   settled: { backgroundColor: colors.moss, opacity: 0.5 },
   words: { flex: 1, gap: space.sm },
+  pressed: { opacity: 0.6 },
 });
