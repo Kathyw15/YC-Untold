@@ -266,7 +266,7 @@ export const OWNERS: Owner[] = [
         body: "I was hurt that you did not invite me to the lake, and instead of saying so I just got busy. I miss you.",
       },
       {
-        to: "+12015550123",
+        to: "mom",
         body: "I understand now why you worked so much. I wish I had been kinder about it when I was sixteen.",
       },
       {

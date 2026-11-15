@@ -19,6 +19,7 @@ export const CAST: CastMember[] = [
   { key: "iris", name: "Iris", contactName: "Iris Okafor", phone: "+12015550108" },
   { key: "sam", name: "Sam", contactName: "Sam Whitaker", phone: "+12015550109", image: "sam.jpg" },
   { key: "taylor", name: "Taylor", contactName: "Taylor Brooks", phone: "+12015550110", emoji: "\u{1F996}" },
+  { key: "mom", name: "Mom", contactName: "Mom", phone: "+12015550123", image: "mom.jpg" },
 ];
 
 export const CHLOE_PHONE = "+12015550100";
@@ -37,9 +38,9 @@ export const CIRCLES: Record<string, Circle> = {
     ],
   },
   [KATHY_PHONE]: {
-    friends: ["maya", "theo", "iris", "sam", "taylor"],
+    friends: ["maya", "theo", "iris", "sam", "taylor", "mom"],
     notOnSeal: [
-      { name: "Mom", phone: "+12015550123", emoji: "\u{1F490}" },
+      { name: "Nana June", phone: "+12015550126", emoji: "\u{1F490}" },
       { name: "Coach Dana", phone: "+12015550124" },
       { name: "Leo (landlord)", phone: "+12015550125", emoji: "\u{1F511}" },
     ],
