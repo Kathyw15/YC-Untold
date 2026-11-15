@@ -3,6 +3,7 @@ import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
 
+import { Avatar } from "@/components/Avatar";
 import { Countdown, useRemaining } from "@/components/Countdown";
 import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
@@ -46,6 +47,7 @@ export default function ChatScreen() {
       {chat ? (
         <>
           <Rise style={styles.title}>
+            <Avatar uri={chat.other.avatarUrl} emoji={chat.other.avatarEmoji} name={chat.other.name} size={44} />
             <View style={styles.who}>
               <Text variant="title" testID="chat-name">
                 {chat.other.name}

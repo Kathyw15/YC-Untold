@@ -14,5 +14,6 @@ export async function publicProfile(ctx: QueryCtx, userId: Id<"users">) {
     id: userId,
     name: user?.name ?? null,
     avatarUrl: user?.avatarId ? await ctx.storage.getUrl(user.avatarId) : null,
+    avatarEmoji: user?.avatarEmoji ?? null,
   };
 }

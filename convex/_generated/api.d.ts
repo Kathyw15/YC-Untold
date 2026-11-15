@@ -12,6 +12,8 @@ import type * as chat from "../chat.js";
 import type * as contacts from "../contacts.js";
 import type * as crons from "../crons.js";
 import type * as daily from "../daily.js";
+import type * as demoCast from "../demoCast.js";
+import type * as demoWorld from "../demoWorld.js";
 import type * as devSeed from "../devSeed.js";
 import type * as direct from "../direct.js";
 import type * as lib_authz from "../lib/authz.js";
@@ -36,6 +38,8 @@ declare const fullApi: ApiFromModules<{
   contacts: typeof contacts;
   crons: typeof crons;
   daily: typeof daily;
+  demoCast: typeof demoCast;
+  demoWorld: typeof demoWorld;
   devSeed: typeof devSeed;
   direct: typeof direct;
   "lib/authz": typeof lib_authz;

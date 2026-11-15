@@ -1,20 +1,26 @@
 import * as Contacts from "expo-contacts/legacy";
 
+import { CAST, CHLOE_PHONE, CIRCLES, KATHY_PHONE } from "@/convex/demoCast";
+
 import { DIAL_PREFIX, toE164 } from "./phone";
 
-export type DeviceContact = { name: string; phone: string };
+export type DeviceContact = { name: string; phone: string; emoji?: string };
 export type ContactsAccess = "undetermined" | "granted" | "denied";
 
 export const SYNC_BATCH_SIZE = 500;
 
-export const SAMPLE_CONTACTS: DeviceContact[] = [
-  { name: "Chloe", phone: "+12015550100" },
-  { name: "Kathy", phone: "+12015550101" },
-  { name: "Maya Lindqvist", phone: "+12015550102" },
-  { name: "Jordan Bell", phone: "+12015550103" },
-  { name: "Grandma Rose", phone: "+12015550104" },
-  { name: "Theo", phone: "+12015550105" },
-];
+// The sample contacts of the signed-in demo account: the other demo account, the seeded friends in their
+// circle, and a few people who are not on Seal. Any other account gets both demo accounts and every friend.
+export function sampleContactsFor(myPhone: string | undefined): DeviceContact[] {
+  const circle = myPhone ? CIRCLES[myPhone] : undefined;
+  const friends = CAST.filter((member) => !circle || circle.friends.includes(member.key));
+  return [
+    { name: "Chloe", phone: CHLOE_PHONE },
+    { name: "Kathy", phone: KATHY_PHONE },
+    ...friends.map((member) => ({ name: member.contactName, phone: member.phone })),
+    ...(circle?.notOnSeal ?? [{ name: "Grandma Rose", phone: "+12015550104" }]),
+  ];
+}
 
 export async function getContactsAccess(): Promise<ContactsAccess> {
   return (await Contacts.getPermissionsAsync()).status;
