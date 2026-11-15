@@ -43,7 +43,10 @@ export default function RootLayout() {
         { flex: 1, width: "100%", backgroundColor: colors.forest },
         framed && { maxWidth: 414, maxHeight: 896, borderRadius: 32, overflow: "hidden" },
       ]}>
-      <ClerkProvider publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!} tokenCache={tokenCache}>
+      <ClerkProvider
+        publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY!}
+        tokenCache={tokenCache}
+        afterSignOutUrl={(process.env.EXPO_BASE_URL ?? "") + "/"}>
         <ConvexProviderWithClerk client={convex} useAuth={useAuthWithConvexTemplate}>
           <SessionProvider>
             <RootNavigator />
