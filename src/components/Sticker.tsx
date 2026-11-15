@@ -30,8 +30,8 @@ export function StickerArt({ sticker, size = 96 }: StickerArtProps) {
       <Image
         testID="sticker-image"
         source={{ uri: sticker.imageUrl }}
-        style={frame}
-        contentFit="cover"
+        style={{ width: size, height: size }}
+        contentFit="contain"
         transition={600}
         accessibilityLabel={sticker.title ? "Sticker: " + sticker.title : "Sticker"}
       />
