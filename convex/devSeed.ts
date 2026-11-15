@@ -252,7 +252,8 @@ export const resetDemo = internalMutation({
   },
 });
 
-// The two steps scripts/seed-demo-avatars.mjs uses to give the seeded friends their photos.
+// The two steps scripts/seed-demo-avatars.mjs uses to give the seeded friends and the two demo accounts their
+// photos. A reset leaves avatars alone, so they are set once per deployment.
 export const avatarUploadUrl = internalMutation({
   args: {},
   handler: async (ctx) => await ctx.storage.generateUploadUrl(),
@@ -261,8 +262,8 @@ export const avatarUploadUrl = internalMutation({
 export const setAvatar = internalMutation({
   args: { key: v.string(), storageId: v.id("_storage") },
   handler: async (ctx, { key, storageId }) => {
-    const person = CAST.find((member) => member.key === key);
-    if (!person) throw new Error("No seeded friend is called " + key);
+    const person = [...CAST, ...OWNERS].find((member) => member.key === key);
+    if (!person) throw new Error("Nobody in the demo world is called " + key);
     const phoneHmac = await hmacPhone(person.phone);
     const user = await ctx.db
       .query("users")
