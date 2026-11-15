@@ -86,7 +86,7 @@ export default function ComposeQuestionScreen() {
             value={answer}
             onChangeText={setAnswer}
             inputTestID="own-answer-input"
-            leaveIcon="chevron-back"
+            leaveIcon="close"
             leaveLabel="Back"
             leaveTestID="compose-back"
             onLeave={() => setStep("question")}

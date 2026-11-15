@@ -49,7 +49,7 @@ function findMyEntry(ctx: QueryCtx, me: Doc<"users">, questionId: Id<"questions"
 async function background(ctx: QueryCtx, question: Doc<"questions">) {
   return {
     gradient: question.gradient ?? null,
-    photo: question.photo ?? null,
+    photo: question.photo ?? (question.isDaily ? "daily" : null),
     imageUrl: question.imageId ? await ctx.storage.getUrl(question.imageId) : null,
   };
 }

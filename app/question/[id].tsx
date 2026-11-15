@@ -121,7 +121,7 @@ function Body({ question, onAnswer }: { question: QuestionSummary & { myAnswer: 
             <Text variant="button">We’ll tell you if your words meet</Text>
           </View>
         ) : (
-          <BreathingButton testID="answer-privately" label="Leave your answer" icon="pencil" onPress={onAnswer} />
+          <BreathingButton testID="answer-privately" label="Leave your answer" icon="pencil-outline" onPress={onAnswer} />
         )}
       </Rise>
     </>

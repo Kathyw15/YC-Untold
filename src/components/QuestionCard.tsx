@@ -43,7 +43,38 @@ type QuestionCardProps = {
   testID?: string;
 };
 
+function DailyCard({ question, onPress, testID }: QuestionCardProps) {
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={question.text}
+      onPress={onPress}
+      style={({ pressed }) => [styles.daily, pressed && styles.pressed]}>
+      <QuestionBackground question={question} style={styles.dailyFill} />
+      <View style={[styles.label, styles.dailyLabel]}>
+        <Ionicons name="sparkles" size={13} color={colors.white} />
+        <Text style={[styles.labelText, { color: colors.white }]}>Today’s question</Text>
+      </View>
+      <Text style={[styles.dailyQuestion, styles.onPhoto]}>{question.text}</Text>
+      <View style={styles.dailyRow}>
+        <View style={styles.dailyCount}>
+          <Ionicons name="people" size={16} color={colors.white} />
+          <Text style={styles.dailyCountText}>{question.responseCount} answered</Text>
+        </View>
+        <View style={[styles.dailyPill, question.hasAnswered ? styles.sealedOnPhoto : styles.white]}>
+          <Ionicons name="lock-closed" size={15} color={question.hasAnswered ? colors.white : colors.ink} />
+          <Text style={[styles.dailyPillText, { color: question.hasAnswered ? colors.white : colors.ink }]}>
+            {question.hasAnswered ? "Sealed" : "Answer privately"}
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
 export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
+  if (question.isDaily) return <DailyCard question={question} onPress={onPress} testID={testID} />;
   const sealed = question.isMine || question.hasAnswered;
   const onPhoto = questionPhoto(question) !== null;
   const ink = onPhoto ? colors.white : colors.ink;
@@ -107,6 +138,31 @@ export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
 }
 
 const styles = StyleSheet.create({
+  daily: { height: 226, borderRadius: 26, justifyContent: "flex-end", padding: 16, boxShadow: shadows.feed },
+  dailyFill: { borderRadius: 26 },
+  dailyLabel: { backgroundColor: "rgba(20, 20, 30, 0.24)", borderWidth: 1, borderColor: "rgba(255, 255, 255, 0.35)" },
+  dailyQuestion: {
+    maxWidth: 290,
+    fontSize: 23,
+    lineHeight: 25,
+    fontWeight: "700",
+    letterSpacing: -0.7,
+    color: colors.white,
+    marginHorizontal: 4,
+    marginBottom: 12,
+  },
+  dailyRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginHorizontal: 4 },
+  dailyCount: { flexDirection: "row", alignItems: "center", gap: 6 },
+  dailyCountText: { fontSize: 14, lineHeight: 18, fontWeight: "500", color: colors.white },
+  dailyPill: {
+    height: 40,
+    paddingHorizontal: 16,
+    borderRadius: radius.pill,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+  dailyPillText: { fontSize: 15, lineHeight: 20, fontWeight: "600", letterSpacing: -0.2 },
   card: { height: 520, borderRadius: radius.feed, boxShadow: shadows.feed },
   fill: { borderRadius: radius.feed },
   pressed: { opacity: 0.9 },
