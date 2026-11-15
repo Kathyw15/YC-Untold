@@ -7,13 +7,15 @@ export default function TabsLayout() {
   const { status } = useSession();
 
   if (status === "loading") return null;
-  if (status !== "ready") return <Redirect href={status === "needsProfile" ? "/profile-setup" : "/phone"} />;
+  if (status === "needsProfile") return <Redirect href="/profile-setup" />;
+  if (status === "needsOnboarding") return <Redirect href="/onboarding" />;
+  if (status !== "ready") return <Redirect href="/phone" />;
 
   return (
     <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <QuietTabBar {...props} />}>
       <Tabs.Screen name="index" options={{ title: "Home" }} />
       <Tabs.Screen name="people" options={{ title: "People" }} />
-      <Tabs.Screen name="connections" options={{ title: "Connections" }} />
+      <Tabs.Screen name="conversations" options={{ title: "Conversations" }} />
       <Tabs.Screen name="profile" options={{ title: "Profile" }} />
     </Tabs>
   );

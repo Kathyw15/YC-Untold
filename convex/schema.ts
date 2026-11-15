@@ -8,6 +8,7 @@ export default defineSchema({
     name: v.optional(v.string()),
     avatarId: v.optional(v.id("_storage")),
     pushToken: v.optional(v.string()),
+    onboardedAt: v.optional(v.number()),
   })
     .index("by_token", ["tokenIdentifier"])
     .index("by_phoneHmac", ["phoneHmac"]),

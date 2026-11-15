@@ -5,7 +5,6 @@ import { FlatList, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { Breathing } from "@/components/Breathing";
-import { BreathingButton } from "@/components/BreathingButton";
 import { EmptyState } from "@/components/EmptyState";
 import { QuestionCard } from "@/components/QuestionCard";
 import { Rise } from "@/components/Rise";
@@ -71,15 +70,8 @@ export default function HomeScreen() {
                   </Breathing>
                 </Rise>
               ) : null}
-              <Rise order={2}>
-                <BreathingButton
-                  testID="ask-question"
-                  label="Ask a question"
-                  onPress={() => router.push("/compose/question")}
-                />
-              </Rise>
               {feed.results.length > 0 ? (
-                <Rise order={3}>
+                <Rise order={2}>
                   <Text variant="label" soft style={styles.section}>
                     Questions in the air
                   </Text>
@@ -99,7 +91,7 @@ export default function HomeScreen() {
             )
           }
           renderItem={({ item, index }) => (
-            <Rise order={Math.min(index, 5) + 4}>
+            <Rise order={Math.min(index, 5) + 3}>
               <QuestionCard testID={"question-" + index} question={item} onPress={() => open(item.id)} />
             </Rise>
           )}

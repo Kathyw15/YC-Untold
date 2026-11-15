@@ -58,6 +58,7 @@ export const list = query({
         id: match._id,
         type: match.type,
         state,
+        closed: match.status === "closed",
         question: await questionText(ctx, match),
         other: state === "revealed" ? await publicProfile(ctx, otherParticipant(match, me)) : null,
         conversation: conversation && { id: conversation._id, expiresAt: conversation.expiresAt },

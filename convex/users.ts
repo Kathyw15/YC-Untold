@@ -8,11 +8,12 @@ import { hmacPhone } from "./lib/phone";
 const NAME_MAX_LENGTH = 40;
 const AVATAR_MAX_BYTES = 5 * 1024 * 1024;
 
-async function toProfile(ctx: QueryCtx, user: Pick<Doc<"users">, "_id" | "name" | "avatarId">) {
+async function toProfile(ctx: QueryCtx, user: Pick<Doc<"users">, "_id" | "name" | "avatarId" | "onboardedAt">) {
   return {
     id: user._id,
     name: user.name ?? null,
     avatarUrl: user.avatarId ? await ctx.storage.getUrl(user.avatarId) : null,
+    onboarded: user.onboardedAt !== undefined,
   };
 }
 
@@ -68,7 +69,7 @@ export const ensure = mutation({
     for (const contact of listedBy) {
       await ctx.db.patch(contact._id, { matchedUserId: userId });
     }
-    return { id: userId, name: null, avatarUrl: null };
+    return { id: userId, name: null, avatarUrl: null, onboarded: false };
   },
 });
 
@@ -79,7 +80,7 @@ export const updateProfile = mutation({
   },
   handler: async (ctx, args) => {
     const user = await requireUser(ctx);
-    const next = { _id: user._id, name: user.name, avatarId: user.avatarId };
+    const next = { _id: user._id, name: user.name, avatarId: user.avatarId, onboardedAt: user.onboardedAt };
 
     if (args.name !== undefined) {
       const name = args.name.trim().replace(/\s+/g, " ");
@@ -104,6 +105,15 @@ export const updateProfile = mutation({
 
     await ctx.db.patch(user._id, { name: next.name, avatarId: next.avatarId });
     return await toProfile(ctx, next);
+  },
+});
+
+export const completeOnboarding = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const user = await requireUser(ctx);
+    if (user.onboardedAt === undefined) await ctx.db.patch(user._id, { onboardedAt: Date.now() });
+    return null;
   },
 });
 

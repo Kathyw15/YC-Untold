@@ -10,6 +10,7 @@ export type Session =
   | { status: "loading"; stalled: boolean }
   | { status: "signedOut" }
   | { status: "needsProfile"; me: Profile }
+  | { status: "needsOnboarding"; me: Profile }
   | { status: "ready"; me: Profile };
 
 const SessionContext = createContext<Session>({ status: "loading", stalled: false });
@@ -20,7 +21,7 @@ export function useSession() {
 
 export function useProfile(): Profile {
   const session = use(SessionContext);
-  if (session.status !== "ready" && session.status !== "needsProfile") {
+  if (session.status === "loading" || session.status === "signedOut") {
     throw new Error("useProfile needs a signed-in user");
   }
   return session.me;
@@ -43,6 +44,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   else if (!isSignedIn) session = { status: "signedOut" };
   else if (!isAuthenticated || !me) session = { status: "loading", stalled };
   else if (!me.name) session = { status: "needsProfile", me };
+  else if (!me.onboarded) session = { status: "needsOnboarding", me };
   else session = { status: "ready", me };
 
   return <SessionContext value={session}>{children}</SessionContext>;
