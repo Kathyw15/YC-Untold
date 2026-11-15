@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
 import { type ReactNode, useEffect } from "react";
@@ -12,10 +13,9 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { layout, space, tones } from "@/theme";
+import { colors, layout, shadows, space } from "@/theme";
 
 import { useTone } from "./Atmosphere";
-import { Breathing } from "./Breathing";
 import { QuietLink } from "./QuietLink";
 import { Text } from "./Text";
 
@@ -35,7 +35,6 @@ type SealingProps = {
 
 export function Sealing({ sealed, children, title, body, onDone }: SealingProps) {
   const toneName = useTone();
-  const tone = tones[toneName];
   const progress = useSharedValue(0);
 
   useEffect(() => {
@@ -62,10 +61,10 @@ export function Sealing({ sealed, children, title, body, onDone }: SealingProps)
           testID="sealed-afterword"
           entering={FadeIn.duration(900).delay(SEAL_MS - 600)}
           style={[StyleSheet.absoluteFill, styles.afterword]}>
-          <Breathing scale={0.08} dim={0.35} style={[styles.seal, { borderColor: tone.text }]}>
-            <View style={[styles.core, { backgroundColor: tone.text }]} />
-          </Breathing>
-          <Text variant="title" style={styles.centered}>
+          <View style={styles.seal}>
+            <Ionicons name="lock-closed" size={26} color={colors.ink} />
+          </View>
+          <Text variant="hero" style={styles.centered}>
             {title}
           </Text>
           <Text soft style={[styles.centered, styles.body]}>
@@ -89,15 +88,15 @@ const styles = StyleSheet.create({
   },
   afterword: { alignItems: "center", justifyContent: "center", gap: space.md },
   seal: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: StyleSheet.hairlineWidth * 2,
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: space.md,
+    marginBottom: space.sm,
+    backgroundColor: colors.white,
+    boxShadow: shadows.card,
   },
-  core: { width: 6, height: 6, borderRadius: 3, opacity: 0.7 },
   centered: { textAlign: "center" },
   body: { maxWidth: 280, marginBottom: space.lg },
 });

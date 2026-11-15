@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { StyleSheet, TextInput, type TextInputProps, View } from "react-native";
 
-import { space, tones, type } from "@/theme";
+import { colors, radius, shadows, space, tones, type } from "@/theme";
 
 import { useTone } from "./Atmosphere";
 import { Text } from "./Text";
@@ -13,19 +13,26 @@ type LineFieldProps = TextInputProps & {
 };
 
 export function LineField({ label, prefix, message, style, ...input }: LineFieldProps) {
-  const tone = tones[useTone()];
+  const toneName = useTone();
+  const tone = tones[toneName];
   return (
     <View>
       <Text variant="label" soft>
         {label}
       </Text>
-      <View style={[styles.row, { borderBottomColor: tone.hairline }]}>
+      <View
+        style={[
+          styles.field,
+          toneName === "dark"
+            ? { backgroundColor: tone.surface, borderWidth: 1, borderColor: tone.border }
+            : { backgroundColor: colors.white, boxShadow: shadows.card },
+        ]}>
         {prefix}
         <TextInput
           accessibilityLabel={label}
-          placeholderTextColor={tone.hairline}
-          selectionColor={tone.text}
-          keyboardAppearance={tone === tones.dark ? "dark" : "light"}
+          placeholderTextColor={tone.faint}
+          selectionColor={colors.blue}
+          keyboardAppearance={toneName}
           {...input}
           style={[type.input, styles.input, { color: tone.text }, style]}
         />
@@ -38,13 +45,15 @@ export function LineField({ label, prefix, message, style, ...input }: LineField
 }
 
 const styles = StyleSheet.create({
-  row: {
+  field: {
     flexDirection: "row",
     alignItems: "center",
     gap: space.sm,
     marginTop: space.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth * 2,
+    height: 56,
+    paddingHorizontal: space.md,
+    borderRadius: radius.field,
   },
-  input: { flex: 1, paddingVertical: space.md, lineHeight: undefined },
+  input: { flex: 1, height: 56, lineHeight: undefined, outlineStyle: "none" } as object,
   message: { marginTop: space.sm },
 });

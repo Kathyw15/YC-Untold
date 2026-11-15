@@ -109,7 +109,7 @@ function Celebration({ social, onOpen, onLater }: CelebrationProps) {
 
   return (
     <Animated.View style={[StyleSheet.absoluteFill, veil]} accessibilityViewIsModal>
-      <Screen scene="wheat" testID="match-popup">
+      <Screen scene="lime" testID="match-popup">
         <View style={styles.middle}>
           <View style={styles.emblem}>
             <Animated.View style={[styles.ring, ring]} />
@@ -149,16 +149,16 @@ const styles = StyleSheet.create({
     height: SEAL,
     borderRadius: SEAL / 2,
     borderWidth: 1.5,
-    borderColor: colors.forest,
+    borderColor: colors.ink,
   },
-  core: { position: "absolute", width: 14, height: 14, borderRadius: 7, backgroundColor: colors.wheat },
+  core: { position: "absolute", width: 14, height: 14, borderRadius: 7, backgroundColor: colors.ink },
   ring: {
     position: "absolute",
     width: SEAL,
     height: SEAL,
     borderRadius: SEAL / 2,
     borderWidth: 2,
-    borderColor: colors.wheat,
+    borderColor: "#BFE04E",
   },
   words: { alignItems: "center", gap: space.sm },
   actions: { gap: space.sm },

@@ -1,6 +1,7 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { space } from "@/theme";
+import { colors, space } from "@/theme";
 
 import { Avatar } from "./Avatar";
 import { Text } from "./Text";
@@ -23,19 +24,30 @@ export function PersonRow({ name, avatarUrl = null, note, onPress, testID }: Per
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
       <Avatar uri={avatarUrl} name={name} size={44} />
       <View style={styles.words}>
-        <Text numberOfLines={1}>{name}</Text>
+        <Text numberOfLines={1} style={styles.name}>
+          {name}
+        </Text>
         {note ? (
           <Text variant="caption" soft numberOfLines={1}>
             {note}
           </Text>
         ) : null}
       </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.ink3} />
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: "row", alignItems: "center", gap: space.md, paddingVertical: space.sm + 2 },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 9,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.line,
+  },
   pressed: { opacity: 0.5 },
   words: { flex: 1 },
+  name: { fontWeight: "500" },
 });

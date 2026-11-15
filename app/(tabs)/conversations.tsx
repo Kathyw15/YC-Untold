@@ -33,7 +33,7 @@ export default function ConversationsScreen() {
   }
 
   return (
-    <Screen scene="mist" aboveTabBar testID="conversations-screen">
+    <Screen scene="base" aboveTabBar testID="conversations-screen">
       <Rise>
         <Text variant="label" soft>
           Conversations

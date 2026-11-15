@@ -46,7 +46,7 @@ export default function ProfileScreen() {
       : undefined;
 
   return (
-    <Screen scene="dawn" aboveTabBar testID="profile-screen">
+    <Screen scene="base" aboveTabBar testID="profile-screen">
       <Rise>
         <Text variant="label" soft>
           Profile

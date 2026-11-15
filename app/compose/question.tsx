@@ -4,14 +4,14 @@ import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { BreathingButton } from "@/components/BreathingButton";
-import { QuietLink } from "@/components/QuietLink";
+import { IconButton } from "@/components/IconButton";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { Sealing } from "@/components/Sealing";
 import { Text } from "@/components/Text";
 import { WritingField } from "@/components/WritingField";
 import { api } from "@/convex/_generated/api";
-import { colors, radius, space, tones } from "@/theme";
+import { colors, radius, space } from "@/theme";
 
 const AUDIENCES = [
   { value: "everyone", label: "Everyone" },
@@ -48,7 +48,7 @@ export default function ComposeQuestionScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="compose-question-screen">
+    <Screen scene="base" testID="compose-question-screen">
       <Sealing
         sealed={sealed}
         title="Posted."
@@ -56,9 +56,9 @@ export default function ComposeQuestionScreen() {
         onDone={() => router.back()}>
         <View style={styles.close}>
           {step === "question" ? (
-            <QuietLink testID="compose-close" label="Close" onPress={() => router.back()} />
+            <IconButton icon="close" testID="compose-close" label="Close" onPress={() => router.back()} />
           ) : (
-            <QuietLink testID="compose-back" label="Back" onPress={() => setStep("question")} />
+            <IconButton icon="chevron-back" testID="compose-back" label="Back" onPress={() => setStep("question")} />
           )}
         </View>
         {step === "question" ? (
@@ -89,10 +89,8 @@ export default function ComposeQuestionScreen() {
                       accessibilityLabel={option}
                       accessibilityState={{ selected }}
                       onPress={() => setTopic(selected ? null : option)}
-                      style={[styles.topic, { borderColor: selected ? tones.dark.text : tones.dark.hairline }]}>
-                      <Text variant="caption" soft={!selected}>
-                        {option}
-                      </Text>
+                      style={[styles.topic, selected && styles.topicOn]}>
+                      <Text style={[styles.chipText, selected && styles.topicOnText]}>{option}</Text>
                     </Pressable>
                   );
                 })}
@@ -109,11 +107,8 @@ export default function ComposeQuestionScreen() {
                       accessibilityState={{ selected }}
                       hitSlop={space.sm}
                       onPress={() => setAudience(option.value)}
-                      style={styles.audience}>
-                      <View style={[styles.dot, { opacity: selected ? 1 : 0 }]} />
-                      <Text variant="caption" soft={!selected}>
-                        {option.label}
-                      </Text>
+                      style={[styles.audience, selected && styles.audienceOn]}>
+                      <Text style={[styles.chipText, selected && styles.audienceOnText]}>{option.label}</Text>
                     </Pressable>
                   );
                 })}
@@ -169,13 +164,28 @@ const styles = StyleSheet.create({
   action: { gap: space.md, marginTop: space.md },
   topics: { flexDirection: "row", flexWrap: "wrap", alignItems: "center", justifyContent: "center", gap: space.sm },
   topic: {
+    height: 36,
+    justifyContent: "center",
     borderRadius: radius.pill,
-    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: colors.white,
     paddingHorizontal: space.md,
-    paddingVertical: space.xs,
   },
-  audiences: { flexDirection: "row", justifyContent: "center", gap: space.xl },
-  audience: { flexDirection: "row", alignItems: "center", gap: space.sm, paddingVertical: space.sm },
-  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },
+  topicOn: { backgroundColor: colors.blueSoft, borderColor: colors.blueSoft },
+  topicOnText: { color: colors.blue, fontWeight: "600" },
+  chipText: { fontSize: 15, lineHeight: 20, fontWeight: "500", color: "#45454D" },
+  audiences: { flexDirection: "row", justifyContent: "center", gap: 10 },
+  audience: {
+    height: 40,
+    justifyContent: "center",
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: colors.line,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    paddingHorizontal: 20,
+  },
+  audienceOn: { backgroundColor: colors.ink, borderColor: colors.ink },
+  audienceOnText: { color: colors.white, fontWeight: "600" },
   centered: { textAlign: "center" },
 });

@@ -1,26 +1,26 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
+import type { ComponentProps } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { space, tones } from "@/theme";
+import { colors, shadows, space } from "@/theme";
 
-import { useTone } from "./Atmosphere";
-import { Breathing } from "./Breathing";
 import { Rise } from "./Rise";
 import { Text } from "./Text";
 
 type EmptyStateProps = {
   title: string;
   body: string;
+  icon?: ComponentProps<typeof Ionicons>["name"];
   testID?: string;
 };
 
-export function EmptyState({ title, body, testID }: EmptyStateProps) {
-  const tone = tones[useTone()];
+export function EmptyState({ title, body, icon = "lock-closed-outline", testID }: EmptyStateProps) {
   return (
     <View style={styles.root} testID={testID}>
       <Rise order={1}>
-        <Breathing scale={0.08} dim={0.35} style={[styles.seal, { borderColor: tone.text }]}>
-          <View style={[styles.core, { backgroundColor: tone.text }]} />
-        </Breathing>
+        <View style={styles.badge}>
+          <Ionicons name={icon} size={26} color={colors.ink} />
+        </View>
       </Rise>
       <Rise order={2}>
         <Text variant="title" style={styles.centered}>
@@ -37,17 +37,17 @@ export function EmptyState({ title, body, testID }: EmptyStateProps) {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.md },
-  seal: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    borderWidth: StyleSheet.hairlineWidth * 2,
+  root: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.sm + 4 },
+  badge: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: space.md,
+    marginBottom: space.sm,
+    backgroundColor: colors.white,
+    boxShadow: shadows.card,
   },
-  core: { width: 6, height: 6, borderRadius: 3, opacity: 0.7 },
   centered: { textAlign: "center" },
-  body: { maxWidth: 280 },
+  body: { maxWidth: 300 },
 });

@@ -1,14 +1,22 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "convex/react";
+import { BlurView } from "expo-blur";
 import { Tabs, useRouter } from "expo-router";
 import type { ComponentProps } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import { api } from "@/convex/_generated/api";
-import { colors, fonts, layout, space, type } from "@/theme";
-
-import { Text } from "./Text";
+import { colors, layout, radius, shadows } from "@/theme";
 
 type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>["tabBar"]>>[0];
+type IconName = ComponentProps<typeof Ionicons>["name"];
+
+const ICONS: Record<string, [IconName, IconName]> = {
+  index: ["home-outline", "home"],
+  people: ["people-outline", "people"],
+  conversations: ["chatbubble-ellipses-outline", "chatbubble-ellipses"],
+  profile: ["person-outline", "person"],
+};
 
 export function QuietTabBar({ state, descriptors, emitter, navigateToTab, insets }: TabBarProps) {
   const router = useRouter();
@@ -25,6 +33,7 @@ export function QuietTabBar({ state, descriptors, emitter, navigateToTab, insets
   const tabs = state.routes.map((route, index) => {
     const focused = state.index === index;
     const title = descriptors[route.key].options.title ?? route.name;
+    const [outline, filled] = ICONS[route.name] ?? ICONS.index;
     return (
       <Pressable
         key={route.key}
@@ -36,78 +45,62 @@ export function QuietTabBar({ state, descriptors, emitter, navigateToTab, insets
           const event = emitter.emit({ type: "tabPress", target: route.key, canPreventDefault: true });
           if (!focused && !event.defaultPrevented) navigateToTab(route.key);
         }}
-        style={styles.tab}>
+        style={[styles.tab, focused && styles.focused]}>
+        <Ionicons name={focused ? filled : outline} size={24} color={focused ? colors.ink : "#6A6A74"} />
         {news[route.name] ? <View testID={"tab-" + title.toLowerCase() + "-news"} style={styles.news} /> : null}
-        <Text
-          numberOfLines={1}
-          style={[
-            type.button,
-            styles.label,
-            { color: focused ? colors.forest : colors.inkSoft, opacity: focused ? 1 : 0.62 },
-            focused && { fontFamily: fonts.sans },
-          ]}>
-          {title}
-        </Text>
-        <View style={[styles.dot, { opacity: focused ? 1 : 0 }]} />
       </Pressable>
     );
   });
 
   return (
-    <View style={[styles.bar, { paddingBottom: insets.bottom, height: layout.tabBarHeight + insets.bottom }]}>
-      <View style={styles.side}>{tabs.slice(0, centre)}</View>
+    <View style={[styles.bar, { bottom: Math.max(insets.bottom, layout.tabBarInset) }]}>
+      <BlurView intensity={40} tint="light" style={[StyleSheet.absoluteFill, styles.blur]} />
+      {tabs.slice(0, centre)}
       <Pressable
         testID="tab-ask"
         accessibilityRole="button"
         accessibilityLabel="Ask a question"
-        hitSlop={space.sm}
         onPress={() => router.push("/compose/question")}
-        style={({ pressed }) => [styles.ask, pressed && styles.pressed]}>
-        <View style={[styles.stroke, styles.across]} />
-        <View style={[styles.stroke, styles.down]} />
+        style={({ pressed }) => [styles.tab, styles.ask, pressed && styles.pressed]}>
+        <Ionicons name="add" size={28} color={colors.ink} />
       </Pressable>
-      <View style={styles.side}>{tabs.slice(centre)}</View>
+      {tabs.slice(centre)}
     </View>
   );
 }
 
-const ASK_SIZE = 44;
-const STROKE = 16;
+const TAB = 54;
 
 const styles = StyleSheet.create({
   bar: {
     position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
+    left: layout.tabBarInset,
+    right: layout.tabBarInset,
+    height: 68,
+    borderRadius: radius.pill,
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: space.xs,
-    gap: space.xs,
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.6)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.95)",
+    boxShadow: shadows.tabBar,
   },
-  side: { flex: 1, flexDirection: "row", alignSelf: "stretch" },
-  tab: { flexGrow: 1, alignItems: "center", justifyContent: "center", gap: space.sm - 2 },
-  label: { fontFamily: fonts.sansLight, fontSize: 12, lineHeight: 18, letterSpacing: 0.2 },
-  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },
+  blur: { borderRadius: radius.pill, overflow: "hidden" },
+  tab: { width: TAB, height: TAB, borderRadius: TAB / 2, alignItems: "center", justifyContent: "center" },
+  focused: { backgroundColor: colors.white, boxShadow: "0 4px 14px rgba(20, 22, 40, 0.12)" },
+  ask: { backgroundColor: colors.white, boxShadow: "0 6px 18px rgba(20, 22, 40, 0.2)" },
   news: {
     position: "absolute",
-    top: space.md - 2,
-    right: space.sm,
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.wheat,
+    top: 12,
+    right: 12,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: colors.red,
+    borderWidth: 1.5,
+    borderColor: colors.white,
   },
-  ask: {
-    width: ASK_SIZE,
-    height: ASK_SIZE,
-    borderRadius: ASK_SIZE / 2,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.forest,
-  },
-  stroke: { position: "absolute", backgroundColor: colors.paper, borderRadius: 1 },
-  across: { width: STROKE, height: 1.5 },
-  down: { width: 1.5, height: STROKE },
-  pressed: { opacity: 0.6 },
+  pressed: { opacity: 0.7 },
 });

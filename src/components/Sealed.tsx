@@ -10,7 +10,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-import { radius, space, tones } from "@/theme";
+import { radius, shadows, space, tones } from "@/theme";
 
 import { useTone } from "./Atmosphere";
 
@@ -45,7 +45,7 @@ export function Sealed({ children, open, style }: SealedProps) {
   }));
 
   return (
-    <View style={[styles.card, { borderColor: tone.hairline, backgroundColor: tone.surface }, style]}>
+    <View style={[styles.card, { borderColor: tone.border, backgroundColor: tone.surface, boxShadow: shadows.card }, style]}>
       <Animated.View style={[styles.words, words]}>{children}</Animated.View>
       <AnimatedBlurView animatedProps={veil} tint="light" style={StyleSheet.absoluteFill} pointerEvents="none" />
     </View>
@@ -54,8 +54,8 @@ export function Sealed({ children, open, style }: SealedProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderRadius: radius.reveal,
+    borderWidth: 1,
     overflow: "hidden",
   },
   words: { padding: space.lg, gap: space.md },

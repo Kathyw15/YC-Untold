@@ -7,7 +7,7 @@
     "icon": "./assets/images/icon.png",
     "scheme": "untold",
     "userInterfaceStyle": "light",
-    "backgroundColor": "#1F2A22",
+    "backgroundColor": "#F7F7FA",
     "ios": {
       "bundleIdentifier": "app.untold.ios",
       "supportsTablet": false,
@@ -23,7 +23,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#1F2A22",
+          "backgroundColor": "#F7F7FA",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 96
         }

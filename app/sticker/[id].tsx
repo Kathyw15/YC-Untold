@@ -2,6 +2,7 @@ import { useMutation, useQuery } from "convex/react";
 import { Redirect, useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
 
+import { IconButton } from "@/components/IconButton";
 import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
@@ -23,9 +24,9 @@ export default function StickerScreen() {
   if (status !== "ready") return <Redirect href="/" />;
 
   return (
-    <Screen scene="wheat" testID="sticker-screen">
+    <Screen scene="lime" testID="sticker-screen">
       <View style={styles.back}>
-        <QuietLink label="Back" onPress={() => router.back()} testID="sticker-back" />
+        <IconButton icon="chevron-back" label="Back" onPress={() => router.back()} testID="sticker-back" />
       </View>
       {sticker ? (
         <Rise style={styles.scroll}>

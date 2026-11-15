@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Pressable, StyleSheet } from "react-native";
 
-import { radius, space, tones } from "@/theme";
+import { radius, shadows, space, tones } from "@/theme";
 
 import { useTone } from "./Atmosphere";
 
@@ -13,7 +13,8 @@ type CardProps = {
 };
 
 export function Card({ children, onPress, horizontal = false, testID }: CardProps) {
-  const tone = tones[useTone()];
+  const toneName = useTone();
+  const tone = tones[toneName];
   return (
     <Pressable
       testID={testID}
@@ -23,7 +24,8 @@ export function Card({ children, onPress, horizontal = false, testID }: CardProp
       style={({ pressed }) => [
         styles.card,
         horizontal && styles.horizontal,
-        { borderColor: tone.hairline, backgroundColor: tone.surface },
+        { borderColor: tone.border, backgroundColor: tone.surface },
+        toneName === "light" && { boxShadow: shadows.card },
         pressed && styles.pressed,
       ]}>
       {children}
@@ -34,10 +36,10 @@ export function Card({ children, onPress, horizontal = false, testID }: CardProp
 const styles = StyleSheet.create({
   card: {
     borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    padding: space.lg,
+    borderWidth: 1,
+    padding: 18,
     gap: space.sm,
   },
-  horizontal: { flexDirection: "row", alignItems: "center", gap: space.md },
-  pressed: { opacity: 0.6 },
+  horizontal: { flexDirection: "row", alignItems: "center", gap: 12 },
+  pressed: { opacity: 0.7 },
 });

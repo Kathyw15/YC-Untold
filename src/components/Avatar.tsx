@@ -1,9 +1,6 @@
 import { Image } from "expo-image";
 import { StyleSheet, View } from "react-native";
 
-import { tones } from "@/theme";
-
-import { useTone } from "./Atmosphere";
 import { Text } from "./Text";
 
 type AvatarProps = {
@@ -13,14 +10,13 @@ type AvatarProps = {
 };
 
 export function Avatar({ uri, name, size = 96 }: AvatarProps) {
-  const tone = tones[useTone()];
   const shape = { width: size, height: size, borderRadius: size / 2 };
   return (
-    <View style={[styles.frame, shape, { borderColor: tone.hairline, backgroundColor: tone.surface }]}>
+    <View style={[styles.frame, shape]}>
       {uri ? (
         <Image source={{ uri }} style={shape} contentFit="cover" transition={400} accessibilityLabel="Profile photo" />
       ) : (
-        <Text variant="title" soft style={{ fontSize: size * 0.4, lineHeight: size * 0.5 }}>
+        <Text style={{ fontSize: size * 0.4, lineHeight: size * 0.5, fontWeight: "600", color: "#5D6273" }}>
           {name?.trim().charAt(0).toUpperCase() ?? ""}
         </Text>
       )}
@@ -33,6 +29,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
-    borderWidth: StyleSheet.hairlineWidth * 2,
+    backgroundColor: "#DFE3EC",
   },
 });
