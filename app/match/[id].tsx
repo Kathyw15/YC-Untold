@@ -137,7 +137,7 @@ export default function MatchScreen() {
                       expiresAt={conversation.expiresAt}
                       suffix=" left to talk"
                       closedLabel="The conversation has closed."
-                      style={styles.centered}
+                      style={styles.countdown}
                     />
                   </>
                 ) : null}
@@ -194,4 +194,5 @@ const styles = StyleSheet.create({
   threadLit: { height: 2, backgroundColor: colors.wheat, opacity: 1 },
   after: { gap: space.lg },
   centered: { textAlign: "center" },
+  countdown: { textAlign: "center", color: colors.forest },
 });
