@@ -58,7 +58,7 @@ export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
       {question.isDaily ? (
         <View style={[styles.label, onPhoto ? styles.photoGlass : styles.glass]}>
           <Ionicons name="sparkles" size={13} color={ink} />
-          <Text style={[styles.labelText, { color: ink }]}>Today's question</Text>
+          <Text style={[styles.labelText, { color: ink }]}>Today’s question</Text>
         </View>
       ) : null}
       <View style={[styles.bookmark, onPhoto ? styles.photoGlass : styles.glass]}>

@@ -136,7 +136,7 @@ export default function HomeScreen() {
               <View style={styles.barText}>
                 <View style={styles.barLabel}>
                   <Ionicons name="sparkles" size={12} color={pinnedInk} />
-                  <Text style={[styles.barLabelText, { color: pinnedInk }]}>Today's question</Text>
+                  <Text style={[styles.barLabelText, { color: pinnedInk }]}>Today’s question</Text>
                 </View>
                 <Text numberOfLines={2} style={[styles.barQuestion, { color: pinnedInk }]}>
                   {daily.text}

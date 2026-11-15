@@ -19,7 +19,7 @@ const AUDIENCES = { everyone: "Everyone", friends: "Friends only" } as const;
 
 type Audience = keyof typeof AUDIENCES;
 
-const TOPICS = ["Growing up", "Friendship", "Love", "Family", "Life", "Regrets", "Work"];
+const TOPICS = ["Growing up", "Friendship", "Love", "Family", "Life", "Regrets"];
 
 export default function ComposeQuestionScreen() {
   const router = useRouter();
@@ -79,7 +79,7 @@ export default function ComposeQuestionScreen() {
         <Sealing
           sealed={sealed}
           title="Posted."
-          body="Your question is out there now. Your answer is sealed where only you can read it."
+          body="Your answer is sealed. If someone’s answer meets yours, we’ll let you both know."
           onDone={() => router.back()}>
           <AnswerComposer
             question={text.trim()}
@@ -102,7 +102,7 @@ export default function ComposeQuestionScreen() {
   }
 
   return (
-    <Screen scene="base" testID="compose-question-screen" contentStyle={styles.screen}>
+    <Screen scene="aurora" testID="compose-question-screen" contentStyle={styles.screen}>
       <View style={styles.nav}>
         <Pressable
           testID="compose-close"

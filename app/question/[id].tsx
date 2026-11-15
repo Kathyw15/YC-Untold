@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "convex/react";
+import { Pressable } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { ScrollView, StyleSheet, View } from "react-native";
 
@@ -8,7 +9,7 @@ import { useTone } from "@/components/Atmosphere";
 import { BreathingButton } from "@/components/BreathingButton";
 import { IconButton } from "@/components/IconButton";
 import { MascotAvatar, type QuestionSummary } from "@/components/QuestionCard";
-import { QuestionScene } from "@/components/QuestionBackground";
+import { QuestionBackground, questionPhoto, QuestionScene } from "@/components/QuestionBackground";
 import { Rise } from "@/components/Rise";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
@@ -83,7 +84,7 @@ function Body({ question, onAnswer }: { question: QuestionSummary & { myAnswer: 
                     “{question.myAnswer.body}”
                   </Text>
                   <Text style={styles.sealedBody}>
-                    Only you can see this. If your words meet someone's, we'll let you both know.
+                    Only you can see this. If your words meet someone’s, we’ll let you both know.
                   </Text>
                 </>
               ) : question.isDaily ? (
@@ -95,7 +96,7 @@ function Body({ question, onAnswer }: { question: QuestionSummary & { myAnswer: 
                 </>
               ) : (
                 <>
-                  <Text style={styles.sealedTitle}>{first}'s answer is sealed</Text>
+                  <Text style={styles.sealedTitle}>{first}’s answer is sealed</Text>
                   <Text style={styles.sealedBody}>
                     Their answer will only be revealed if you both choose to unlock.
                   </Text>
@@ -117,7 +118,7 @@ function Body({ question, onAnswer }: { question: QuestionSummary & { myAnswer: 
         {question.myAnswer ? (
           <View style={[styles.waiting, toneName === "dark" ? styles.waitingOnPhoto : styles.waitingOnGradient]}>
             <Ionicons name="sparkles" size={16} color={tone.text} />
-            <Text variant="button">We'll tell you if your words meet</Text>
+            <Text variant="button">We’ll tell you if your words meet</Text>
           </View>
         ) : (
           <BreathingButton testID="answer-privately" label="Leave your answer" icon="pencil" onPress={onAnswer} />
@@ -127,16 +128,99 @@ function Body({ question, onAnswer }: { question: QuestionSummary & { myAnswer: 
   );
 }
 
+function Mine({ question }: { question: QuestionSummary & { myAnswer: { body: string } | null } }) {
+  const router = useRouter();
+  const matches = useQuery(api.matches.list);
+  const mine = (matches ?? []).filter((match) => match.question === question.text);
+  const ink = questionPhoto(question) ? colors.white : colors.ink;
+  return (
+    <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.mineCard}>
+        <QuestionBackground question={question} style={styles.mineFill} />
+        <Text style={[styles.mineQuestion, { color: ink }]} testID="question-text">
+          {question.text}
+        </Text>
+        <View style={styles.mineMeta}>
+          <Text style={[styles.countText, { color: ink }]}>
+            {question.audience === "friends" ? "Friends only" : "Everyone"}
+          </Text>
+          <View style={styles.count}>
+            <Ionicons name="people" size={18} color={ink} />
+            <Text style={[styles.countText, { color: ink }]} testID="question-responses">
+              {answered(question.responseCount)}
+            </Text>
+          </View>
+        </View>
+      </View>
+      <View style={[styles.sealed, styles.glass, styles.mineSealed]}>
+        <View style={[styles.lock, styles.lockOnGradient]}>
+          <Ionicons name="lock-closed" size={20} color={colors.ink} />
+        </View>
+        <View style={styles.sealedText}>
+          <Text style={styles.sealedTitle}>Your sealed answer</Text>
+          <Text style={styles.mine} testID="my-answer">
+            “{question.myAnswer?.body}”
+          </Text>
+          <Text style={styles.sealedBody}>Only you can see this.</Text>
+        </View>
+      </View>
+      <Text style={styles.section}>Conversations from this question</Text>
+      {mine.length > 0 ? (
+        <View style={styles.list}>
+          {mine.map((match, index) => (
+            <Pressable
+              key={match.id}
+              accessibilityRole="button"
+              onPress={() => router.navigate("/(tabs)/conversations")}
+              style={[styles.listRow, index > 0 && styles.listRule]}>
+              <Avatar
+                uri={match.other?.avatarUrl ?? null}
+                emoji={match.other?.avatarEmoji}
+                name={match.other?.name ?? "?"}
+                size={48}
+              />
+              <View style={styles.sealedText}>
+                <Text variant="row">
+                  {match.state === "revealed"
+                    ? (match.other?.name ?? "Someone on Seal")
+                    : match.state === "waiting"
+                      ? "Waiting for them"
+                      : "A match is waiting for you"}
+                </Text>
+                <Text variant="caption" soft>
+                  Open in Conversations
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color={colors.ink3} />
+            </Pressable>
+          ))}
+        </View>
+      ) : (
+        <Text variant="caption" soft style={styles.none}>
+          None yet. We’ll let you know when someone’s answer meets yours.
+        </Text>
+      )}
+    </ScrollView>
+  );
+}
+
 export default function QuestionScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const question = useQuery(api.questions.get, { questionId: id as Id<"questions"> });
 
   return (
-    <QuestionScene question={question} variant="detail" testID="question-screen">
+    <QuestionScene question={question?.isMine ? null : question} variant="detail" testID="question-screen">
       <View style={styles.nav}>
         <IconButton icon="chevron-back" testID="question-back" label="Back" onPress={() => router.back()} />
-        <IconButton icon="ellipsis-horizontal" label="More" onPress={() => {}} />
+        {question?.isMine ? (
+          <>
+            <Text style={styles.navTitle}>My question</Text>
+            <View style={styles.navSpace} />
+          </>
+        ) : (
+          <IconButton icon="ellipsis-horizontal" label="More" onPress={() => {}} />
+        )}
       </View>
       {question === null ? (
         <View style={styles.missing}>
@@ -144,6 +228,8 @@ export default function QuestionScreen() {
             This question isn't here anymore.
           </Text>
         </View>
+      ) : question?.isMine ? (
+        <Mine question={question} />
       ) : question ? (
         <Body
           question={question}
@@ -156,6 +242,18 @@ export default function QuestionScreen() {
 
 const styles = StyleSheet.create({
   nav: { height: 52, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  navTitle: { fontSize: 17, lineHeight: 22, fontWeight: "600" },
+  navSpace: { width: 40 },
+  mineCard: { height: 250, borderRadius: radius.feed, justifyContent: "flex-end", padding: 22, boxShadow: shadows.feed },
+  mineFill: { borderRadius: radius.feed },
+  mineQuestion: { fontSize: 27, lineHeight: 30, fontWeight: "700", letterSpacing: -0.8, marginBottom: 16 },
+  mineMeta: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  mineSealed: { marginTop: 14, marginBottom: 0 },
+  section: { fontSize: 20, lineHeight: 25, fontWeight: "700", letterSpacing: -0.5, marginTop: 26, marginBottom: 12, marginHorizontal: 2 },
+  list: { borderRadius: radius.list, backgroundColor: colors.white, boxShadow: shadows.card, overflow: "hidden" },
+  listRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingHorizontal: 16 },
+  listRule: { borderTopWidth: 1, borderTopColor: colors.line },
+  none: { marginLeft: 2 },
   missing: { flex: 1, alignItems: "center", justifyContent: "center" },
   centered: { textAlign: "center" },
   scroll: { flex: 1 },

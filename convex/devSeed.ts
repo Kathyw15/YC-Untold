@@ -88,6 +88,7 @@ export const resetDemo = internalMutation({
       "matches",
       "notices",
       "sealedEntries",
+      "contacts",
     ] as const) {
       for (const doc of await ctx.db.query(table).collect()) await ctx.db.delete(doc._id);
     }
@@ -127,13 +128,6 @@ export const resetDemo = internalMutation({
       if ("contactName" in person) {
         await ctx.db.patch(existing._id, { phoneHmac, name: person.name, avatarEmoji: person.emoji, onboardedAt: now });
       }
-    }
-    for (const contact of await ctx.db.query("contacts").collect()) {
-      const matched = await ctx.db
-        .query("users")
-        .withIndex("by_phoneHmac", (q) => q.eq("phoneHmac", contact.phoneHmac))
-        .first();
-      if (contact.matchedUserId !== matched?._id) await ctx.db.patch(contact._id, { matchedUserId: matched?._id });
     }
 
     // The feed lists the newest question first, so write the oldest first.

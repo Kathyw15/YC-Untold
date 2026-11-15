@@ -36,11 +36,7 @@ export default function ComposeAnswerScreen() {
       <Sealing
         sealed={sealed}
         title="Sealed."
-        body={
-          question?.isDaily
-            ? "Only you can read it. It rests in your own history."
-            : "Only you can read it. If it resonates with theirs, you'll both be asked before anything is revealed."
-        }
+        body="If your words meet, we’ll let you both know."
         onDone={() => router.back()}>
         <AnswerComposer
           question={question?.text ?? " "}
