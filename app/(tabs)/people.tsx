@@ -2,9 +2,10 @@ import { useUser } from "@clerk/expo";
 import { useMutation, useQuery } from "convex/react";
 import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Linking, SectionList, StyleSheet, View } from "react-native";
+import { Linking, Platform, SectionList, StyleSheet, View } from "react-native";
 
 import { ContactsInvitation } from "@/components/ContactsInvitation";
+import { ContactsPermissionAlert } from "@/components/ContactsPermissionAlert";
 import { EmptyState } from "@/components/EmptyState";
 import { PersonRow } from "@/components/PersonRow";
 import { QuietLink } from "@/components/QuietLink";
@@ -26,6 +27,9 @@ import {
 import { space } from "@/theme";
 
 const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE === "1";
+// Demo mode and the web have no device contacts: an in-app copy of the system alert stands in for the real one.
+const FAKE_CONTACTS = DEMO_MODE || Platform.OS === "web";
+const FINDING_MS = 900;
 
 export default function PeopleScreen() {
   const router = useRouter();
@@ -33,21 +37,24 @@ export default function PeopleScreen() {
   const myPhone = useUser().user?.primaryPhoneNumber?.phoneNumber;
   const sync = useMutation(api.contacts.sync);
   const markRead = useMutation(api.notices.markRead);
-  const matched = useQuery(api.contacts.listMatched) ?? [];
+  const synced = useQuery(api.contacts.listMatched);
+  const matched = synced ?? [];
   const sent = useQuery(api.direct.listSent) ?? [];
   const notices = (useQuery(api.notices.list) ?? []).filter((notice) => notice.kind === "sealedReceived");
 
   const [access, setAccess] = useState<ContactsAccess | "checking">("checking");
   const [asking, setAsking] = useState(false);
+  const [alert, setAlert] = useState(false);
   const [notNow, setNotNow] = useState(false);
   const [contacts, setContacts] = useState<DeviceContact[] | null>(null);
   const [contactIds, setContactIds] = useState<Record<string, Id<"contacts">> | null>(null);
 
-  async function bring(list: DeviceContact[]) {
+  async function bring(list: DeviceContact[], delay = 0) {
     setContacts(list);
     setContactIds(null);
     const ids: Record<string, Id<"contacts">> = {};
     try {
+      if (delay) await new Promise((resolve) => setTimeout(resolve, delay));
       for (let start = 0; start < list.length; start += SYNC_BATCH_SIZE) {
         const batch = list.slice(start, start + SYNC_BATCH_SIZE).map((contact) => contact.phone);
         for (const synced of await sync({ phones: batch })) ids[synced.phone] = synced.contactId;
@@ -57,16 +64,31 @@ export default function PeopleScreen() {
     }
   }
 
+  // Whether this account has said yes to the copy of the alert: its contacts are on the server until a demo reset.
+  const allowed = synced === undefined ? null : synced.length > 0;
   useEffect(() => {
-    if (DEMO_MODE) return void bring(sampleContactsFor(myPhone));
+    if (!FAKE_CONTACTS || allowed === null || !myPhone) return;
+    if (allowed) {
+      if (contacts === null) void bring(sampleContactsFor(myPhone));
+      return;
+    }
+    setContacts(null);
+    setContactIds(null);
+    setAccess((current) => (current === "denied" ? current : "undetermined"));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowed, myPhone]);
+
+  useEffect(() => {
+    if (FAKE_CONTACTS) return;
     void getContactsAccess().then(async (status) => {
       setAccess(status);
       if (status === "granted") await bring(await readDeviceContacts());
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [DEMO_MODE ? myPhone : null]);
+  }, []);
 
   async function onContinue() {
+    if (FAKE_CONTACTS) return setAlert(true);
     setAsking(true);
     const status = await requestContactsAccess();
     setAccess(status);
@@ -141,7 +163,11 @@ export default function PeopleScreen() {
         <QuietLink testID="contacts-reconsider" label="Find people from your contacts" onPress={() => setNotNow(false)} />
       ) : null}
       {contacts === null && access === "denied" ? (
-        <QuietLink testID="contacts-settings" label="Turn on contacts in Settings" onPress={() => void Linking.openSettings()} />
+        <QuietLink
+          testID="contacts-settings"
+          label={FAKE_CONTACTS ? "Find people from your contacts" : "Turn on contacts in Settings"}
+          onPress={() => (FAKE_CONTACTS ? setAccess("undetermined") : void Linking.openSettings())}
+        />
       ) : null}
       {__DEV__ && !DEMO_MODE ? (
         <QuietLink testID="load-sample-contacts" label="Load sample contacts (dev)" onPress={() => void bring(sampleContactsFor(myPhone))} />
@@ -199,7 +225,7 @@ export default function PeopleScreen() {
     <Screen scene="base" aboveTabBar testID="people-screen">
       {header}
       {contacts === null && access === "undetermined" && !notNow ? (
-        <ContactsInvitation onContinue={onContinue} onNotNow={() => setNotNow(true)} busy={asking} />
+        <ContactsInvitation onContinue={onContinue} onNotNow={() => setNotNow(true)} busy={asking || alert} />
       ) : contacts === null && access !== "denied" && !notNow ? (
         <View style={styles.fill} />
       ) : contactIds === null && contacts !== null ? (
@@ -220,6 +246,18 @@ export default function PeopleScreen() {
         />
       )}
       {footer}
+      <ContactsPermissionAlert
+        visible={alert}
+        onAllow={() => {
+          setAlert(false);
+          setAccess("granted");
+          void bring(sampleContactsFor(myPhone), FINDING_MS);
+        }}
+        onDeny={() => {
+          setAlert(false);
+          setAccess("denied");
+        }}
+      />
     </Screen>
   );
 }
