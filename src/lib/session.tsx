@@ -9,7 +9,6 @@ type Profile = NonNullable<(typeof api.users.me)["_returnType"]>;
 export type Session =
   | { status: "loading"; stalled: boolean }
   | { status: "signedOut" }
-  | { status: "needsProfile"; me: Profile }
   | { status: "needsOnboarding"; me: Profile }
   | { status: "ready"; me: Profile };
 
@@ -43,7 +42,6 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   if (!isLoaded) session = { status: "loading", stalled: false };
   else if (!isSignedIn) session = { status: "signedOut" };
   else if (!isAuthenticated || !me) session = { status: "loading", stalled };
-  else if (!me.name) session = { status: "needsProfile", me };
   else if (!me.onboarded) session = { status: "needsOnboarding", me };
   else session = { status: "ready", me };
 

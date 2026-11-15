@@ -1,157 +1,288 @@
-import { useAuth, useUser } from "@clerk/expo";
+import { useUser } from "@clerk/expo";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { useQuery } from "convex/react";
+import { BlurView } from "expo-blur";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { Avatar } from "@/components/Avatar";
-import { Card } from "@/components/Card";
-import { QuietLink } from "@/components/QuietLink";
-import { Rise } from "@/components/Rise";
-import { Screen } from "@/components/Screen";
+import { BreathingButton } from "@/components/BreathingButton";
+import { IconButton } from "@/components/IconButton";
+import { gradientFor } from "@/components/QuestionCard";
 import { Segments } from "@/components/Segments";
-import { StickerGrid } from "@/components/Sticker";
+import { StickerArt } from "@/components/Sticker";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
-import { shortDate } from "@/lib/dates";
-import { formatE164 } from "@/lib/phone";
+import { firstName, personName } from "@/lib/names";
 import { useProfile } from "@/lib/session";
-import { space } from "@/theme";
+import { colors, layout, questionGradients, radius, shadows } from "@/theme";
 
 const TABS = [
-  { value: "questions", label: "My questions" },
-  { value: "sealed", label: "Sealed by me" },
+  { value: "questions", label: "Questions" },
   { value: "badges", label: "Badges" },
 ] as const;
 
+const HERO_HEIGHT = 500;
+const TILTS = ["-6deg", "5deg", "-3deg", "7deg", "-5deg", "4deg", "-7deg"];
+
+function collectedOn(time: number) {
+  const then = new Date(time);
+  if (then.toDateString() === new Date().toDateString()) return "Today";
+  return then.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
 export default function ProfileScreen() {
   const me = useProfile();
-  const { signOut } = useAuth();
   const { user } = useUser();
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const stickers = useQuery(api.stickers.mine);
   const questions = useQuery(api.questions.mine);
-  const answers = useQuery(api.questions.myAnswers);
-  const messages = useQuery(api.direct.listSent);
+  const matches = useQuery(api.matches.list);
   const [tab, setTab] = useState<(typeof TABS)[number]["value"]>("questions");
-  const [leaving, setLeaving] = useState(false);
-  const phone = user?.primaryPhoneNumber?.phoneNumber;
-
-  const sealed =
-    answers && messages
-      ? [
-          ...answers.map((entry) => ({ ...entry, about: entry.question.text, questionId: entry.question.id })),
-          ...messages.map((entry) => ({ ...entry, about: "A message to someone you know", questionId: null })),
-        ].sort((a, b) => b.createdAt - a.createdAt)
-      : undefined;
+  const conversations = matches?.filter((match) => match.state === "revealed").length;
+  const joined = user?.createdAt
+    ? "joined " + user.createdAt.toLocaleDateString("en-US", { month: "short", year: "numeric" })
+    : null;
 
   return (
-    <Screen scene="base" aboveTabBar testID="profile-screen">
-      <Rise>
-        <Text variant="label" soft>
-          Profile
-        </Text>
-      </Rise>
-      <View style={styles.identity}>
-        <Rise order={1}>
-          <Avatar uri={me.avatarUrl} name={me.name} />
-        </Rise>
-        <Rise order={2}>
-          <Text variant="display" style={styles.centered} testID="profile-name">
-            {me.name}
-          </Text>
-        </Rise>
-        <Rise order={3}>
-          <Text variant="caption" soft style={styles.centered} testID="profile-badge-count">
-            {phone ? formatE164(phone) + " · only you can see this\n" : ""}
-            {stickers ? stickers.length + (stickers.length === 1 ? " badge" : " badges") : ""}
-          </Text>
-        </Rise>
-        <Rise order={4} style={styles.stretch}>
-          <Segments testID="profile-tab" options={TABS} value={tab} onChange={setTab} />
-        </Rise>
+    <View style={styles.root} testID="profile-screen">
+      <View style={styles.hero}>
+        {me.avatarUrl ? (
+          <Image
+            source={{ uri: me.avatarUrl }}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+            contentPosition={{ top: "30%", left: "50%" }}
+            transition={400}
+            accessibilityLabel="Profile photo"
+          />
+        ) : (
+          <LinearGradient
+            colors={questionGradients[4]}
+            start={{ x: 0.35, y: 0 }}
+            end={{ x: 0.65, y: 1 }}
+            style={[StyleSheet.absoluteFill, styles.heroBlank]}>
+            {me.name ? (
+              <Text style={styles.heroInitial}>{me.name.trim().charAt(0).toUpperCase()}</Text>
+            ) : (
+              <Ionicons name="person" size={120} color="rgba(11, 11, 15, 0.2)" style={styles.heroIcon} />
+            )}
+          </LinearGradient>
+        )}
+        <LinearGradient
+          colors={[
+            "rgba(255, 255, 255, 0.35)",
+            "rgba(255, 255, 255, 0)",
+            "rgba(255, 255, 255, 0)",
+            "rgba(255, 255, 255, 0.85)",
+            colors.white,
+          ]}
+          locations={[0, 0.18, 0.66, 0.92, 1]}
+          style={StyleSheet.absoluteFill}
+        />
       </View>
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {tab === "questions" ? (
-          questions?.length ? (
-            questions.map((question) => (
-              <Card
-                key={question.id}
-                testID="profile-question"
-                onPress={() => router.push({ pathname: "/question/[id]", params: { id: question.id } })}>
-                <Text variant="quote">{question.text}</Text>
-                <Text variant="caption" soft>
-                  {shortDate(question.createdAt)} ·{" "}
-                  {question.responseCount === 1 ? "1 sealed answer" : question.responseCount + " sealed answers"}
-                </Text>
-              </Card>
-            ))
-          ) : questions ? (
-            <Text soft style={styles.centered} testID="profile-questions-empty">
-              You haven't asked anything yet. Tap + to ask a question.
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + layout.tabBarHeight + 54 }]}
+        showsVerticalScrollIndicator={false}>
+        <View style={styles.spacer} />
+        <View style={styles.panel}>
+          <View style={styles.glass}>
+            <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
+            <LinearGradient
+              colors={["rgba(255, 255, 255, 0.5)", "rgba(255, 255, 255, 0.84)", colors.white]}
+              locations={[0, 0.58, 1]}
+              style={styles.glassFade}
+            />
+            <View style={styles.glassSolid} />
+          </View>
+          {me.name ? (
+            <Text style={styles.name} testID="profile-name">
+              {me.name}
             </Text>
-          ) : null
-        ) : null}
-        {tab === "sealed" ? (
-          sealed?.length ? (
-            sealed.map((entry) => (
-              <Card
-                key={entry.id}
-                testID="profile-sealed"
-                onPress={
-                  entry.questionId
-                    ? () => router.push({ pathname: "/question/[id]", params: { id: entry.questionId } })
-                    : undefined
-                }>
-                <Text variant="caption" soft numberOfLines={2}>
-                  {entry.about}
-                </Text>
-                <Text numberOfLines={4}>{entry.body}</Text>
-                <Text variant="caption" soft>
-                  {shortDate(entry.createdAt)} · sealed
-                </Text>
-              </Card>
-            ))
-          ) : sealed ? (
-            <Text soft style={styles.centered} testID="profile-sealed-empty">
-              Nothing sealed yet. What you write stays here, where only you can read it.
+          ) : (
+            <Pressable accessibilityRole="button" onPress={() => router.push("/profile-setup")}>
+              <Text style={styles.name} testID="profile-name">
+                Add your name
+              </Text>
+            </Pressable>
+          )}
+          {joined ? (
+            <Text soft style={styles.handle}>
+              {joined}
             </Text>
-          ) : null
-        ) : null}
-        {tab === "badges" ? (
-          stickers?.length ? (
-            <StickerGrid stickers={stickers} onOpen={(id) => router.push(`/sticker/${id}`)} />
-          ) : stickers ? (
-            <View style={styles.empty} testID="badges-empty">
-              <Text variant="quote" style={styles.centered}>
-                Nothing kept yet.
-              </Text>
-              <Text soft style={[styles.centered, styles.body]}>
-                Every conversation that opens leaves a sticker behind. The ones you collect will rest here.
-              </Text>
-            </View>
-          ) : null
-        ) : null}
+          ) : null}
+          <View style={styles.stats}>
+            <Stat value={questions?.length} label="Questions" />
+            <Stat value={conversations} label="Conversations" divided />
+            <Stat value={stickers?.length} label="Badges" divided testID="profile-badge-count" />
+          </View>
+          <Segments testID="profile-tab" options={TABS} value={tab} onChange={setTab} />
+          <View style={styles.items}>
+            {tab === "questions" ? (
+              questions?.length ? (
+                questions.map((question, index) => (
+                  <Pressable
+                    key={question.id}
+                    testID="profile-question"
+                    accessibilityRole="button"
+                    onPress={() => router.push({ pathname: "/question/[id]", params: { id: question.id } })}
+                    style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
+                    {index > 0 ? <View style={styles.rule} /> : null}
+                    <LinearGradient
+                      colors={gradientFor(question.id)}
+                      start={{ x: 0.35, y: 0 }}
+                      end={{ x: 0.65, y: 1 }}
+                      style={styles.thumb}
+                    />
+                    <View style={styles.rowText}>
+                      <Text numberOfLines={3} style={styles.rowTitle}>
+                        {question.text}
+                      </Text>
+                      <View style={styles.rowMeta}>
+                        <Ionicons name="people" size={16} color={colors.ink2} />
+                        <Text soft style={styles.meta}>
+                          {question.responseCount === 0 ? "No answers yet" : question.responseCount + " answered"}
+                        </Text>
+                      </View>
+                    </View>
+                    <Ionicons name="bookmark-outline" size={21} color={colors.ink2} style={styles.bookmark} />
+                  </Pressable>
+                ))
+              ) : questions ? (
+                <View style={styles.empty}>
+                  <Text soft style={styles.emptyText} testID="profile-questions-empty">
+                    You haven’t asked anything yet.
+                  </Text>
+                  <BreathingButton
+                    testID="profile-ask"
+                    icon="add"
+                    label="Ask a question"
+                    onPress={() => router.push("/compose/question")}
+                  />
+                </View>
+              ) : null
+            ) : null}
+            {tab === "badges" && stickers ? (
+              <View style={styles.wall} testID="sticker-grid">
+                {stickers.map((sticker, index) => (
+                  <Pressable
+                    key={sticker.id}
+                    testID="sticker-tile"
+                    accessibilityRole="button"
+                    accessibilityLabel={sticker.title ?? "Sticker"}
+                    onPress={() => router.push(`/sticker/${sticker.id}`)}
+                    style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
+                    <View style={{ transform: [{ rotate: TILTS[index % TILTS.length] }] }}>
+                      <StickerArt sticker={sticker} size={88} />
+                    </View>
+                    <Text numberOfLines={2} style={styles.tileTitle}>
+                      {sticker.title}
+                    </Text>
+                    <Text soft numberOfLines={2} style={styles.tileMeta}>
+                      {"with " + firstName(personName(sticker.other.name)) + " · " + collectedOn(sticker.createdAt)}
+                    </Text>
+                  </Pressable>
+                ))}
+                <View style={styles.tile} testID={stickers.length === 0 ? "badges-empty" : undefined}>
+                  <View style={styles.next}>
+                    <Ionicons name="add" size={18} color={colors.ink2} />
+                    <Text soft style={styles.nextLabel}>
+                      Your next conversation
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            ) : null}
+          </View>
+        </View>
       </ScrollView>
-      <QuietLink
-        testID="sign-out"
-        label={leaving ? "Signing out" : "Sign out"}
-        disabled={leaving}
-        onPress={() => {
-          setLeaving(true);
-          signOut().catch(() => setLeaving(false));
-        }}
-      />
-    </Screen>
+      <View style={[styles.gear, { top: insets.top + 14 }]}>
+        <IconButton
+          testID="profile-settings"
+          icon="settings-outline"
+          label="Settings"
+          onPress={() => router.push("/settings")}
+        />
+      </View>
+    </View>
+  );
+}
+
+function Stat({ value, label, divided, testID }: { value?: number; label: string; divided?: boolean; testID?: string }) {
+  return (
+    <View style={[styles.stat, divided && styles.statDivided]} testID={testID}>
+      <Text style={styles.statValue}>{value ?? " "}</Text>
+      <Text soft style={styles.statLabel}>
+        {label}
+      </Text>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  identity: { alignItems: "center", gap: space.md, marginTop: space.lg },
-  scroll: { flex: 1, marginTop: space.lg },
-  content: { gap: space.md, paddingBottom: space.lg },
-  empty: { alignItems: "center", gap: space.sm, paddingTop: space.xl },
-  centered: { textAlign: "center" },
-  stretch: { alignSelf: "stretch" },
-  body: { maxWidth: 280 },
+  root: { flex: 1, backgroundColor: colors.white },
+  hero: { position: "absolute", top: 0, left: 0, right: 0, height: HERO_HEIGHT, pointerEvents: "none" },
+  heroBlank: { alignItems: "center", paddingTop: 110 },
+  heroInitial: { fontSize: 140, lineHeight: 160, fontWeight: "800", letterSpacing: -4, color: "rgba(11, 11, 15, 0.22)" },
+  heroIcon: { marginTop: 14 },
+  scroll: { flex: 1 },
+  content: { paddingHorizontal: 12 },
+  spacer: { height: 300 },
+  panel: { paddingTop: 22, paddingHorizontal: 18, paddingBottom: 10 },
+  gear: { position: "absolute", right: 18 },
+  glass: {
+    position: "absolute",
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    borderRadius: 34,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.9)",
+    overflow: "hidden",
+    boxShadow: "0 -6px 30px rgba(0, 0, 0, 0.06)",
+  },
+  glassFade: { position: "absolute", top: 0, left: 0, right: 0, height: 260 },
+  glassSolid: { position: "absolute", top: 260, left: 0, right: 0, bottom: 0, backgroundColor: colors.white },
+  name: { fontSize: 34, lineHeight: 36, fontWeight: "800", letterSpacing: -1.2 },
+  handle: { fontSize: 15, lineHeight: 20, marginTop: 6 },
+  stats: { flexDirection: "row", marginTop: 20, marginBottom: 18 },
+  stat: { flex: 1, alignItems: "center" },
+  statDivided: { borderLeftWidth: 1, borderLeftColor: colors.line },
+  statValue: { fontSize: 22, lineHeight: 28, fontWeight: "700", letterSpacing: -0.44 },
+  statLabel: { fontSize: 14, lineHeight: 19, letterSpacing: 0 },
+  items: { marginTop: 8, minHeight: 180 },
+  row: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 12, paddingHorizontal: 2 },
+  rule: { position: "absolute", top: 0, left: 92, right: 0, height: 1, backgroundColor: colors.line },
+  thumb: { width: 76, height: 76, borderRadius: radius.thumb, boxShadow: shadows.card },
+  rowText: { flex: 1 },
+  rowTitle: { fontSize: 16, lineHeight: 21, fontWeight: "600", letterSpacing: -0.16 },
+  rowMeta: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
+  meta: { fontSize: 14, lineHeight: 19, letterSpacing: 0 },
+  bookmark: { alignSelf: "flex-start", marginTop: 4 },
+  empty: { paddingVertical: 26, paddingHorizontal: 16 },
+  emptyText: { textAlign: "center", marginBottom: 14 },
+  wall: { flexDirection: "row", flexWrap: "wrap", rowGap: 16, marginTop: 6 },
+  tile: { width: "33.33%", alignItems: "center", paddingHorizontal: 3 },
+  tileTitle: { fontSize: 13, lineHeight: 17, fontWeight: "600", letterSpacing: -0.13, textAlign: "center", marginTop: 4 },
+  tileMeta: { fontSize: 11, lineHeight: 14, letterSpacing: 0, textAlign: "center", marginTop: 2 },
+  next: {
+    alignSelf: "stretch",
+    minHeight: 128,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    padding: 10,
+    borderWidth: 1.5,
+    borderStyle: "dashed",
+    borderColor: "#CFD0D8",
+    borderRadius: 22,
+  },
+  nextLabel: { fontSize: 12, lineHeight: 16, fontWeight: "600", letterSpacing: 0, textAlign: "center" },
+  pressed: { opacity: 0.6 },
 });

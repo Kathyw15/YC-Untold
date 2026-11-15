@@ -29,7 +29,7 @@ export default function OnboardingScreen() {
   }
 
   return (
-    <Screen scene={SCENES[page] ?? "base"} testID="onboarding-screen">
+    <Screen scene={SCENES[page] ?? "aurora"} testID="onboarding-screen">
       {page < HEADLINES.length ? (
         <OnboardingSlide
           headline={HEADLINES[page]}
@@ -40,7 +40,12 @@ export default function OnboardingScreen() {
           disabled={busy}
         />
       ) : (
-        <ContactsInvitation onContinue={() => void finish(true)} onNotNow={() => void finish(false)} busy={busy} />
+        <ContactsInvitation
+          onContinue={() => void finish(true)}
+          onNotNow={() => void finish(false)}
+          onBack={() => setPage(page - 1)}
+          busy={busy}
+        />
       )}
     </Screen>
   );
