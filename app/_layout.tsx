@@ -9,6 +9,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
+import { MatchPopup } from "@/components/MatchPopup";
 import { QuietLoading } from "@/components/QuietLoading";
 import { SessionProvider, useSession } from "@/lib/session";
 import { colors, fontAssets } from "@/theme";
@@ -59,6 +60,7 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="(auth)" />
       </Stack>
+      {ready ? <MatchPopup /> : null}
       {session.status === "loading" ? <QuietLoading stalled={session.stalled} /> : null}
     </>
   );
