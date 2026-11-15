@@ -1,11 +1,11 @@
 {
   "expo": {
     "name": "Seal",
-    "slug": "untold",
+    "slug": "seal",
     "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "untold",
+    "scheme": "seal",
     "userInterfaceStyle": "light",
     "backgroundColor": "#F7F7FA",
     "ios": {

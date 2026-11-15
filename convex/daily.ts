@@ -34,7 +34,7 @@ export async function publishDaily(ctx: MutationCtx) {
     .unique();
   const authorId =
     system?._id ??
-    (await ctx.db.insert("users", { tokenIdentifier: SYSTEM_TOKEN, phoneHmac: SYSTEM_TOKEN, name: "Untold" }));
+    (await ctx.db.insert("users", { tokenIdentifier: SYSTEM_TOKEN, phoneHmac: SYSTEM_TOKEN, name: "Seal" }));
 
   return await ctx.db.insert("questions", {
     authorId,
