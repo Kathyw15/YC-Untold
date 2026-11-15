@@ -15,7 +15,7 @@ import { useProfile } from "@/lib/session";
 import { layout, space } from "@/theme";
 
 const PAGE_SIZE = 12;
-const FLOOR = ["rgba(243, 239, 230, 0)", "rgba(243, 239, 230, 0.9)", "rgba(243, 239, 230, 0.9)"] as const;
+const FLOOR = ["rgba(247, 247, 250, 0)", "rgba(247, 247, 250, 0.9)", "rgba(247, 247, 250, 0.9)"] as const;
 
 function greeting(hour: number) {
   if (hour < 5) return "Still awake";

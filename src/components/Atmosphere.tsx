@@ -28,7 +28,7 @@ export function Atmosphere({ scene, children, style }: AtmosphereProps) {
   return (
     <ToneContext value={tone}>
       <View style={[styles.root, { backgroundColor: tones[tone].ground }, style]}>
-        <Image source={source} style={StyleSheet.absoluteFill} contentFit={fit} transition={300} />
+        {source ? <Image source={source} style={StyleSheet.absoluteFill} contentFit={fit} transition={300} /> : null}
         {tone === "dark" ? (
           <LinearGradient colors={SCRIM} locations={[0, 0.26, 0.52, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
         ) : null}
