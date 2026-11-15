@@ -3,21 +3,14 @@ import * as Haptics from "expo-haptics";
 import { usePathname, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { Keyboard, StyleSheet, View } from "react-native";
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withDelay,
-  withRepeat,
-  withSequence,
-  withTiming,
-} from "react-native-reanimated";
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 
 import { api } from "@/convex/_generated/api";
+import { useSession } from "@/lib/session";
 import { colors, space } from "@/theme";
 
-import { BreathingButton } from "./BreathingButton";
-import { QuietLink } from "./QuietLink";
+import { CloudFrame } from "./CloudFrame";
+import { Burst, MatchTitle, Pill, TextLink } from "./MatchParts";
 import { Screen } from "./Screen";
 import { Text } from "./Text";
 
@@ -64,15 +57,15 @@ type CelebrationProps = {
   onLater: () => void;
 };
 
-const SEAL = 72;
-const APART = 64;
-const TOGETHER = 20;
+const CLOUD = 168;
+const APART = 44;
 
 function Celebration({ social, onOpen, onLater }: CelebrationProps) {
+  const session = useSession();
+  const me = session.status === "ready" ? session.me : null;
   const presence = useSharedValue(0);
   const meeting = useSharedValue(0);
-  const glow = useSharedValue(0);
-  const ripple = useSharedValue(0);
+  const spark = useSharedValue(0);
   const words = useSharedValue(0);
 
   useEffect(() => {
@@ -80,27 +73,16 @@ function Celebration({ social, onOpen, onLater }: CelebrationProps) {
     void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     presence.set(withTiming(1, { duration: 400 }));
     meeting.set(withDelay(250, withTiming(1, { duration: 900, easing: Easing.out(Easing.cubic) })));
-    glow.set(
-      withDelay(
-        1000,
-        withSequence(withTiming(1.5, { duration: 260 }), withTiming(1, { duration: 320, easing: Easing.out(Easing.quad) })),
-      ),
-    );
-    ripple.set(withDelay(1100, withRepeat(withTiming(1, { duration: 2200, easing: Easing.out(Easing.quad) }), -1, false)));
+    spark.set(withDelay(1000, withTiming(1, { duration: 320, easing: Easing.out(Easing.quad) })));
     words.set(withDelay(1100, withTiming(1, { duration: 700 })));
-  }, [glow, meeting, presence, ripple, words]);
+  }, [meeting, presence, spark, words]);
 
   const veil = useAnimatedStyle(() => ({ opacity: presence.get() }));
-  const left = useAnimatedStyle(() => ({
-    transform: [{ translateX: -APART + (APART - TOGETHER) * meeting.get() }],
-  }));
-  const right = useAnimatedStyle(() => ({
-    transform: [{ translateX: APART - (APART - TOGETHER) * meeting.get() }],
-  }));
-  const core = useAnimatedStyle(() => ({ opacity: Math.min(1, glow.get()), transform: [{ scale: glow.get() }] }));
-  const ring = useAnimatedStyle(() => ({
-    opacity: 0.7 * (1 - ripple.get()),
-    transform: [{ scale: 0.4 + 2.2 * ripple.get() }],
+  const left = useAnimatedStyle(() => ({ transform: [{ translateX: -APART * (1 - meeting.get()) }] }));
+  const right = useAnimatedStyle(() => ({ transform: [{ translateX: APART * (1 - meeting.get()) }] }));
+  const burst = useAnimatedStyle(() => ({
+    opacity: spark.get(),
+    transform: [{ translateY: 8 * (1 - spark.get()) }, { scale: 0.6 + 0.4 * spark.get() }],
   }));
   const rising = useAnimatedStyle(() => ({
     opacity: words.get(),
@@ -111,29 +93,32 @@ function Celebration({ social, onOpen, onLater }: CelebrationProps) {
     <Animated.View style={[StyleSheet.absoluteFill, veil]} accessibilityViewIsModal>
       <Screen scene="lime" testID="match-popup">
         <View style={styles.middle}>
-          <View style={styles.emblem}>
-            <Animated.View style={[styles.ring, ring]} />
-            <Animated.View style={[styles.seal, left]} />
-            <Animated.View style={[styles.seal, right]} />
-            <Animated.View style={[styles.core, core]} />
+          <View style={styles.pair}>
+            <Animated.View style={[styles.burst, burst]}>
+              <Burst />
+            </Animated.View>
+            <Animated.View style={left}>
+              <CloudFrame size={CLOUD} uri={me?.avatarUrl} name={me?.name} />
+            </Animated.View>
+            <Animated.View style={[styles.overlap, right]}>
+              <CloudFrame size={CLOUD} variant="b" mystery />
+            </Animated.View>
           </View>
           <Animated.View style={[styles.words, rising]}>
-            <Text variant="label" soft style={styles.centered}>
-              A possible connection
-            </Text>
-            <Text variant="display" style={styles.centered} testID="match-popup-headline">
-              Your words met.
-            </Text>
-            <Text soft style={[styles.centered, styles.body]}>
+            <MatchTitle text="It’s a Match" testID="match-popup-headline" />
+            <Text style={[styles.centered, styles.body]}>
               {social
-                ? "Your answer and someone else's echo each other. Nothing is shown unless you both say yes."
-                : "Someone you wrote to has written to you, too. Nothing is shown unless you both say yes."}
+                ? "Someone’s answer to the question resonated with yours."
+                : "You and someone who knows you both left a Seal."}
             </Text>
           </Animated.View>
         </View>
         <Animated.View style={[styles.actions, rising]}>
-          <BreathingButton testID="match-popup-open" label="See the invitation" onPress={onOpen} />
-          <QuietLink testID="match-popup-later" label="Later" onPress={onLater} />
+          <Pill testID="match-popup-open" label="See the invitation" arrow onPress={onOpen} />
+          <TextLink testID="match-popup-later" label="Later" onPress={onLater} />
+          <Text variant="caption" soft style={styles.centered}>
+            We only show who it is if you both say yes.
+          </Text>
         </Animated.View>
       </Screen>
     </Animated.View>
@@ -141,27 +126,12 @@ function Celebration({ social, onOpen, onLater }: CelebrationProps) {
 }
 
 const styles = StyleSheet.create({
-  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.xl },
-  emblem: { width: SEAL * 3, height: SEAL * 2, alignItems: "center", justifyContent: "center" },
-  seal: {
-    position: "absolute",
-    width: SEAL,
-    height: SEAL,
-    borderRadius: SEAL / 2,
-    borderWidth: 1.5,
-    borderColor: colors.ink,
-  },
-  core: { position: "absolute", width: 14, height: 14, borderRadius: 7, backgroundColor: colors.ink },
-  ring: {
-    position: "absolute",
-    width: SEAL,
-    height: SEAL,
-    borderRadius: SEAL / 2,
-    borderWidth: 2,
-    borderColor: "#BFE04E",
-  },
-  words: { alignItems: "center", gap: space.sm },
-  actions: { gap: space.sm },
+  middle: { flex: 1, alignItems: "center", justifyContent: "center", gap: 44 },
+  pair: { flexDirection: "row", justifyContent: "center", alignItems: "center" },
+  burst: { position: "absolute", left: "50%", marginLeft: -24, top: -46 },
+  overlap: { marginLeft: -26 },
+  words: { alignItems: "center", gap: space.md },
+  actions: { gap: 2 },
   centered: { textAlign: "center" },
-  body: { maxWidth: 300 },
+  body: { maxWidth: 300, color: colors.ink },
 });
