@@ -28,8 +28,8 @@ export const create = mutation({
     });
     if (recipient) {
       await ctx.db.insert("notices", { userId: recipient._id, kind: "sealedReceived", refId: entryId });
+      await ctx.scheduler.runAfter(0, internal.matching.onEntryCreated, { entryId });
     }
-    await ctx.scheduler.runAfter(0, internal.matching.onEntryCreated, { entryId });
     return { id: entryId };
   },
 });
