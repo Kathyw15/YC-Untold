@@ -1,0 +1,16 @@
+project:
+    id: 04f78046-132f-4a1d-8e36-3c44ddefa0b4
+session:
+    idle_timeout_seconds: 1800
+build:
+    framework: expo
+    profiles:
+        development:
+            ios:
+                app_id: 888e4a86-a619-4bc0-aed1-c9a3d6f03ee9
+                setup_commands:
+                    - npm install
+                    - if [ ! -d ios ]; then npx expo prebuild --platform ios --no-install; fi
+                build_commands:
+                    - cd ios && if [ ! -d Pods ]; then pod install; fi && WS=$(ls -d *.xcworkspace | head -n 1) && xcodebuild -workspace "$WS" -scheme "${WS%.xcworkspace}" -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' ARCHS=arm64 -derivedDataPath build
+                output_path: ios/build/Build/Products/Debug-iphonesimulator/*.app
