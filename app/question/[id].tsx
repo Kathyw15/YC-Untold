@@ -39,7 +39,12 @@ export default function QuestionScreen() {
                 </Text>
               ) : (
                 <View style={styles.row}>
-                  <Avatar uri={question.author?.avatarUrl ?? null} name={question.author?.name ?? null} size={36} />
+                  <Avatar
+                    uri={question.author?.avatarUrl ?? null}
+                    emoji={question.author?.avatarEmoji}
+                    name={question.author?.name ?? null}
+                    size={36}
+                  />
                   <Text variant="caption" soft>
                     {askedBy(question)}
                   </Text>

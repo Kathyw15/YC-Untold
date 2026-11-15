@@ -20,7 +20,7 @@ import {
   getContactsAccess,
   readDeviceContacts,
   requestContactsAccess,
-  SAMPLE_CONTACTS,
+  sampleContactsFor,
   SYNC_BATCH_SIZE,
 } from "@/lib/contacts";
 import { space } from "@/theme";
@@ -58,13 +58,13 @@ export default function PeopleScreen() {
   }
 
   useEffect(() => {
-    if (DEMO_MODE) return void bring(SAMPLE_CONTACTS);
+    if (DEMO_MODE) return void bring(sampleContactsFor(myPhone));
     void getContactsAccess().then(async (status) => {
       setAccess(status);
       if (status === "granted") await bring(await readDeviceContacts());
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [DEMO_MODE ? myPhone : null]);
 
   async function onContinue() {
     setAsking(true);
@@ -144,7 +144,7 @@ export default function PeopleScreen() {
         <QuietLink testID="contacts-settings" label="Turn on contacts in Settings" onPress={() => void Linking.openSettings()} />
       ) : null}
       {__DEV__ && !DEMO_MODE ? (
-        <QuietLink testID="load-sample-contacts" label="Load sample contacts (dev)" onPress={() => void bring(SAMPLE_CONTACTS)} />
+        <QuietLink testID="load-sample-contacts" label="Load sample contacts (dev)" onPress={() => void bring(sampleContactsFor(myPhone))} />
       ) : null}
     </View>
   );
@@ -180,6 +180,7 @@ export default function PeopleScreen() {
                 testID={"person-" + item.phone}
                 name={item.name}
                 avatarUrl={section.key === "here" ? onSeal.get(contactId)?.avatarUrl : null}
+                avatarEmoji={section.key === "here" ? onSeal.get(contactId)?.avatarEmoji : item.emoji}
                 note={sealedFor.has(contactId) ? "You left words" : null}
                 onPress={() => {
                   const userId = onSeal.get(contactId)?.userId;

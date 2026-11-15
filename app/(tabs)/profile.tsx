@@ -67,7 +67,7 @@ export default function ProfileScreen() {
             {stickers ? stickers.length + (stickers.length === 1 ? " badge" : " badges") : ""}
           </Text>
         </Rise>
-        <Rise order={4}>
+        <Rise order={4} style={styles.stretch}>
           <Segments testID="profile-tab" options={TABS} value={tab} onChange={setTab} />
         </Rise>
       </View>
@@ -152,5 +152,6 @@ const styles = StyleSheet.create({
   content: { gap: space.md, paddingBottom: space.lg },
   empty: { alignItems: "center", gap: space.sm, paddingTop: space.xl },
   centered: { textAlign: "center" },
+  stretch: { alignSelf: "stretch" },
   body: { maxWidth: 280 },
 });

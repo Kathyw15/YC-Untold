@@ -7,6 +7,7 @@ export default defineSchema({
     phoneHmac: v.string(),
     name: v.optional(v.string()),
     avatarId: v.optional(v.id("_storage")),
+    avatarEmoji: v.optional(v.string()),
     pushToken: v.optional(v.string()),
     onboardedAt: v.optional(v.number()),
   })
@@ -106,4 +107,11 @@ export default defineSchema({
     refId: v.optional(v.union(v.id("sealedEntries"), v.id("matches"))),
     readAt: v.optional(v.number()),
   }).index("by_user", ["userId"]),
+
+  // Sticker art of the seeded demo conversations, kept so a demo reset does not draw it again.
+  demoStickers: defineTable({
+    key: v.string(),
+    title: v.string(),
+    imageId: v.id("_storage"),
+  }).index("by_key", ["key"]),
 });

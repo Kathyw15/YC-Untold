@@ -67,7 +67,12 @@ export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
         <View style={styles.meta}>
           <View style={styles.row}>
             {question.isDaily ? null : (
-              <Avatar uri={question.author?.avatarUrl ?? null} name={question.author?.name ?? null} size={24} />
+              <Avatar
+                uri={question.author?.avatarUrl ?? null}
+                emoji={question.author?.avatarEmoji}
+                name={question.author?.name ?? null}
+                size={24}
+              />
             )}
             <Text style={styles.metaText}>{question.isDaily ? "From Seal" : askedBy(question)}</Text>
           </View>

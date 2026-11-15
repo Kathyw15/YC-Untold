@@ -9,12 +9,13 @@ import { Text } from "./Text";
 type PersonRowProps = {
   name: string;
   avatarUrl?: string | null;
+  avatarEmoji?: string | null;
   note?: string | null;
   onPress: () => void;
   testID?: string;
 };
 
-export function PersonRow({ name, avatarUrl = null, note, onPress, testID }: PersonRowProps) {
+export function PersonRow({ name, avatarUrl = null, avatarEmoji, note, onPress, testID }: PersonRowProps) {
   return (
     <Pressable
       testID={testID}
@@ -22,7 +23,7 @@ export function PersonRow({ name, avatarUrl = null, note, onPress, testID }: Per
       accessibilityLabel={"Write to " + name}
       onPress={onPress}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
-      <Avatar uri={avatarUrl} name={name} size={44} />
+      <Avatar uri={avatarUrl} emoji={avatarEmoji} name={name} size={44} />
       <View style={styles.words}>
         <Text numberOfLines={1} style={styles.name}>
           {name}
