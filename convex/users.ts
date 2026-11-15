@@ -59,6 +59,13 @@ export const ensure = mutation({
       await ctx.db.patch(entry._id, { recipientUserId: userId });
       await ctx.db.insert("notices", { userId, kind: "sealedReceived", refId: entry._id });
     }
+    const listedBy = await ctx.db
+      .query("contacts")
+      .withIndex("by_phoneHmac", (q) => q.eq("phoneHmac", phoneHmac))
+      .collect();
+    for (const contact of listedBy) {
+      await ctx.db.patch(contact._id, { matchedUserId: userId });
+    }
     return { id: userId, name: null, avatarUrl: null };
   },
 });

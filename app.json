@@ -34,6 +34,12 @@
       "expo-secure-store",
       "expo-web-browser",
       [
+        "expo-contacts",
+        {
+          "contactsPermission": "Untold checks your contacts to find the people you know who are already here. Names never leave your phone."
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "Untold uses your photo library only when you choose a profile photo.",
