@@ -7,6 +7,8 @@ import { Screen } from "@/components/Screen";
 import { api } from "@/convex/_generated/api";
 import { requestContactsAccess } from "@/lib/contacts";
 
+const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE === "1";
+
 const HEADLINES = [
   "Some things are hard to say.",
   "Say them here. They stay sealed.",
@@ -32,7 +34,8 @@ export default function OnboardingScreen() {
           index={page}
           count={HEADLINES.length}
           nextLabel={page === HEADLINES.length - 1 ? "Get started" : undefined}
-          onNext={() => setPage(page + 1)}
+          onNext={() => (DEMO_MODE && page === HEADLINES.length - 1 ? void finish(false) : setPage(page + 1))}
+          disabled={busy}
         />
       ) : (
         <ContactsInvitation onContinue={() => void finish(true)} onNotNow={() => void finish(false)} busy={busy} />
