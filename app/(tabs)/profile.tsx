@@ -11,7 +11,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BreathingButton } from "@/components/BreathingButton";
 import { IconButton } from "@/components/IconButton";
-import { gradientFor } from "@/components/QuestionCard";
+import { QuestionBackground } from "@/components/QuestionBackground";
 import { Segments } from "@/components/Segments";
 import { StickerArt } from "@/components/Sticker";
 import { Text } from "@/components/Text";
@@ -66,11 +66,13 @@ export default function ProfileScreen() {
             start={{ x: 0.35, y: 0 }}
             end={{ x: 0.65, y: 1 }}
             style={[StyleSheet.absoluteFill, styles.heroBlank]}>
-            {me.name ? (
-              <Text style={styles.heroInitial}>{me.name.trim().charAt(0).toUpperCase()}</Text>
-            ) : (
-              <Ionicons name="person" size={120} color="rgba(11, 11, 15, 0.2)" style={styles.heroIcon} />
-            )}
+            <View style={styles.heroMonogram}>
+              {me.name ? (
+                <Text style={styles.heroInitial}>{me.name.trim().charAt(0).toUpperCase()}</Text>
+              ) : (
+                <Ionicons name="person" size={52} color={colors.ink2} />
+              )}
+            </View>
           </LinearGradient>
         )}
         <LinearGradient
@@ -133,12 +135,9 @@ export default function ProfileScreen() {
                     onPress={() => router.push({ pathname: "/question/[id]", params: { id: question.id } })}
                     style={({ pressed }) => [styles.row, pressed && styles.pressed]}>
                     {index > 0 ? <View style={styles.rule} /> : null}
-                    <LinearGradient
-                      colors={gradientFor(question.id)}
-                      start={{ x: 0.35, y: 0 }}
-                      end={{ x: 0.65, y: 1 }}
-                      style={styles.thumb}
-                    />
+                    <View style={styles.thumb}>
+                      <QuestionBackground question={question} style={styles.thumbFill} />
+                    </View>
                     <View style={styles.rowText}>
                       <Text numberOfLines={3} style={styles.rowTitle}>
                         {question.text}
@@ -227,9 +226,19 @@ function Stat({ value, label, divided, testID }: { value?: number; label: string
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.white },
   hero: { position: "absolute", top: 0, left: 0, right: 0, height: HERO_HEIGHT, pointerEvents: "none" },
-  heroBlank: { alignItems: "center", paddingTop: 110 },
-  heroInitial: { fontSize: 140, lineHeight: 160, fontWeight: "800", letterSpacing: -4, color: "rgba(11, 11, 15, 0.22)" },
-  heroIcon: { marginTop: 14 },
+  heroBlank: { alignItems: "center", paddingTop: 120 },
+  heroMonogram: {
+    width: 124,
+    height: 124,
+    borderRadius: 62,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "rgba(255, 255, 255, 0.55)",
+    boxShadow: shadows.card,
+  },
+  heroInitial: { fontSize: 54, lineHeight: 62, fontWeight: "800", letterSpacing: -1.5, color: colors.ink },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 12 },
   spacer: { height: 300 },
@@ -260,6 +269,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: 14, paddingVertical: 12, paddingHorizontal: 2 },
   rule: { position: "absolute", top: 0, left: 92, right: 0, height: 1, backgroundColor: colors.line },
   thumb: { width: 76, height: 76, borderRadius: radius.thumb, boxShadow: shadows.card },
+  thumbFill: { borderRadius: radius.thumb },
   rowText: { flex: 1 },
   rowTitle: { fontSize: 16, lineHeight: 21, fontWeight: "600", letterSpacing: -0.16 },
   rowMeta: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 6 },
