@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/expo";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 import { colors, space } from "@/theme";
 
@@ -24,7 +24,7 @@ export function QuietLoading({ stalled }: { stalled: boolean }) {
   const offerWayOut = isSignedIn && (stalled || waitedLong);
 
   return (
-    <Animated.View style={StyleSheet.absoluteFill} exiting={FadeOut.duration(500)} testID="loading-screen">
+    <View style={StyleSheet.absoluteFill} testID="loading-screen">
       <Atmosphere scene="forest">
         <View style={styles.center}>
           <Breathing scale={0.5} dim={0.6} style={styles.dot} />
@@ -38,7 +38,7 @@ export function QuietLoading({ stalled }: { stalled: boolean }) {
           </Animated.View>
         ) : null}
       </Atmosphere>
-    </Animated.View>
+    </View>
   );
 }
 
