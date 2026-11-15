@@ -38,7 +38,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <Screen scene="dawn" testID="home-screen" contentStyle={styles.screen}>
+    <Screen scene="base" testID="home-screen" contentStyle={styles.screen}>
       <View style={[styles.feed, { marginBottom: tabBar }]}>
         <FlatList
           testID="home-feed"

@@ -25,7 +25,7 @@ export function QuietLoading({ stalled }: { stalled: boolean }) {
 
   return (
     <View style={StyleSheet.absoluteFill} testID="loading-screen">
-      <Atmosphere scene="forest">
+      <Atmosphere scene="base">
         <View style={styles.center}>
           <Breathing scale={0.5} dim={0.6} style={styles.dot} />
         </View>
@@ -44,7 +44,7 @@ export function QuietLoading({ stalled }: { stalled: boolean }) {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  dot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.paper },
+  dot: { width: 14, height: 14, borderRadius: 7, backgroundColor: colors.ink },
   wayOut: { position: "absolute", left: space.xl, right: space.xl, bottom: space.xxl * 2, gap: space.sm },
   centered: { textAlign: "center" },
 });

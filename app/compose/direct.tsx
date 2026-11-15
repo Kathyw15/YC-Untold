@@ -6,6 +6,7 @@ import { Keyboard, StyleSheet, View } from "react-native";
 
 import { BreathingButton } from "@/components/BreathingButton";
 import { LineField } from "@/components/LineField";
+import { IconButton } from "@/components/IconButton";
 import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
@@ -55,7 +56,7 @@ function ComposeDirect() {
   }
 
   return (
-    <Screen scene="forest" testID="compose-direct-screen">
+    <Screen scene="base" testID="compose-direct-screen">
       <Sealing
         sealed={phase === "sealed"}
         title="Sealed."
@@ -66,7 +67,7 @@ function ComposeDirect() {
         }
         onDone={() => router.back()}>
         <View style={styles.close}>
-          <QuietLink testID="compose-close" label="Close" onPress={() => router.back()} disabled={phase === "sealing"} />
+          <IconButton icon="close" testID="compose-close" label="Close" onPress={() => router.back()} disabled={phase === "sealing"} />
         </View>
         {params.phone ? null : (
           <Rise style={styles.number}>

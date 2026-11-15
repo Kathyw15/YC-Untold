@@ -4,7 +4,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { BreathingButton } from "@/components/BreathingButton";
-import { QuietLink } from "@/components/QuietLink";
+import { IconButton } from "@/components/IconButton";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { Sealing } from "@/components/Sealing";
@@ -38,7 +38,7 @@ export default function ComposeAnswerScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="compose-answer-screen">
+    <Screen scene="base" testID="compose-answer-screen">
       <Sealing
         sealed={sealed}
         title="Sealed."
@@ -49,7 +49,7 @@ export default function ComposeAnswerScreen() {
         }
         onDone={() => router.back()}>
         <View style={styles.close}>
-          <QuietLink testID="compose-close" label="Close" onPress={() => router.back()} />
+          <IconButton icon="close" testID="compose-close" label="Close" onPress={() => router.back()} />
         </View>
         <Rise style={styles.question}>
           <Text variant="quote" soft numberOfLines={4} testID="compose-question-text">

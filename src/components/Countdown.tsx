@@ -39,7 +39,7 @@ export function Countdown({ expiresAt, suffix = "", closedLabel = "Closed", styl
       variant="caption"
       accessibilityLabel={"Time left " + formatRemaining(remaining)}
       {...rest}
-      style={[{ color: colors.wheat, fontVariant: ["tabular-nums"] }, style]}>
+      style={[{ color: colors.ink, fontWeight: "600", fontVariant: ["tabular-nums"] }, style]}>
       {formatRemaining(remaining) + suffix}
     </Text>
   );

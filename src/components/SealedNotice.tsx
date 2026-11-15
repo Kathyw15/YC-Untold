@@ -1,9 +1,8 @@
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, radius, space, tones } from "@/theme";
+import { colors, radius, shadows, space } from "@/theme";
 
-import { useTone } from "./Atmosphere";
-import { Breathing } from "./Breathing";
 import { Rise } from "./Rise";
 import { Text } from "./Text";
 
@@ -14,27 +13,24 @@ type SealedNoticeProps = {
 };
 
 export function SealedNotice({ several, unread, onPress }: SealedNoticeProps) {
-  const tone = tones[useTone()];
   return (
     <Rise>
       <Pressable
         testID="sealed-notice"
         accessibilityRole="button"
         onPress={onPress}
-        style={({ pressed }) => [
-          styles.card,
-          { borderColor: tone.hairline, backgroundColor: tone.surface },
-          pressed && styles.pressed,
-        ]}>
-        <Breathing active={unread} scale={0.5} dim={0.5} style={[styles.dot, !unread && styles.settled]} />
+        style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
+        <View style={styles.badge}>
+          <Ionicons name="mail-outline" size={22} color={colors.ink} />
+          {unread ? <View style={styles.dot} /> : null}
+        </View>
         <View style={styles.words}>
-          <Text variant="quote" soft={!unread}>
-            {several ? "A few Seals are waiting for you." : "Someone left you a Seal."}
-          </Text>
+          <Text variant="row">{several ? "A few Seals are waiting for you." : "Someone left you a Seal."}</Text>
           <Text variant="caption" soft>
             {several ? "They" : "It"} will stay sealed unless you both choose to open {several ? "them" : "it"}.
           </Text>
         </View>
+        <Ionicons name="chevron-forward" size={18} color={colors.ink3} />
       </Pressable>
     </Rise>
   );
@@ -43,13 +39,36 @@ export function SealedNotice({ several, unread, onPress }: SealedNoticeProps) {
 const styles = StyleSheet.create({
   card: {
     flexDirection: "row",
-    gap: space.md,
-    padding: space.lg,
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 14,
+    paddingHorizontal: space.md,
+    borderRadius: radius.list,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "rgba(255, 255, 255, 0.62)",
+    boxShadow: shadows.card,
   },
-  dot: { width: 8, height: 8, borderRadius: 4, marginTop: 12, backgroundColor: colors.wheat },
-  settled: { backgroundColor: colors.moss, opacity: 0.5 },
-  words: { flex: 1, gap: space.sm },
-  pressed: { opacity: 0.6 },
+  badge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.white,
+    boxShadow: shadows.card,
+  },
+  dot: {
+    position: "absolute",
+    top: 2,
+    right: 2,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: colors.red,
+    borderWidth: 1.5,
+    borderColor: colors.white,
+  },
+  words: { flex: 1, gap: 2 },
+  pressed: { opacity: 0.7 },
 });

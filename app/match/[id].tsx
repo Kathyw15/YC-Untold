@@ -8,6 +8,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withDelay, withTiming } fro
 import { Breathing } from "@/components/Breathing";
 import { BreathingButton } from "@/components/BreathingButton";
 import { Countdown, useRemaining } from "@/components/Countdown";
+import { IconButton } from "@/components/IconButton";
 import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
@@ -91,9 +92,9 @@ export default function MatchScreen() {
   if (status !== "ready") return <Redirect href="/" />;
 
   return (
-    <Screen scene={isRevealed ? "wheat" : "mist"} testID="match-screen">
+    <Screen scene="lime" testID="match-screen">
       <View style={styles.back}>
-        <QuietLink label="Back" onPress={() => router.back()} testID="match-back" />
+        <IconButton icon="chevron-back" label="Back" onPress={() => router.back()} testID="match-back" />
       </View>
       {match ? (
         <Rise style={styles.scroll}>
@@ -208,11 +209,11 @@ const styles = StyleSheet.create({
     height: StyleSheet.hairlineWidth * 2,
     width: 48,
     marginVertical: space.sm,
-    backgroundColor: colors.inkSoft,
+    backgroundColor: colors.ink3,
     opacity: 0.3,
   },
-  threadLit: { height: 2, backgroundColor: colors.wheat, opacity: 1 },
+  threadLit: { height: 2, backgroundColor: colors.ink, opacity: 1 },
   after: { gap: space.lg },
   centered: { textAlign: "center" },
-  countdown: { textAlign: "center", color: colors.forest },
+  countdown: { textAlign: "center", color: colors.ink },
 });

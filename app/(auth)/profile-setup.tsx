@@ -60,7 +60,7 @@ export default function ProfileSetupScreen() {
   }
 
   return (
-    <Screen scene="forest" testID="profile-setup-screen">
+    <Screen scene="base" testID="profile-setup-screen">
       <Rise>
         <Wordmark />
       </Rise>

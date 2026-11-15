@@ -151,7 +151,7 @@ export default function PeopleScreen() {
 
   if (contacts !== null && contactIds !== null && everyone.length > 0) {
     return (
-      <Screen scene="mist" aboveTabBar testID="people-screen">
+      <Screen scene="base" aboveTabBar testID="people-screen">
         <SectionList
           testID="people-list"
           sections={sections}
@@ -196,7 +196,7 @@ export default function PeopleScreen() {
   }
 
   return (
-    <Screen scene="mist" aboveTabBar testID="people-screen">
+    <Screen scene="base" aboveTabBar testID="people-screen">
       {header}
       {contacts === null && access === "undetermined" && !notNow ? (
         <ContactsInvitation onContinue={onContinue} onNotNow={() => setNotNow(true)} busy={asking} />

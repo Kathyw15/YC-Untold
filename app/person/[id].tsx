@@ -7,7 +7,7 @@ import { Avatar } from "@/components/Avatar";
 import { BreathingButton } from "@/components/BreathingButton";
 import { Card } from "@/components/Card";
 import { Countdown } from "@/components/Countdown";
-import { QuietLink } from "@/components/QuietLink";
+import { IconButton } from "@/components/IconButton";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { Segments } from "@/components/Segments";
@@ -48,9 +48,9 @@ function Person() {
   const conversations = matches?.filter((match) => match.state === "revealed" && match.other?.id === id);
 
   return (
-    <Screen scene="mist" testID="person-screen">
+    <Screen scene="base" testID="person-screen">
       <View style={styles.back}>
-        <QuietLink label="Back" onPress={() => router.back()} testID="person-back" />
+        <IconButton icon="chevron-back" label="Back" onPress={() => router.back()} testID="person-back" />
       </View>
       <Rise style={styles.identity}>
         <Avatar uri={person?.avatarUrl ?? null} emoji={person?.avatarEmoji} name={name} />

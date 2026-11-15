@@ -5,7 +5,7 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { Avatar } from "@/components/Avatar";
 import { BreathingButton } from "@/components/BreathingButton";
 import { askedBy, quietResponses } from "@/components/QuestionCard";
-import { QuietLink } from "@/components/QuietLink";
+import { IconButton } from "@/components/IconButton";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
@@ -19,9 +19,9 @@ export default function QuestionScreen() {
   const question = useQuery(api.questions.get, { questionId: id as Id<"questions"> });
 
   return (
-    <Screen scene="mist" testID="question-screen">
+    <Screen scene="base" testID="question-screen">
       <View style={styles.back}>
-        <QuietLink testID="question-back" label="Back" onPress={() => router.back()} />
+        <IconButton icon="chevron-back" testID="question-back" label="Back" onPress={() => router.back()} />
       </View>
       {question === null ? (
         <View style={styles.missing}>
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: "row", alignItems: "center", gap: space.sm },
   meta: { gap: space.xs },
   sealed: { gap: space.md, marginTop: space.lg },
-  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.moss },
+  dot: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.ink },
   action: { gap: space.md },
   centered: { textAlign: "center" },
 });

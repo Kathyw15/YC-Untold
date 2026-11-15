@@ -2,6 +2,7 @@ import { Redirect, useRouter } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
 import { BreathingButton } from "@/components/BreathingButton";
+import { IconButton } from "@/components/IconButton";
 import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
@@ -16,9 +17,9 @@ export default function NoticeScreen() {
   if (status !== "ready") return <Redirect href="/" />;
 
   return (
-    <Screen scene="mist" testID="notice-screen">
+    <Screen scene="base" testID="notice-screen">
       <View style={styles.back}>
-        <QuietLink label="Back" onPress={() => router.back()} testID="notice-back" />
+        <IconButton icon="chevron-back" label="Back" onPress={() => router.back()} testID="notice-back" />
       </View>
       <View style={styles.middle}>
         <Rise order={1}>

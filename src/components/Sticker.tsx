@@ -50,9 +50,9 @@ export function StickerArt({ sticker, size = 96 }: StickerArtProps) {
         style={[
           styles.seal,
           { width: size * 0.42, height: size * 0.42, borderRadius: size * 0.21 },
-          { borderColor: pending ? tone.text : colors.wheat },
+          { borderColor: pending ? tone.text : colors.ink3 },
         ]}>
-        <View style={[styles.core, { backgroundColor: pending ? tone.text : colors.wheat }]} />
+        <View style={[styles.core, { backgroundColor: pending ? tone.text : colors.ink3 }]} />
       </Breathing>
     </View>
   );

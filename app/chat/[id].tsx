@@ -5,7 +5,7 @@ import { FlatList, Pressable, StyleSheet, TextInput, View } from "react-native";
 
 import { Avatar } from "@/components/Avatar";
 import { Countdown, useRemaining } from "@/components/Countdown";
-import { QuietLink } from "@/components/QuietLink";
+import { IconButton } from "@/components/IconButton";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { StickerArt } from "@/components/Sticker";
@@ -39,9 +39,9 @@ export default function ChatScreen() {
   if (status !== "ready") return <Redirect href="/" />;
 
   return (
-    <Screen scene="mist" testID="chat-screen">
+    <Screen scene="base" testID="chat-screen">
       <View style={styles.header}>
-        <QuietLink label="Back" onPress={() => router.back()} testID="chat-back" />
+        <IconButton icon="chevron-back" label="Back" onPress={() => router.back()} testID="chat-back" />
         {chat ? <Countdown testID="chat-countdown" expiresAt={chat.expiresAt} suffix=" left" /> : null}
       </View>
       {chat ? (
@@ -163,7 +163,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth * 2,
     borderTopColor: tone.hairline,
   },
-  input: { flex: 1, maxHeight: 120, paddingVertical: 0, color: colors.forest },
+  input: { flex: 1, maxHeight: 120, paddingVertical: 0, color: colors.ink },
   closed: { gap: space.xs, paddingTop: space.lg },
   centered: { textAlign: "center" },
 });
