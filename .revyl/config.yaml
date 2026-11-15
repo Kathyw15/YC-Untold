@@ -11,6 +11,17 @@ build:
                 setup_commands:
                     - npm install
                     - if [ ! -d ios ]; then npx expo prebuild --platform ios --no-install; fi
+                    - sed -i '' 's/compiler(>=6.4)/compiler(>=99)/' node_modules/expo-dev-launcher/ios/SwiftUI/Navigation/DevLauncherToolbar.swift
                 build_commands:
                     - cd ios && if [ ! -d Pods ]; then pod install; fi && WS=$(ls -d *.xcworkspace | head -n 1) && xcodebuild -workspace "$WS" -scheme "${WS%.xcworkspace}" -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' ARCHS=arm64 -derivedDataPath build
                 output_path: ios/build/Build/Products/Debug-iphonesimulator/*.app
+        preview:
+            ios:
+                app_id: 888e4a86-a619-4bc0-aed1-c9a3d6f03ee9
+                setup_commands:
+                    - npm install
+                    - if [ ! -d ios ]; then npx expo prebuild --platform ios --no-install; fi
+                    - sed -i '' 's/compiler(>=6.4)/compiler(>=99)/' node_modules/expo-dev-launcher/ios/SwiftUI/Navigation/DevLauncherToolbar.swift
+                build_commands:
+                    - cd ios && if [ ! -d Pods ]; then pod install; fi && WS=$(ls -d *.xcworkspace | head -n 1) && xcodebuild -workspace "$WS" -scheme "${WS%.xcworkspace}" -configuration Release -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' ARCHS=arm64 -derivedDataPath build
+                output_path: ios/build/Build/Products/Release-iphonesimulator/*.app
