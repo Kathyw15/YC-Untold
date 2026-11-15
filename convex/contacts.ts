@@ -58,6 +58,7 @@ export const listMatched = query({
         userId: person._id,
         name: person.name ?? null,
         avatarUrl: person.avatarId ? await ctx.storage.getUrl(person.avatarId) : null,
+        avatarEmoji: person.avatarEmoji ?? null,
       });
     }
     return matched;

@@ -53,7 +53,7 @@ function Person() {
         <QuietLink label="Back" onPress={() => router.back()} testID="person-back" />
       </View>
       <Rise style={styles.identity}>
-        <Avatar uri={person?.avatarUrl ?? null} name={name} />
+        <Avatar uri={person?.avatarUrl ?? null} emoji={person?.avatarEmoji} name={name} />
         <Text variant="display" style={styles.centered} testID="person-name">
           {name}
         </Text>

@@ -84,7 +84,7 @@ export default function ConversationsScreen() {
               <Section title="Open" hint="24 hours to talk">
                 {open.map((match) => (
                   <Card key={match.id} testID="conversation-open" onPress={() => enter(match)} horizontal>
-                    <Avatar uri={match.other?.avatarUrl ?? null} name={match.other?.name ?? null} size={48} />
+                    <Avatar uri={match.other?.avatarUrl ?? null} emoji={match.other?.avatarEmoji} name={match.other?.name ?? null} size={48} />
                     {match.conversation ? (
                       <View style={styles.person}>
                         <Text variant="quote">{match.other?.name}</Text>
@@ -117,7 +117,7 @@ export default function ConversationsScreen() {
               <Section title="Closed" hint="read only">
                 {closed.map((match) => (
                   <Card key={match.id} testID="conversation-closed" onPress={() => enter(match)} horizontal>
-                    <Avatar uri={match.other?.avatarUrl ?? null} name={match.other?.name ?? null} size={48} />
+                    <Avatar uri={match.other?.avatarUrl ?? null} emoji={match.other?.avatarEmoji} name={match.other?.name ?? null} size={48} />
                     <View style={styles.person}>
                       <Text variant="quote">{match.other?.name}</Text>
                       <Text variant="caption" soft numberOfLines={1}>
