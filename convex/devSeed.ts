@@ -63,3 +63,25 @@ export const socialPair = internalMutation({
     return { questionId, entryA, entryB };
   },
 });
+
+export const resetDemo = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    for (const table of ["chatMessages", "conversations", "stickers", "matchConsents", "matches", "notices", "contacts"] as const) {
+      for (const doc of await ctx.db.query(table).collect()) await ctx.db.delete(doc._id);
+    }
+    const seeded = new Set(
+      (await ctx.db.query("users").collect())
+        .filter((user) => user.tokenIdentifier.startsWith("seed:") || user.tokenIdentifier.startsWith("system:"))
+        .map((user) => user._id),
+    );
+    for (const entry of await ctx.db.query("sealedEntries").collect()) {
+      if (!seeded.has(entry.authorId)) await ctx.db.delete(entry._id);
+    }
+    for (const question of await ctx.db.query("questions").collect()) {
+      if (seeded.has(question.authorId)) await ctx.db.patch(question._id, { responseCount: 0 });
+      else await ctx.db.delete(question._id);
+    }
+    return null;
+  },
+});
