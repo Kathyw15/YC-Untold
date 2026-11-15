@@ -47,7 +47,7 @@ Sign in with a different test number on each device, for example 555-0100 on a R
 
 With EXPO_PUBLIC_DEMO_MODE=1, People skips the contacts permission and loads six sample contacts: 555-0100 as Chloe, 555-0101 as Kathy, and 555-0102 to 555-0105. So each of those two accounts finds the other under "On Untold" with no setup. The Revyl preview profile sets the flag; for Expo Go, add EXPO_PUBLIC_DEMO_MODE=1 to .env.local and restart "npx expo start --go". Without the flag, a development build shows a "Load sample contacts (dev)" link instead, and any build can reach another account through "Write to a phone number".
 
-To start a demo from a clean slate, run "npx convex run devSeed:resetDemo". It deletes everything people wrote (sealed messages, answers, their questions, invitations, conversations, synced contacts) and keeps the accounts, today's question, and the seeded questions. Run it before opening the apps.
+To start a demo from a clean slate, run "npx convex run devSeed:resetDemo". It deletes everything people wrote (sealed messages, answers, their questions, invitations, conversations, stickers, synced contacts) and keeps the accounts, today's question, and the seeded questions. Run it before opening the apps.
 
 ## Environment variables
 

@@ -67,7 +67,7 @@ export const socialPair = internalMutation({
 export const resetDemo = internalMutation({
   args: {},
   handler: async (ctx) => {
-    for (const table of ["chatMessages", "conversations", "matchConsents", "matches", "notices", "contacts"] as const) {
+    for (const table of ["chatMessages", "conversations", "stickers", "matchConsents", "matches", "notices", "contacts"] as const) {
       for (const doc of await ctx.db.query(table).collect()) await ctx.db.delete(doc._id);
     }
     const seeded = new Set(
