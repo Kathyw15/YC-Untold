@@ -1,60 +1,36 @@
 import { Image } from "expo-image";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, radius, space, tones } from "@/theme";
+import { STICKER_IMAGES } from "@/lib/stickerImages";
+import { space } from "@/theme";
 
-import { useTone } from "./Atmosphere";
-import { Breathing } from "./Breathing";
 import { BreathingButton } from "./BreathingButton";
 import { Text } from "./Text";
 
 export type StickerView = {
   id: string;
-  status: "pending" | "ready" | "failed";
+  key: string | null;
   title: string | null;
   imageUrl: string | null;
   collected: boolean;
 };
 
 type StickerArtProps = {
-  sticker: Pick<StickerView, "status" | "title" | "imageUrl">;
+  sticker: Pick<StickerView, "key" | "title" | "imageUrl">;
   size?: number;
 };
 
 export function StickerArt({ sticker, size = 96 }: StickerArtProps) {
-  const tone = tones[useTone()];
-  const frame = { width: size, height: size, borderRadius: Math.min(radius.card, size / 4) };
-
-  if (sticker.status === "ready" && sticker.imageUrl) {
-    return (
-      <Image
-        testID="sticker-image"
-        source={{ uri: sticker.imageUrl }}
-        style={{ width: size, height: size }}
-        contentFit="contain"
-        transition={600}
-        accessibilityLabel={sticker.title ? "Sticker: " + sticker.title : "Sticker"}
-      />
-    );
-  }
-
-  const pending = sticker.status === "pending";
+  const bundled = sticker.key && sticker.key in STICKER_IMAGES ? STICKER_IMAGES[sticker.key as keyof typeof STICKER_IMAGES] : null;
   return (
-    <View
-      testID={pending ? "sticker-pending" : "sticker-fallback"}
-      style={[styles.blank, frame, { borderColor: tone.hairline, backgroundColor: tone.surface }]}>
-      <Breathing
-        active={pending}
-        scale={0.08}
-        dim={0.35}
-        style={[
-          styles.seal,
-          { width: size * 0.42, height: size * 0.42, borderRadius: size * 0.21 },
-          { borderColor: pending ? tone.text : colors.ink3 },
-        ]}>
-        <View style={[styles.core, { backgroundColor: pending ? tone.text : colors.ink3 }]} />
-      </Breathing>
-    </View>
+    <Image
+      testID="sticker-image"
+      source={bundled ?? (sticker.imageUrl ? { uri: sticker.imageUrl } : STICKER_IMAGES["we-talked"])}
+      style={[{ width: size, height: size }, styles.art]}
+      contentFit="contain"
+      transition={300}
+      accessibilityLabel={sticker.title ? "Sticker: " + sticker.title : "Sticker"}
+    />
   );
 }
 
@@ -66,23 +42,20 @@ type StickerKeepsakeProps = {
 };
 
 export function StickerKeepsake({ sticker, onCollect, onOpen, size = 168 }: StickerKeepsakeProps) {
-  const pending = sticker.status === "pending";
   return (
     <View style={styles.keepsake} testID="sticker-keepsake">
-      <Pressable accessibilityRole="button" accessibilityLabel="Open sticker" disabled={!onOpen || pending} onPress={onOpen}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Open sticker" disabled={!onOpen} onPress={onOpen}>
         <StickerArt sticker={sticker} size={size} />
       </Pressable>
-      <Text variant="quote" style={styles.centered} testID="sticker-title">
-        {pending ? "Your sticker is on its way." : sticker.title}
+      <Text variant="heading" style={styles.centered} testID="sticker-title">
+        {sticker.title}
       </Text>
-      {pending ? (
-        <Text variant="caption" soft style={styles.centered}>
-          Every conversation that opens leaves one behind.
-        </Text>
-      ) : sticker.collected ? (
-        <Text variant="caption" soft style={styles.centered} testID="sticker-collected">
-          Collected. It's in your Badges.
-        </Text>
+      {sticker.collected ? (
+        <View style={styles.tag} testID="sticker-collected">
+          <Text variant="label" style={styles.tagText}>
+            Collected · in your Badges
+          </Text>
+        </View>
       ) : (
         <View style={styles.collect}>
           <BreathingButton testID="sticker-collect" label="Collect" onPress={onCollect} />
@@ -97,7 +70,7 @@ type StickerGridProps = {
   onOpen: (id: string) => void;
 };
 
-const TILE = 96;
+const TILE = 100;
 
 export function StickerGrid({ stickers, onOpen }: StickerGridProps) {
   return (
@@ -111,7 +84,7 @@ export function StickerGrid({ stickers, onOpen }: StickerGridProps) {
           onPress={() => onOpen(sticker.id)}
           style={({ pressed }) => [styles.tile, pressed && styles.pressed]}>
           <StickerArt sticker={sticker} size={TILE} />
-          <Text variant="caption" soft numberOfLines={2} style={styles.centered}>
+          <Text variant="caption" numberOfLines={2} style={[styles.centered, styles.tileTitle]}>
             {sticker.title}
           </Text>
         </Pressable>
@@ -121,13 +94,14 @@ export function StickerGrid({ stickers, onOpen }: StickerGridProps) {
 }
 
 const styles = StyleSheet.create({
-  blank: { alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth * 2 },
-  seal: { alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth * 2 },
-  core: { width: 6, height: 6, borderRadius: 3, opacity: 0.7 },
+  art: { filter: "drop-shadow(0 3px 6px rgba(20, 20, 40, 0.16))" } as object,
   keepsake: { alignItems: "center", gap: space.sm },
   collect: { alignSelf: "stretch", marginTop: space.sm },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: space.sm },
+  tag: { height: 28, justifyContent: "center", paddingHorizontal: 12, borderRadius: 14, backgroundColor: "#E2F7A1" },
+  tagText: { color: "#344407" },
+  grid: { flexDirection: "row", flexWrap: "wrap", columnGap: 20, rowGap: space.md },
   tile: { width: TILE, gap: space.xs },
+  tileTitle: { fontWeight: "600" },
   centered: { textAlign: "center" },
   pressed: { opacity: 0.6 },
 });

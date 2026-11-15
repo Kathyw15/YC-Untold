@@ -4,6 +4,7 @@ import { internal } from "./_generated/api";
 import { internalMutation, mutation, query, type QueryCtx } from "./_generated/server";
 import { requireUser } from "./lib/authz";
 import { otherParticipant, publicProfile } from "./lib/participants";
+import { pickSticker } from "./stickerSet";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -80,7 +81,7 @@ export const list = query({
         lastMessage: lastMessage?.body ?? null,
         sticker: sticker && {
           id: sticker._id,
-          status: sticker.status,
+          key: sticker.key ?? null,
           title: sticker.title ?? null,
           imageUrl: sticker.imageId ? await ctx.storage.getUrl(sticker.imageId) : null,
         },
@@ -146,13 +147,18 @@ export const respond = mutation({
     if (theirs?.decision !== "accept") return null;
 
     await ctx.db.patch(matchId, { status: "revealed" });
-    const stickerId = await ctx.db.insert("stickers", {
+    const [entryA, entryB, question] = await Promise.all([
+      ctx.db.get(match.entryA),
+      ctx.db.get(match.entryB),
+      questionText(ctx, match),
+    ]);
+    await ctx.db.insert("stickers", {
       matchId,
       userA: match.userA,
       userB: match.userB,
-      status: "pending",
+      status: "ready",
+      ...pickSticker(match.aiTheme, [question, entryA?.body, entryB?.body].join(" ")),
     });
-    await ctx.scheduler.runAfter(0, internal.stickers.generate, { stickerId });
     return null;
   },
 });

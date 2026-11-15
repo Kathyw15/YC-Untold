@@ -86,6 +86,7 @@ export default defineSchema({
     userA: v.id("users"),
     userB: v.id("users"),
     status: v.union(v.literal("pending"), v.literal("ready"), v.literal("failed")),
+    key: v.optional(v.string()),
     title: v.optional(v.string()),
     imageId: v.optional(v.id("_storage")),
     collectedByA: v.optional(v.number()),
@@ -109,9 +110,4 @@ export default defineSchema({
   }).index("by_user", ["userId"]),
 
   // Sticker art of the seeded demo conversations, kept so a demo reset does not draw it again.
-  demoStickers: defineTable({
-    key: v.string(),
-    title: v.string(),
-    imageId: v.id("_storage"),
-  }).index("by_key", ["key"]),
 });

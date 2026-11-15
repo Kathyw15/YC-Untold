@@ -6,6 +6,7 @@ import { publishDaily } from "./daily";
 import { CAST } from "./demoCast";
 import { FEED, OWNERS } from "./demoWorld";
 import { hmacPhone } from "./lib/phone";
+import { pickSticker } from "./stickerSet";
 
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
@@ -239,49 +240,17 @@ export const resetDemo = internalMutation({
           await ctx.db.insert("chatMessages", { conversationId, senderId: from === "me" ? me : friend, body });
         }
 
-        const key = owner.key + ":" + talk.with;
-        const kept = await ctx.db
-          .query("demoStickers")
-          .withIndex("by_key", (q) => q.eq("key", key))
-          .first();
-        const stickerId = await ctx.db.insert("stickers", {
+        await ctx.db.insert("stickers", {
           matchId,
           userA: me,
           userB: friend,
-          status: kept ? "ready" : "pending",
-          title: kept?.title,
-          imageId: kept?.imageId,
+          status: "ready",
+          ...pickSticker(talk.theme, talk.mine),
           collectedByA: now,
           collectedByB: now,
         });
-        if (!kept) {
-          await ctx.scheduler.runAfter(0, internal.stickers.generate, { stickerId });
-          await ctx.scheduler.runAfter(20_000, internal.devSeed.keepSticker, { key, stickerId, attempt: 1 });
-        }
       }
     }
-    return null;
-  },
-});
-
-// Remembers a seeded conversation's sticker once it is drawn, so later resets reuse the picture.
-export const keepSticker = internalMutation({
-  args: { key: v.string(), stickerId: v.id("stickers"), attempt: v.number() },
-  handler: async (ctx, args) => {
-    const sticker = await ctx.db.get(args.stickerId);
-    if (!sticker) return null;
-    if (sticker.status === "pending") {
-      if (args.attempt < 12) {
-        await ctx.scheduler.runAfter(15_000, internal.devSeed.keepSticker, { ...args, attempt: args.attempt + 1 });
-      }
-      return null;
-    }
-    if (!sticker.imageId || !sticker.title) return null;
-    const kept = await ctx.db
-      .query("demoStickers")
-      .withIndex("by_key", (q) => q.eq("key", args.key))
-      .first();
-    if (!kept) await ctx.db.insert("demoStickers", { key: args.key, title: sticker.title, imageId: sticker.imageId });
     return null;
   },
 });

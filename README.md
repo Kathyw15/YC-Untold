@@ -64,8 +64,7 @@ The two iframes share an origin, so src/lib/demoFrame.ts gives each named frame 
 | EXPO_PUBLIC_DEMO_MODE | .env.local, optional; set by the Revyl preview profile | "1" makes People load the sample contacts instead of the device's contacts |
 | CONVEX_DEPLOYMENT | .env.local (written by Convex) | Which deployment "npx convex dev" targets |
 | CLERK_JWT_ISSUER_DOMAIN | Convex ("npx convex env set") | Clerk Frontend API URL that Convex trusts |
-| OPENAI_API_KEY | Convex | Used by the matching and sticker actions |
-| OPENAI_STICKER_IMAGE_MODEL | Convex (optional) | Image model for conversation stickers, default gpt-image-1.5. It must support transparent backgrounds. |
+| OPENAI_API_KEY | Convex | Used by the matching action |
 | PHONE_HMAC_PEPPER | Convex | Secret for hashing phone numbers |
 | OPENAI_MATCH_MODEL | Convex, optional | Model for matching (default gpt-5.4-mini) |
 | MATCH_THRESHOLD | Convex, optional | Minimum score for an invitation (default 0.6) |

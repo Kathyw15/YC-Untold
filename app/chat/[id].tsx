@@ -52,7 +52,7 @@ export default function ChatScreen() {
               <Text variant="title" testID="chat-name">
                 {chat.other.name}
               </Text>
-              {sticker && sticker.status !== "pending" ? (
+              {sticker ? (
                 <Text variant="caption" soft numberOfLines={1} testID="chat-sticker-title">
                   {sticker.title}
                 </Text>
@@ -63,7 +63,6 @@ export default function ChatScreen() {
                 testID="chat-sticker"
                 accessibilityRole="button"
                 accessibilityLabel="Open sticker"
-                disabled={sticker.status === "pending"}
                 onPress={() => router.push(`/sticker/${sticker.id}`)}>
                 <StickerArt sticker={sticker} size={64} />
               </Pressable>
