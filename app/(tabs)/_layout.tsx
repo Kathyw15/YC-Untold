@@ -7,7 +7,6 @@ export default function TabsLayout() {
   const { status } = useSession();
 
   if (status === "loading") return null;
-  if (status === "needsProfile") return <Redirect href="/profile-setup" />;
   if (status === "needsOnboarding") return <Redirect href="/onboarding" />;
   if (status !== "ready") return <Redirect href="/welcome" />;
 
