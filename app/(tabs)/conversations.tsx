@@ -1,19 +1,20 @@
 import { useQuery } from "convex/react";
 import { useRouter } from "expo-router";
 import type { ReactNode } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
-import { useTone } from "@/components/Atmosphere";
 import { Avatar } from "@/components/Avatar";
 import { Breathing } from "@/components/Breathing";
+import { Card } from "@/components/Card";
 import { Countdown } from "@/components/Countdown";
 import { EmptyState } from "@/components/EmptyState";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
+import { StickerArt } from "@/components/Sticker";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
 import { hasWitnessedReveal } from "@/lib/reveals";
-import { radius, space, tones } from "@/theme";
+import { space } from "@/theme";
 
 type Match = (typeof api.matches.list)["_returnType"][number];
 
@@ -49,61 +50,85 @@ export default function ConversationsScreen() {
         <Rise order={1} style={styles.scroll}>
           <ScrollView contentContainerStyle={styles.sections} showsVerticalScrollIndicator={false}>
             {invited.length > 0 ? (
-              <Section title="Invitations">
+              <Section title="Invitations" hint="waiting for you">
                 {invited.map((match) => (
                   <Breathing key={match.id} scale={0.012} dim={0.12}>
-                    <Row testID="conversation-invited" onPress={() => enter(match)}>
+                    <Card testID="conversation-invited" onPress={() => enter(match)}>
                       <Text variant="quote">
-                        {match.question ?? "Two sealed messages seem to reach for each other."}
+                        {match.type === "social" ? "Someone's answer resonated" : "Someone feels the same way"}
                       </Text>
                       <Text variant="caption" soft>
-                        {match.type === "social"
-                          ? "Your answer and someone else's seem to resonate. Open the invitation."
-                          : "One of them is yours. Open the invitation."}
+                        {match.question ?? "Two sealed messages seem to reach for each other. One of them is yours."}
                       </Text>
-                    </Row>
+                      <Text variant="caption">Decide</Text>
+                    </Card>
                   </Breathing>
                 ))}
               </Section>
             ) : null}
             {waiting.length > 0 ? (
-              <Section title="Waiting">
+              <Section title="Waiting" hint="you said yes">
                 {waiting.map((match) => (
                   <Breathing key={match.id} scale={0.012} dim={0.3}>
-                    <Row testID="conversation-waiting" onPress={() => enter(match)}>
-                      <Text variant="quote">You said yes.</Text>
+                    <Card testID="conversation-waiting" onPress={() => enter(match)}>
+                      <Text variant="quote">Waiting for them</Text>
                       <Text variant="caption" soft>
                         Nothing is shown unless they say yes too.
                       </Text>
-                    </Row>
+                    </Card>
                   </Breathing>
                 ))}
               </Section>
             ) : null}
-            {[
-              { title: "Open", testID: "conversation-open", group: open },
-              { title: "Closed", testID: "conversation-closed", group: closed },
-            ].map(({ title, testID, group }) =>
-              group.length > 0 ? (
-                <Section key={title} title={title}>
-                  {group.map((match) => (
-                    <Row key={match.id} testID={testID} onPress={() => enter(match)} horizontal>
-                      <Avatar uri={match.other?.avatarUrl ?? null} name={match.other?.name ?? null} size={48} />
+            {open.length > 0 ? (
+              <Section title="Open" hint="24 hours to talk">
+                {open.map((match) => (
+                  <Card key={match.id} testID="conversation-open" onPress={() => enter(match)} horizontal>
+                    <Avatar uri={match.other?.avatarUrl ?? null} name={match.other?.name ?? null} size={48} />
+                    {match.conversation ? (
                       <View style={styles.person}>
                         <Text variant="quote">{match.other?.name}</Text>
-                        {match.conversation ? (
-                          <Countdown
-                            expiresAt={match.closed ? 0 : match.conversation.expiresAt}
-                            suffix=" left to talk"
-                            closedLabel="Closed. The words stay."
-                          />
+                        {match.lastMessage ? (
+                          <Text variant="caption" soft numberOfLines={1} testID="conversation-last-message">
+                            {match.lastMessage}
+                          </Text>
                         ) : null}
+                        <Countdown
+                          expiresAt={match.conversation.expiresAt}
+                          suffix=" left to talk"
+                          closedLabel="Closed. The words stay."
+                        />
                       </View>
-                    </Row>
-                  ))}
-                </Section>
-              ) : null,
-            )}
+                    ) : (
+                      <View style={styles.person} testID="conversation-new">
+                        <Text variant="quote">{match.other?.name?.split(" ")[0]} agreed too</Text>
+                        <Text variant="caption" soft>
+                          See who it is · collect your sticker
+                        </Text>
+                        <Text variant="caption">New</Text>
+                      </View>
+                    )}
+                    {match.sticker ? <StickerArt sticker={match.sticker} size={44} /> : null}
+                  </Card>
+                ))}
+              </Section>
+            ) : null}
+            {closed.length > 0 ? (
+              <Section title="Closed" hint="read only">
+                {closed.map((match) => (
+                  <Card key={match.id} testID="conversation-closed" onPress={() => enter(match)} horizontal>
+                    <Avatar uri={match.other?.avatarUrl ?? null} name={match.other?.name ?? null} size={48} />
+                    <View style={styles.person}>
+                      <Text variant="quote">{match.other?.name}</Text>
+                      <Text variant="caption" soft numberOfLines={1}>
+                        {(match.sticker?.title ? match.sticker.title + " · " : "") + "ended, read only"}
+                      </Text>
+                    </View>
+                    {match.sticker ? <StickerArt sticker={match.sticker} size={44} /> : null}
+                  </Card>
+                ))}
+              </Section>
+            ) : null}
           </ScrollView>
         </Rise>
       ) : null}
@@ -111,39 +136,14 @@ export default function ConversationsScreen() {
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Section({ title, hint, children }: { title: string; hint: string; children: ReactNode }) {
   return (
     <View style={styles.section}>
       <Text variant="caption" soft>
-        {title}
+        {title} · {hint}
       </Text>
       {children}
     </View>
-  );
-}
-
-type RowProps = {
-  children: ReactNode;
-  onPress: () => void;
-  horizontal?: boolean;
-  testID?: string;
-};
-
-function Row({ children, onPress, horizontal = false, testID }: RowProps) {
-  const tone = tones[useTone()];
-  return (
-    <Pressable
-      testID={testID}
-      accessibilityRole="button"
-      onPress={onPress}
-      style={({ pressed }) => [
-        styles.row,
-        horizontal && styles.horizontal,
-        { borderColor: tone.hairline, backgroundColor: tone.surface },
-        pressed && styles.pressed,
-      ]}>
-      {children}
-    </Pressable>
   );
 }
 
@@ -151,13 +151,5 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, marginTop: space.lg },
   sections: { gap: space.xl, paddingBottom: space.xl },
   section: { gap: space.md },
-  row: {
-    borderRadius: radius.card,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    padding: space.lg,
-    gap: space.sm,
-  },
-  horizontal: { flexDirection: "row", alignItems: "center", gap: space.md },
   person: { flex: 1, gap: space.xs },
-  pressed: { opacity: 0.6 },
 });

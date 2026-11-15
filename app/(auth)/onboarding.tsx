@@ -1,9 +1,13 @@
 import { useMutation } from "convex/react";
 import { useState } from "react";
 
+import { ContactsInvitation } from "@/components/ContactsInvitation";
 import { OnboardingSlide } from "@/components/OnboardingSlide";
 import { Screen } from "@/components/Screen";
 import { api } from "@/convex/_generated/api";
+import { requestContactsAccess } from "@/lib/contacts";
+
+const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE === "1";
 
 const HEADLINES = [
   "Some things are hard to say.",
@@ -15,24 +19,27 @@ export default function OnboardingScreen() {
   const complete = useMutation(api.users.completeOnboarding);
   const [page, setPage] = useState(0);
   const [busy, setBusy] = useState(false);
-  const last = page === HEADLINES.length - 1;
 
-  function onNext() {
-    if (!last) return setPage(page + 1);
+  async function finish(askForContacts: boolean) {
     setBusy(true);
+    if (askForContacts) await requestContactsAccess().catch(() => null);
     complete().catch(() => setBusy(false));
   }
 
   return (
     <Screen scene="forest" testID="onboarding-screen">
-      <OnboardingSlide
-        headline={HEADLINES[page]}
-        index={page}
-        count={HEADLINES.length}
-        nextLabel={last ? "Get started" : undefined}
-        onNext={onNext}
-        disabled={busy}
-      />
+      {page < HEADLINES.length ? (
+        <OnboardingSlide
+          headline={HEADLINES[page]}
+          index={page}
+          count={HEADLINES.length}
+          nextLabel={page === HEADLINES.length - 1 ? "Get started" : undefined}
+          onNext={() => (DEMO_MODE && page === HEADLINES.length - 1 ? void finish(false) : setPage(page + 1))}
+          disabled={busy}
+        />
+      ) : (
+        <ContactsInvitation onContinue={() => void finish(true)} onNotNow={() => void finish(false)} busy={busy} />
+      )}
     </Screen>
   );
 }

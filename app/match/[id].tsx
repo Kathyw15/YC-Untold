@@ -25,13 +25,13 @@ const COPY = {
     label: "A possible connection",
     direct: "Someone wrote to you, too.",
     social: "Another answer echoes yours.",
-    note: "If you both say yes, your words and your names are shown to each other, and a conversation opens for 24 hours. If either of you doesn't, nothing is ever shown and no one is told.",
+    note: "If you both say yes, your words and your names are shown to each other, and you can open a conversation that lasts 24 hours. If either of you doesn't, nothing is ever shown.",
   },
   waiting: {
     label: "Waiting",
     direct: "You said yes.",
     social: "You said yes.",
-    note: "Now it rests with them. Nothing is shown unless they say yes too.",
+    note: "Now it rests with them. Nothing is shown unless they say yes too. If nothing happens within 7 days, this quietly closes.",
   },
   declined: {
     label: "Let go",
@@ -53,6 +53,7 @@ export default function MatchScreen() {
   const { status } = useSession();
   const match = useQuery(api.matches.get, status === "ready" ? { matchId: id } : "skip");
   const respond = useMutation(api.matches.respond);
+  const open = useMutation(api.matches.open);
   const collect = useMutation(api.stickers.collect);
   const [busy, setBusy] = useState(false);
 
@@ -76,6 +77,16 @@ export default function MatchScreen() {
     if (decision === "decline") router.back();
   }
 
+  async function openConversation() {
+    if (conversation) return router.replace(`/chat/${conversation.id}`);
+    setBusy(true);
+    try {
+      router.replace(`/chat/${(await open({ matchId: id })).conversationId}`);
+    } catch {
+      setBusy(false);
+    }
+  }
+
   if (status === "loading") return null;
   if (status !== "ready") return <Redirect href="/" />;
 
@@ -91,7 +102,7 @@ export default function MatchScreen() {
               <Text variant="label" soft testID="match-state">
                 {copy ? copy.label : "You both said yes"}
               </Text>
-              <Text variant="display">{copy ? copy[match.type] : "You and " + revealed?.other.name + "."}</Text>
+              <Text variant="display">{copy ? copy[match.type] : "It's " + revealed?.other.name + "."}</Text>
             </View>
 
             {match.question ? <Text soft>{match.question}</Text> : null}
@@ -126,21 +137,24 @@ export default function MatchScreen() {
                     onOpen={() => router.push(`/sticker/${sticker.id}`)}
                   />
                 ) : null}
+                <BreathingButton
+                  testID="match-open-chat"
+                  label={remaining === 0 ? "Read the conversation" : "Open the conversation"}
+                  disabled={busy}
+                  onPress={() => void openConversation()}
+                />
                 {conversation ? (
-                  <>
-                    <BreathingButton
-                      testID="match-open-chat"
-                      label={remaining === 0 ? "Read the conversation" : "Open the conversation"}
-                      onPress={() => router.replace(`/chat/${conversation.id}`)}
-                    />
-                    <Countdown
-                      expiresAt={conversation.expiresAt}
-                      suffix=" left to talk"
-                      closedLabel="The conversation has closed."
-                      style={styles.countdown}
-                    />
-                  </>
-                ) : null}
+                  <Countdown
+                    expiresAt={conversation.expiresAt}
+                    suffix=" left to talk"
+                    closedLabel="The conversation has closed."
+                    style={styles.countdown}
+                  />
+                ) : (
+                  <Text variant="caption" soft style={styles.centered} testID="match-window-note">
+                    You'll have 24 hours, starting when the conversation opens.
+                  </Text>
+                )}
               </Afterward>
             ) : (
               <View style={styles.after}>
@@ -149,7 +163,7 @@ export default function MatchScreen() {
                   <>
                     <BreathingButton
                       testID="match-accept"
-                      label="Yes, reveal"
+                      label="Reveal if they agree"
                       disabled={busy}
                       onPress={() => void decide("accept")}
                     />
@@ -159,7 +173,13 @@ export default function MatchScreen() {
                       disabled={busy}
                       onPress={() => void decide("decline")}
                     />
+                    <Text variant="caption" soft style={styles.centered}>
+                      If you choose Not now, they won't be told.
+                    </Text>
                   </>
+                ) : null}
+                {match.state === "waiting" ? (
+                  <QuietLink testID="match-to-conversations" label="Back to Conversations" onPress={() => router.back()} />
                 ) : null}
               </View>
             )}

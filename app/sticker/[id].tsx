@@ -45,6 +45,11 @@ export default function StickerScreen() {
               <Text style={styles.centered} testID="sticker-origin">
                 From your conversation with {sticker.other.name}
               </Text>
+              {sticker.theme ? (
+                <Text variant="quote" style={styles.centered} testID="sticker-theme">
+                  {sticker.theme}
+                </Text>
+              ) : null}
               <Text variant="caption" soft style={styles.centered}>
                 {sticker.question
                   ? "You both answered: " + sticker.question
@@ -54,7 +59,7 @@ export default function StickerScreen() {
             {sticker.conversationId ? (
               <QuietLink
                 testID="sticker-open-chat"
-                label="Open the conversation"
+                label="View conversation"
                 onPress={() => router.push(`/chat/${sticker.conversationId}`)}
               />
             ) : null}

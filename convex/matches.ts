@@ -53,15 +53,37 @@ export const list = query({
     for (const match of mine) {
       const state = await stateFor(ctx, match, me);
       if (state === "declined" || state === "expired") continue;
-      const conversation = state === "revealed" ? await conversationFor(ctx, match) : null;
+      const revealed = state === "revealed";
+      const conversation = revealed ? await conversationFor(ctx, match) : null;
+      const sticker = revealed
+        ? await ctx.db
+            .query("stickers")
+            .withIndex("by_match", (q) => q.eq("matchId", match._id))
+            .first()
+        : null;
+      const lastMessage = conversation
+        ? await ctx.db
+            .query("chatMessages")
+            .withIndex("by_conversation", (q) => q.eq("conversationId", conversation._id))
+            .order("desc")
+            .first()
+        : null;
       visible.push({
         id: match._id,
         type: match.type,
         state,
         closed: match.status === "closed",
+        createdAt: match._creationTime,
         question: await questionText(ctx, match),
-        other: state === "revealed" ? await publicProfile(ctx, otherParticipant(match, me)) : null,
+        other: revealed ? await publicProfile(ctx, otherParticipant(match, me)) : null,
         conversation: conversation && { id: conversation._id, expiresAt: conversation.expiresAt },
+        lastMessage: lastMessage?.body ?? null,
+        sticker: sticker && {
+          id: sticker._id,
+          status: sticker.status,
+          title: sticker.title ?? null,
+          imageUrl: sticker.imageId ? await ctx.storage.getUrl(sticker.imageId) : null,
+        },
       });
     }
     return visible;
@@ -123,16 +145,7 @@ export const respond = mutation({
     const theirs = await myConsent(ctx, matchId, other);
     if (theirs?.decision !== "accept") return null;
 
-    const expiresAt = now + (Number(process.env.CHAT_WINDOW_MS) || DAY_MS);
     await ctx.db.patch(matchId, { status: "revealed" });
-    await ctx.db.insert("conversations", {
-      matchId,
-      userA: match.userA,
-      userB: match.userB,
-      openedAt: now,
-      expiresAt,
-    });
-    await ctx.scheduler.runAt(expiresAt, internal.matches.close, { matchId });
     const stickerId = await ctx.db.insert("stickers", {
       matchId,
       userA: match.userA,
@@ -141,6 +154,32 @@ export const respond = mutation({
     });
     await ctx.scheduler.runAfter(0, internal.stickers.generate, { stickerId });
     return null;
+  },
+});
+
+export const open = mutation({
+  args: { matchId: v.id("matches") },
+  handler: async (ctx, { matchId }) => {
+    const me = (await requireUser(ctx))._id;
+    const match = await ctx.db.get(matchId);
+    if (!match) throw new ConvexError({ code: "NOT_FOUND" });
+    otherParticipant(match, me);
+    if (match.status === "pending") throw new ConvexError({ code: "NOT_REVEALED" });
+
+    const existing = await conversationFor(ctx, match);
+    if (existing) return { conversationId: existing._id };
+
+    const now = Date.now();
+    const expiresAt = now + (Number(process.env.CHAT_WINDOW_MS) || DAY_MS);
+    const conversationId = await ctx.db.insert("conversations", {
+      matchId,
+      userA: match.userA,
+      userB: match.userB,
+      openedAt: now,
+      expiresAt,
+    });
+    await ctx.scheduler.runAt(expiresAt, internal.matches.close, { matchId });
+    return { conversationId };
   },
 });
 

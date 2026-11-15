@@ -22,7 +22,7 @@ export function ContactsInvitation({ onContinue, onNotNow, busy = false }: Conta
         </Rise>
         <Rise order={2}>
           <Text soft>
-            Untold can look through your contacts to find the people you know who are already here.
+            Seal can look through your contacts to find the people you know who are already here.
           </Text>
         </Rise>
         <Rise order={3}>
@@ -35,7 +35,7 @@ export function ContactsInvitation({ onContinue, onNotNow, busy = false }: Conta
       <Rise order={4} style={styles.actions}>
         <BreathingButton
           testID="contacts-continue"
-          label={busy ? "One moment" : "Continue"}
+          label={busy ? "One moment" : "Allow"}
           onPress={onContinue}
           disabled={busy}
         />

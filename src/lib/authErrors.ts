@@ -5,7 +5,7 @@ const messages: Record<string, string> = {
   verification_failed: "Too many tries. Ask for a new code.",
   verification_expired: "That code has expired. Ask for a new one.",
   too_many_requests: "Too many tries. Give it a moment.",
-  unsupported_country_code: "Untold works with US numbers for now.",
+  unsupported_country_code: "Seal works with US numbers for now.",
   form_param_format_invalid: "That doesn't look like a US phone number.",
   network_error: "You seem to be offline. Try again in a moment.",
 };

@@ -206,6 +206,7 @@ export const get = query({
     return {
       ...base,
       type: match?.type ?? null,
+      theme: match?.aiTheme ?? null,
       question: question?.text ?? null,
       conversationId: conversations.find((conversation) => conversation.matchId === sticker.matchId)?._id ?? null,
     };

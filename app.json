@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Untold",
+    "name": "Seal",
     "slug": "untold",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -36,13 +36,13 @@
       [
         "expo-contacts",
         {
-          "contactsPermission": "Untold checks your contacts to find the people you know who are already here. Names never leave your phone."
+          "contactsPermission": "Seal checks your contacts to find the people you know who are already here. Names never leave your phone."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "Untold uses your photo library only when you choose a profile photo.",
+          "photosPermission": "Seal uses your photo library only when you choose a profile photo.",
           "cameraPermission": false,
           "microphonePermission": false
         }

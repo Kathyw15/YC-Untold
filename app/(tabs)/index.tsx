@@ -73,7 +73,7 @@ export default function HomeScreen() {
               {feed.results.length > 0 ? (
                 <Rise order={2}>
                   <Text variant="label" soft style={styles.section}>
-                    Questions in the air
+                    From friends & everyone
                   </Text>
                 </Rise>
               ) : null}

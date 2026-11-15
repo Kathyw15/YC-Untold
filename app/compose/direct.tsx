@@ -62,7 +62,7 @@ function ComposeDirect() {
         body={
           waiting
             ? `Your words are safe here. They will wait until ${who} arrives.`
-            : `Your words are safe here. ${params.name ?? "They"} will only know that someone left a message.`
+            : `Your words are safe here. ${params.name ?? "They"} will only know that someone left them a Seal.`
         }
         onDone={() => router.back()}>
         <View style={styles.close}>
@@ -102,8 +102,8 @@ function ComposeDirect() {
             <Text variant="caption" soft style={styles.centered} accessibilityLiveRegion="polite" testID="compose-note">
               {message ??
                 (waiting
-                  ? `${who} isn't on Untold yet. Your words will wait for them.`
-                  : "Only you can read this. They'll only know that someone left them something.")}
+                  ? `${who} isn't on Seal yet. Your words will wait for them.`
+                  : "Only you can read this. They'll only know that someone left them a Seal.")}
             </Text>
             <BreathingButton
               testID="compose-seal"

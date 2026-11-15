@@ -1,8 +1,8 @@
-# Untold
+# Seal
 
 A place where the things you never said finally have somewhere to go.
 
-Untold is an iOS app built with Expo (React Native, TypeScript, expo-router), Convex for the backend, Clerk for phone sign-in, and Revyl for cloud builds and devices.
+Seal (first named Untold, which the repository, bundle identifier, and backend project still use) is an iOS app built with Expo (React Native, TypeScript, expo-router), Convex for the backend, Clerk for phone sign-in, and Revyl for cloud builds and devices.
 
 ## Run it
 
@@ -45,7 +45,7 @@ For hot reload instead, "revyl dev --platform ios" installs the development buil
 
 Sign in with a different test number on each device, for example 555-0100 on a Revyl iPhone and 555-0101 in Expo Go. Both devices must use the same Convex deployment.
 
-With EXPO_PUBLIC_DEMO_MODE=1, People skips the contacts permission and loads six sample contacts: 555-0100 as Chloe, 555-0101 as Kathy, and 555-0102 to 555-0105. So each of those two accounts finds the other under "On Untold" with no setup. The Revyl preview profile sets the flag; for Expo Go, add EXPO_PUBLIC_DEMO_MODE=1 to .env.local and restart "npx expo start --go". Without the flag, a development build shows a "Load sample contacts (dev)" link instead, and any build can reach another account through "Write to a phone number".
+With EXPO_PUBLIC_DEMO_MODE=1, People skips the contacts permission and loads six sample contacts: 555-0100 as Chloe, 555-0101 as Kathy, and 555-0102 to 555-0105. So each of those two accounts finds the other under "On Seal" with no setup. The Revyl preview profile sets the flag; for Expo Go, add EXPO_PUBLIC_DEMO_MODE=1 to .env.local and restart "npx expo start --go". Without the flag, a development build shows a "Load sample contacts (dev)" link instead, and any build can reach another account through "Write to a phone number".
 
 To start a demo from a clean slate, run "npx convex run devSeed:resetDemo". It deletes everything people wrote (sealed messages, answers, their questions, invitations, conversations, stickers, synced contacts) and keeps the accounts, today's question, and the seeded questions. Run it before opening the apps.
 
@@ -63,7 +63,7 @@ To start a demo from a clean slate, run "npx convex run devSeed:resetDemo". It d
 | PHONE_HMAC_PEPPER | Convex | Secret for hashing phone numbers |
 | OPENAI_MATCH_MODEL | Convex, optional | Model for matching (default gpt-5.4-mini) |
 | MATCH_THRESHOLD | Convex, optional | Minimum score for an invitation (default 0.6) |
-| CHAT_WINDOW_MS | Convex, optional | How long a conversation stays open (default 24 hours) |
+| CHAT_WINDOW_MS | Convex, optional | How long a conversation stays open once one of the two people opens it (default 24 hours) |
 
 Secrets never go in the repository. .env.example lists names only.
 
