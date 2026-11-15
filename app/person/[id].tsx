@@ -99,11 +99,13 @@ function Person() {
             start={{ x: 0.3, y: 0 }}
             end={{ x: 0.7, y: 1 }}
             style={[StyleSheet.absoluteFill, styles.heroPlain]}>
-            {person?.avatarEmoji ? (
-              <PlainText style={styles.heroEmoji}>{person.avatarEmoji}</PlainText>
-            ) : (
-              <Text style={styles.heroInitials}>{initialsOf(name)}</Text>
-            )}
+            <View style={styles.heroMonogram}>
+              {person?.avatarEmoji ? (
+                <PlainText style={styles.heroEmoji}>{person.avatarEmoji}</PlainText>
+              ) : (
+                <Text style={styles.heroInitials}>{initialsOf(name)}</Text>
+              )}
+            </View>
           </LinearGradient>
         )}
         <LinearGradient
@@ -299,9 +301,20 @@ const styles = StyleSheet.create({
   pressed: { opacity: 0.6 },
   centered: { textAlign: "center" },
   hero: { position: "absolute", left: 0, right: 0, top: 0, height: HERO_HEIGHT, overflow: "hidden" },
-  heroPlain: { alignItems: "center", paddingTop: 110 },
-  heroEmoji: { fontSize: 132, lineHeight: 168 },
-  heroInitials: { fontSize: 112, lineHeight: 168, fontWeight: "700", letterSpacing: -3, color: "rgba(11, 11, 15, 0.32)" },
+  heroPlain: { alignItems: "center", paddingTop: 120 },
+  heroMonogram: {
+    width: 124,
+    height: 124,
+    borderRadius: 62,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "rgba(255, 255, 255, 0.55)",
+    boxShadow: shadows.card,
+  },
+  heroEmoji: { fontSize: 62, lineHeight: 78 },
+  heroInitials: { fontSize: 48, lineHeight: 58, fontWeight: "800", letterSpacing: -1.5, color: colors.ink },
   topBar: {
     position: "absolute",
     left: 18,
