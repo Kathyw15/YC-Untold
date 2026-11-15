@@ -7,6 +7,7 @@ import { Countdown, useRemaining } from "@/components/Countdown";
 import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
+import { StickerArt } from "@/components/Sticker";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -20,6 +21,7 @@ export default function ChatScreen() {
   const router = useRouter();
   const { status } = useSession();
   const chat = useQuery(api.chat.list, status === "ready" ? { conversationId: id } : "skip");
+  const sticker = useQuery(api.stickers.forMatch, chat ? { matchId: chat.matchId } : "skip");
   const send = useMutation(api.chat.send);
   const [draft, setDraft] = useState("");
   const remaining = useRemaining(chat?.expiresAt);
@@ -43,10 +45,27 @@ export default function ChatScreen() {
       </View>
       {chat ? (
         <>
-          <Rise>
-            <Text variant="title" testID="chat-name">
-              {chat.other.name}
-            </Text>
+          <Rise style={styles.title}>
+            <View style={styles.who}>
+              <Text variant="title" testID="chat-name">
+                {chat.other.name}
+              </Text>
+              {sticker && sticker.status !== "pending" ? (
+                <Text variant="caption" soft numberOfLines={1} testID="chat-sticker-title">
+                  {sticker.title}
+                </Text>
+              ) : null}
+            </View>
+            {sticker ? (
+              <Pressable
+                testID="chat-sticker"
+                accessibilityRole="button"
+                accessibilityLabel="Open sticker"
+                disabled={sticker.status === "pending"}
+                onPress={() => router.push(`/sticker/${sticker.id}`)}>
+                <StickerArt sticker={sticker} size={64} />
+              </Pressable>
+            ) : null}
           </Rise>
           <FlatList
             inverted
@@ -117,6 +136,8 @@ export default function ChatScreen() {
 
 const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  title: { flexDirection: "row", alignItems: "center", gap: space.md },
+  who: { flex: 1 },
   list: { flex: 1, marginTop: space.md },
   messages: { gap: space.sm, paddingVertical: space.md },
   bubble: {

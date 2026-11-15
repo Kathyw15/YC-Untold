@@ -55,6 +55,7 @@ export const listMatched = query({
       if (!person) continue;
       matched.push({
         contactId: contact._id,
+        userId: person._id,
         name: person.name ?? null,
         avatarUrl: person.avatarId ? await ctx.storage.getUrl(person.avatarId) : null,
       });

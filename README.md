@@ -30,7 +30,8 @@ Sign in with a Clerk test number: any of +1 (201) 555-0100 to 555-0199, with the
 | EXPO_PUBLIC_CONVEX_URL | .env.local (written by Convex) | Convex deployment URL for the app |
 | CONVEX_DEPLOYMENT | .env.local (written by Convex) | Which deployment "npx convex dev" targets |
 | CLERK_JWT_ISSUER_DOMAIN | Convex ("npx convex env set") | Clerk Frontend API URL that Convex trusts |
-| OPENAI_API_KEY | Convex | Used by the matching actions |
+| OPENAI_API_KEY | Convex | Used by the matching and sticker actions |
+| OPENAI_STICKER_IMAGE_MODEL | Convex (optional) | Image model for conversation stickers, default gpt-image-2 |
 | PHONE_HMAC_PEPPER | Convex | Secret for hashing phone numbers |
 
 Secrets never go in the repository. .env.example lists names only.
