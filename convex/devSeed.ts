@@ -1,6 +1,14 @@
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { internalMutation } from "./_generated/server";
+import { publishDaily } from "./daily";
+import { CAST } from "./demoCast";
+import { FEED, OWNERS } from "./demoWorld";
+import { hmacPhone } from "./lib/phone";
+
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 export const directPair = internalMutation({
   args: {
@@ -64,24 +72,238 @@ export const socialPair = internalMutation({
   },
 });
 
+// Puts the shared deployment back to the demo's starting state: everything people wrote is deleted, then the
+// seeded friends, the Social feed and each demo account's own history (see demoWorld.ts) are written again.
+// Chloe and Kathy never share any of it, so their own story starts fresh. It creates no invitations and no
+// notices, so no match popup shows on launch.
 export const resetDemo = internalMutation({
   args: {},
   handler: async (ctx) => {
-    for (const table of ["chatMessages", "conversations", "stickers", "matchConsents", "matches", "notices", "contacts"] as const) {
+    for (const table of [
+      "chatMessages",
+      "conversations",
+      "stickers",
+      "matchConsents",
+      "matches",
+      "notices",
+      "sealedEntries",
+    ] as const) {
       for (const doc of await ctx.db.query(table).collect()) await ctx.db.delete(doc._id);
     }
-    const seeded = new Set(
-      (await ctx.db.query("users").collect())
-        .filter((user) => user.tokenIdentifier.startsWith("seed:") || user.tokenIdentifier.startsWith("system:"))
-        .map((user) => user._id),
-    );
-    for (const entry of await ctx.db.query("sealedEntries").collect()) {
-      if (!seeded.has(entry.authorId)) await ctx.db.delete(entry._id);
-    }
     for (const question of await ctx.db.query("questions").collect()) {
-      if (seeded.has(question.authorId)) await ctx.db.patch(question._id, { responseCount: 0 });
+      if (question.isDaily) await ctx.db.patch(question._id, { responseCount: 0 });
       else await ctx.db.delete(question._id);
     }
+    await publishDaily(ctx);
+
+    const now = Date.now();
+    const people = new Map<string, Id<"users">>();
+    for (const person of [...CAST, ...OWNERS]) {
+      const phoneHmac = await hmacPhone(person.phone);
+      const existing =
+        (await ctx.db
+          .query("users")
+          .withIndex("by_phoneHmac", (q) => q.eq("phoneHmac", phoneHmac))
+          .first()) ??
+        (await ctx.db
+          .query("users")
+          .withIndex("by_token", (q) => q.eq("tokenIdentifier", "seed:" + person.key))
+          .first());
+      if (!existing) {
+        people.set(
+          person.key,
+          await ctx.db.insert("users", {
+            tokenIdentifier: "seed:" + person.key,
+            phoneHmac,
+            name: person.name,
+            onboardedAt: now,
+            ...("emoji" in person && person.emoji ? { avatarEmoji: person.emoji } : {}),
+          }),
+        );
+        continue;
+      }
+      people.set(person.key, existing._id);
+      if ("contactName" in person) {
+        await ctx.db.patch(existing._id, { phoneHmac, name: person.name, avatarEmoji: person.emoji, onboardedAt: now });
+      }
+    }
+    for (const contact of await ctx.db.query("contacts").collect()) {
+      const matched = await ctx.db
+        .query("users")
+        .withIndex("by_phoneHmac", (q) => q.eq("phoneHmac", contact.phoneHmac))
+        .first();
+      if (contact.matchedUserId !== matched?._id) await ctx.db.patch(contact._id, { matchedUserId: matched?._id });
+    }
+
+    // The feed lists the newest question first, so write the oldest first.
+    for (const owner of OWNERS) {
+      const authorId = people.get(owner.key)!;
+      for (const asked of owner.asked) {
+        const questionId = await ctx.db.insert("questions", {
+          authorId,
+          text: asked.text,
+          tags: asked.tags,
+          audience: "everyone",
+          responseCount: asked.responses,
+          isDaily: false,
+        });
+        await ctx.db.insert("sealedEntries", { kind: "answer", authorId, body: asked.answer, questionId });
+      }
+    }
+    const feed = new Map<string, { questionId: Id<"questions">; answerId: Id<"sealedEntries">; responses: number }>();
+    for (const question of [...FEED].reverse()) {
+      const authorId = people.get(question.by)!;
+      const questionId = await ctx.db.insert("questions", {
+        authorId,
+        text: question.text,
+        tags: question.tags,
+        audience: "everyone",
+        responseCount: question.responses,
+        isDaily: false,
+      });
+      const answerId = await ctx.db.insert("sealedEntries", {
+        kind: "answer",
+        authorId,
+        body: question.answer,
+        questionId,
+      });
+      feed.set(question.key, { questionId, answerId, responses: question.responses });
+    }
+
+    for (const owner of OWNERS) {
+      const me = people.get(owner.key)!;
+
+      const answer = async (key: string, body: string) => {
+        const question = feed.get(key)!;
+        question.responses += 1;
+        await ctx.db.patch(question.questionId, { responseCount: question.responses });
+        return await ctx.db.insert("sealedEntries", {
+          kind: "answer",
+          authorId: me,
+          body,
+          questionId: question.questionId,
+        });
+      };
+
+      for (const seal of owner.waiting) {
+        const recipient = people.get(seal.to);
+        await ctx.db.insert("sealedEntries", {
+          kind: "direct",
+          authorId: me,
+          body: seal.body,
+          ...(recipient ? { recipientUserId: recipient } : { recipientPhoneHmac: await hmacPhone(seal.to) }),
+        });
+      }
+      for (const answered of owner.answered) await answer(answered.question, answered.body);
+
+      for (const talk of owner.talks) {
+        const friend = people.get(talk.with)!;
+        const question = talk.question ? feed.get(talk.question)! : null;
+        const entryA = question
+          ? await answer(talk.question!, talk.mine)
+          : await ctx.db.insert("sealedEntries", {
+              kind: "direct",
+              authorId: me,
+              recipientUserId: friend,
+              body: talk.mine,
+            });
+        const entryB = question
+          ? question.answerId
+          : await ctx.db.insert("sealedEntries", {
+              kind: "direct",
+              authorId: friend,
+              recipientUserId: me,
+              body: talk.theirs ?? "",
+            });
+        const matchId = await ctx.db.insert("matches", {
+          type: question ? "social" : "direct",
+          userA: me,
+          userB: friend,
+          entryA,
+          entryB,
+          ...(question ? { questionId: question.questionId } : {}),
+          aiScore: 0.86,
+          aiTheme: talk.theme,
+          status: talk.open ? "revealed" : "closed",
+          expiresAt: now + 7 * DAY_MS,
+        });
+        const openedAt = talk.open ? now - 5 * HOUR_MS : now - 3 * DAY_MS;
+        const conversationId = await ctx.db.insert("conversations", {
+          matchId,
+          userA: me,
+          userB: friend,
+          openedAt,
+          expiresAt: openedAt + DAY_MS,
+        });
+        for (const [from, body] of talk.chat) {
+          await ctx.db.insert("chatMessages", { conversationId, senderId: from === "me" ? me : friend, body });
+        }
+
+        const key = owner.key + ":" + talk.with;
+        const kept = await ctx.db
+          .query("demoStickers")
+          .withIndex("by_key", (q) => q.eq("key", key))
+          .first();
+        const stickerId = await ctx.db.insert("stickers", {
+          matchId,
+          userA: me,
+          userB: friend,
+          status: kept ? "ready" : "pending",
+          title: kept?.title,
+          imageId: kept?.imageId,
+          collectedByA: now,
+          collectedByB: now,
+        });
+        if (!kept) {
+          await ctx.scheduler.runAfter(0, internal.stickers.generate, { stickerId });
+          await ctx.scheduler.runAfter(20_000, internal.devSeed.keepSticker, { key, stickerId, attempt: 1 });
+        }
+      }
+    }
+    return null;
+  },
+});
+
+// Remembers a seeded conversation's sticker once it is drawn, so later resets reuse the picture.
+export const keepSticker = internalMutation({
+  args: { key: v.string(), stickerId: v.id("stickers"), attempt: v.number() },
+  handler: async (ctx, args) => {
+    const sticker = await ctx.db.get(args.stickerId);
+    if (!sticker) return null;
+    if (sticker.status === "pending") {
+      if (args.attempt < 12) {
+        await ctx.scheduler.runAfter(15_000, internal.devSeed.keepSticker, { ...args, attempt: args.attempt + 1 });
+      }
+      return null;
+    }
+    if (!sticker.imageId || !sticker.title) return null;
+    const kept = await ctx.db
+      .query("demoStickers")
+      .withIndex("by_key", (q) => q.eq("key", args.key))
+      .first();
+    if (!kept) await ctx.db.insert("demoStickers", { key: args.key, title: sticker.title, imageId: sticker.imageId });
+    return null;
+  },
+});
+
+// The two steps scripts/seed-demo-avatars.mjs uses to give the seeded friends their photos.
+export const avatarUploadUrl = internalMutation({
+  args: {},
+  handler: async (ctx) => await ctx.storage.generateUploadUrl(),
+});
+
+export const setAvatar = internalMutation({
+  args: { key: v.string(), storageId: v.id("_storage") },
+  handler: async (ctx, { key, storageId }) => {
+    const person = CAST.find((member) => member.key === key);
+    if (!person) throw new Error("No seeded friend is called " + key);
+    const phoneHmac = await hmacPhone(person.phone);
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_phoneHmac", (q) => q.eq("phoneHmac", phoneHmac))
+      .first();
+    if (!user) throw new Error("Run devSeed:resetDemo first");
+    await ctx.db.patch(user._id, { avatarId: storageId });
     return null;
   },
 });

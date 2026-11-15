@@ -66,6 +66,7 @@ async function toCard(
       : {
           name: author.name ?? null,
           avatarUrl: author.avatarId ? await ctx.storage.getUrl(author.avatarId) : null,
+          avatarEmoji: author.avatarEmoji ?? null,
         },
     isMine: author._id === me._id,
     hasAnswered: myEntry !== null,
