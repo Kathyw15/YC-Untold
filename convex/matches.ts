@@ -133,6 +133,13 @@ export const respond = mutation({
       expiresAt,
     });
     await ctx.scheduler.runAt(expiresAt, internal.matches.close, { matchId });
+    const stickerId = await ctx.db.insert("stickers", {
+      matchId,
+      userA: match.userA,
+      userB: match.userB,
+      status: "pending",
+    });
+    await ctx.scheduler.runAfter(0, internal.stickers.generate, { stickerId });
     return null;
   },
 });

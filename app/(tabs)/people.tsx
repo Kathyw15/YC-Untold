@@ -166,7 +166,11 @@ export default function PeopleScreen() {
                 name={item.name}
                 avatarUrl={section.key === "here" ? onUntold.get(contactId)?.avatarUrl : null}
                 note={sealedFor.has(contactId) ? "Something of yours is sealed here." : null}
-                onPress={() => writeTo(item, section.key === "here")}
+                onPress={() => {
+                  const userId = onUntold.get(contactId)?.userId;
+                  if (!userId) return writeTo(item, section.key === "here");
+                  router.push({ pathname: "/person/[id]", params: { id: userId, name: item.name, phone: item.phone } });
+                }}
               />
             );
           }}

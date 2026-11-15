@@ -1,12 +1,16 @@
 import { useAuth, useUser } from "@clerk/expo";
+import { useQuery } from "convex/react";
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 
 import { Avatar } from "@/components/Avatar";
 import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
+import { StickerGrid } from "@/components/Sticker";
 import { Text } from "@/components/Text";
+import { api } from "@/convex/_generated/api";
 import { formatE164 } from "@/lib/phone";
 import { useProfile } from "@/lib/session";
 import { space } from "@/theme";
@@ -15,6 +19,8 @@ export default function ProfileScreen() {
   const me = useProfile();
   const { signOut } = useAuth();
   const { user } = useUser();
+  const router = useRouter();
+  const stickers = useQuery(api.stickers.mine);
   const [leaving, setLeaving] = useState(false);
   const phone = user?.primaryPhoneNumber?.phoneNumber;
 
@@ -42,18 +48,25 @@ export default function ProfileScreen() {
           </Rise>
         ) : null}
       </View>
-      <View style={styles.history}>
-        <Rise order={4}>
-          <Text variant="quote" style={styles.centered}>
-            Nothing kept yet.
-          </Text>
-        </Rise>
-        <Rise order={5}>
-          <Text soft style={[styles.centered, styles.body]}>
-            The questions you ask and the words you seal will rest here, for you alone.
-          </Text>
-        </Rise>
-      </View>
+      <Rise order={4} style={styles.badges}>
+        <Text variant="label" soft>
+          Badges
+        </Text>
+        {stickers?.length ? (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <StickerGrid stickers={stickers} onOpen={(id) => router.push(`/sticker/${id}`)} />
+          </ScrollView>
+        ) : stickers ? (
+          <View style={styles.empty} testID="badges-empty">
+            <Text variant="quote" style={styles.centered}>
+              Nothing kept yet.
+            </Text>
+            <Text soft style={[styles.centered, styles.body]}>
+              Every conversation that opens leaves a sticker behind. The ones you collect will rest here.
+            </Text>
+          </View>
+        ) : null}
+      </Rise>
       <QuietLink
         testID="sign-out"
         label={leaving ? "Signing out" : "Sign out"}
@@ -69,7 +82,8 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   identity: { alignItems: "center", gap: space.md, marginTop: space.xxl },
-  history: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.sm },
+  badges: { flex: 1, gap: space.md, marginTop: space.xl },
+  empty: { flex: 1, alignItems: "center", justifyContent: "center", gap: space.sm },
   centered: { textAlign: "center" },
   body: { maxWidth: 280 },
 });

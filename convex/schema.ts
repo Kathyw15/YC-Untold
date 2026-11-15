@@ -80,6 +80,20 @@ export default defineSchema({
     .index("by_userA", ["userA"])
     .index("by_userB", ["userB"]),
 
+  stickers: defineTable({
+    matchId: v.id("matches"),
+    userA: v.id("users"),
+    userB: v.id("users"),
+    status: v.union(v.literal("pending"), v.literal("ready"), v.literal("failed")),
+    title: v.optional(v.string()),
+    imageId: v.optional(v.id("_storage")),
+    collectedByA: v.optional(v.number()),
+    collectedByB: v.optional(v.number()),
+  })
+    .index("by_match", ["matchId"])
+    .index("by_userA", ["userA"])
+    .index("by_userB", ["userB"]),
+
   chatMessages: defineTable({
     conversationId: v.id("conversations"),
     senderId: v.id("users"),

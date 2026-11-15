@@ -22,6 +22,7 @@ import type * as matching from "../matching.js";
 import type * as notices from "../notices.js";
 import type * as questions from "../questions.js";
 import type * as seed from "../seed.js";
+import type * as stickers from "../stickers.js";
 import type * as users from "../users.js";
 
 import type {
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   notices: typeof notices;
   questions: typeof questions;
   seed: typeof seed;
+  stickers: typeof stickers;
   users: typeof users;
 }>;
 

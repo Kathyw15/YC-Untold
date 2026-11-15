@@ -12,6 +12,7 @@ import { QuietLink } from "@/components/QuietLink";
 import { Rise } from "@/components/Rise";
 import { Screen } from "@/components/Screen";
 import { Sealed } from "@/components/Sealed";
+import { StickerKeepsake } from "@/components/Sticker";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -52,10 +53,12 @@ export default function MatchScreen() {
   const { status } = useSession();
   const match = useQuery(api.matches.get, status === "ready" ? { matchId: id } : "skip");
   const respond = useMutation(api.matches.respond);
+  const collect = useMutation(api.stickers.collect);
   const [busy, setBusy] = useState(false);
 
   const revealed = match?.revealed ?? null;
   const isRevealed = revealed !== null;
+  const sticker = useQuery(api.stickers.forMatch, isRevealed ? { matchId: id } : "skip");
   const conversation = revealed?.conversation ?? null;
   const remaining = useRemaining(conversation?.expiresAt);
   const copy = match && match.state !== "revealed" ? COPY[match.state] : null;
@@ -116,6 +119,13 @@ export default function MatchScreen() {
                 <Text variant="caption" soft style={styles.centered}>
                   {revealed.theme}
                 </Text>
+                {sticker ? (
+                  <StickerKeepsake
+                    sticker={sticker}
+                    onCollect={() => void collect({ stickerId: sticker.id })}
+                    onOpen={() => router.push(`/sticker/${sticker.id}`)}
+                  />
+                ) : null}
                 {conversation ? (
                   <>
                     <BreathingButton
