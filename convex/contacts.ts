@@ -34,7 +34,7 @@ export const sync = mutation({
       }
       const contactId =
         known?._id ?? (await ctx.db.insert("contacts", { ownerId: user._id, phoneHmac, matchedUserId: matched?._id }));
-      synced.push({ phone, contactId, onUntold: matched !== null });
+      synced.push({ phone, contactId, onSeal: matched !== null });
     }
     return synced;
   },

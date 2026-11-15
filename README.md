@@ -2,7 +2,7 @@
 
 A place where the things you never said finally have somewhere to go.
 
-Seal (first named Untold, which the repository, bundle identifier, and backend project still use) is an iOS app built with Expo (React Native, TypeScript, expo-router), Convex for the backend, Clerk for phone sign-in, and Revyl for cloud builds and devices.
+Seal is an iOS app built with Expo (React Native, TypeScript, expo-router), Convex for the backend, Clerk for phone sign-in, and Revyl for cloud builds and devices. The repository, the iOS bundle identifier, and the Convex project still carry the original name `untold`, because outside services are registered under it.
 
 ## Run it
 
