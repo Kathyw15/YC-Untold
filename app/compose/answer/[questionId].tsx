@@ -1,18 +1,12 @@
 import { useMutation, useQuery } from "convex/react";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
 
-import { BreathingButton } from "@/components/BreathingButton";
-import { IconButton } from "@/components/IconButton";
-import { Rise } from "@/components/Rise";
-import { Screen } from "@/components/Screen";
+import { AnswerComposer } from "@/components/AnswerComposer";
+import { QuestionScene } from "@/components/QuestionBackground";
 import { Sealing } from "@/components/Sealing";
-import { Text } from "@/components/Text";
-import { WritingField } from "@/components/WritingField";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
-import { space } from "@/theme";
 
 export default function ComposeAnswerScreen() {
   const router = useRouter();
@@ -38,55 +32,29 @@ export default function ComposeAnswerScreen() {
   }
 
   return (
-    <Screen scene="base" testID="compose-answer-screen">
+    <QuestionScene question={question} variant="screen" testID="compose-answer-screen">
       <Sealing
         sealed={sealed}
         title="Sealed."
-        body={
-          question?.isDaily
-            ? "Only you can read it. It rests in your own history."
-            : "Only you can read it. If it resonates with theirs, you'll both be asked before anything is revealed."
-        }
+        body="If your words meet, we’ll let you both know."
         onDone={() => router.back()}>
-        <View style={styles.close}>
-          <IconButton icon="close" testID="compose-close" label="Close" onPress={() => router.back()} />
-        </View>
-        <Rise style={styles.question}>
-          <Text variant="quote" soft numberOfLines={4} testID="compose-question-text">
-            {question?.text ?? " "}
-          </Text>
-        </Rise>
-        <Rise order={1} style={styles.writing}>
-          <WritingField
-            testID="answer-input"
-            label="Your private answer"
-            placeholder="Say it the way you would if no one were listening."
-            value={body}
-            onChangeText={setBody}
-            maxLength={2000}
-            autoFocus
-          />
-        </Rise>
-        <Rise order={2} style={styles.action}>
-          <Text variant="caption" soft style={styles.centered}>
-            {message ?? "No one sees this unless you both choose to."}
-          </Text>
-          <BreathingButton
-            testID="seal-answer"
-            label={busy ? "Sealing" : "Seal it"}
-            onPress={seal}
-            disabled={!question || busy || body.trim().length === 0}
-          />
-        </Rise>
+        <AnswerComposer
+          question={question?.text ?? " "}
+          questionTestID="compose-question-text"
+          value={body}
+          onChangeText={setBody}
+          inputTestID="answer-input"
+          leaveIcon="close"
+          leaveLabel="Close"
+          leaveTestID="compose-close"
+          onLeave={() => router.back()}
+          submitLabel={busy ? "Sealing" : "Seal answer"}
+          submitTestID="seal-answer"
+          submitDisabled={!question || busy || body.trim().length === 0}
+          onSubmit={seal}
+          message={message}
+        />
       </Sealing>
-    </Screen>
+    </QuestionScene>
   );
 }
-
-const styles = StyleSheet.create({
-  close: { alignSelf: "flex-start" },
-  question: { marginTop: space.lg, marginBottom: space.lg },
-  writing: { flex: 1 },
-  action: { gap: space.md, marginTop: space.md },
-  centered: { textAlign: "center" },
-});

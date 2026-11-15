@@ -3,7 +3,15 @@
 
 import { CHLOE_PHONE, KATHY_PHONE } from "./demoCast";
 
-type FeedQuestion = { key: string; by: string; text: string; tags: string[]; answer: string; responses: number };
+type FeedQuestion = {
+  key: string;
+  by: string;
+  text: string;
+  tags: string[];
+  answer: string;
+  responses: number;
+  photo?: string;
+};
 
 // TIMELY QUESTIONS. Swap these for whatever is in the news on demo day, then run the reset again.
 // Keep the keys, and keep each answer personal so a sincere reply can resonate with it.
@@ -19,6 +27,7 @@ export const TIMELY_QUESTIONS: FeedQuestion[] = [
   },
   {
     key: "timely-2",
+    photo: "plane",
     by: "maya",
     text: "What do you make of the FAA grounding all those flights?",
     tags: [],
@@ -41,6 +50,7 @@ export const FEED: FeedQuestion[] = [
   },
   {
     key: "proud",
+    photo: "alone",
     by: "maya",
     text: "Have you ever missed someone but felt too proud to reach out?",
     tags: ["Friendship"],
@@ -60,6 +70,7 @@ export const FEED: FeedQuestion[] = [
   },
   {
     key: "kindness",
+    photo: "friends",
     by: "priya",
     text: "What is a small kindness someone did for you that they have probably forgotten?",
     tags: ["Growing up"],
@@ -87,6 +98,7 @@ export const FEED: FeedQuestion[] = [
   TIMELY_QUESTIONS[1],
   {
     key: "nineteen",
+    photo: "golden",
     by: "iris",
     text: "What did you believe at nineteen that you no longer believe?",
     tags: ["Growing up"],
@@ -95,6 +107,7 @@ export const FEED: FeedQuestion[] = [
   },
   {
     key: "hill",
+    photo: "grass",
     by: "priya",
     text: "What is a hill you will die on that matters to absolutely no one?",
     tags: [],

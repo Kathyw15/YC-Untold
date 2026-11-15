@@ -1,13 +1,16 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import type { FunctionReturnType } from "convex/server";
-import { LinearGradient } from "expo-linear-gradient";
+import { Image } from "expo-image";
 import { Pressable, StyleSheet, View } from "react-native";
 
 import type { api } from "@/convex/_generated/api";
-import { colors, questionGradients, radius, shadows, space } from "@/theme";
+import { colors, radius, shadows, space } from "@/theme";
 
 import { Avatar } from "./Avatar";
+import { QuestionBackground, questionPhoto } from "./QuestionBackground";
 import { Text } from "./Text";
+
+export { gradientFor } from "./QuestionBackground";
 
 export type QuestionSummary = NonNullable<FunctionReturnType<typeof api.questions.today>>;
 
@@ -17,15 +20,21 @@ export function quietResponses(count: number) {
 }
 
 export function askedBy(question: QuestionSummary) {
-  if (question.isDaily) return "Today's question";
+  if (question.isDaily) return "Daily question";
   if (question.isMine) return "by you";
   return "by " + (question.author?.name?.split(" ")[0] ?? "someone");
 }
 
-export function gradientFor(id: string) {
-  let sum = 0;
-  for (let index = 0; index < id.length; index++) sum += id.charCodeAt(index);
-  return questionGradients[sum % questionGradients.length];
+export function MascotAvatar({ size }: { size: number }) {
+  return (
+    <View style={[styles.mascot, { width: size, height: size, borderRadius: size / 2 }]}>
+      <Image
+        source={require("@/assets/brand/seal-mascot.png")}
+        style={{ width: size * 0.78, height: size * 0.78 }}
+        contentFit="contain"
+      />
+    </View>
+  );
 }
 
 type QuestionCardProps = {
@@ -34,8 +43,41 @@ type QuestionCardProps = {
   testID?: string;
 };
 
+function DailyCard({ question, onPress, testID }: QuestionCardProps) {
+  return (
+    <Pressable
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={question.text}
+      onPress={onPress}
+      style={({ pressed }) => [styles.daily, pressed && styles.pressed]}>
+      <QuestionBackground question={question} style={styles.dailyFill} />
+      <View style={[styles.label, styles.dailyLabel]}>
+        <Ionicons name="sparkles" size={13} color={colors.white} />
+        <Text style={[styles.labelText, { color: colors.white }]}>Today’s question</Text>
+      </View>
+      <Text style={[styles.dailyQuestion, styles.onPhoto]}>{question.text}</Text>
+      <View style={styles.dailyRow}>
+        <View style={styles.dailyCount}>
+          <Ionicons name="people" size={16} color={colors.white} />
+          <Text style={styles.dailyCountText}>{question.responseCount} answered</Text>
+        </View>
+        <View style={[styles.dailyPill, question.hasAnswered ? styles.sealedOnPhoto : styles.white]}>
+          <Ionicons name="lock-closed" size={15} color={question.hasAnswered ? colors.white : colors.ink} />
+          <Text style={[styles.dailyPillText, { color: question.hasAnswered ? colors.white : colors.ink }]}>
+            {question.hasAnswered ? "Sealed" : "Answer privately"}
+          </Text>
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
 export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
+  if (question.isDaily) return <DailyCard question={question} onPress={onPress} testID={testID} />;
   const sealed = question.isMine || question.hasAnswered;
+  const onPhoto = questionPhoto(question) !== null;
+  const ink = onPhoto ? colors.white : colors.ink;
   return (
     <Pressable
       testID={testID}
@@ -43,47 +85,50 @@ export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
       accessibilityLabel={question.text}
       onPress={onPress}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
-      <LinearGradient
-        colors={gradientFor(question.id)}
-        start={{ x: 0.35, y: 0 }}
-        end={{ x: 0.65, y: 1 }}
-        style={[StyleSheet.absoluteFill, styles.fill]}
-      />
+      <QuestionBackground question={question} style={styles.fill} />
       {question.isDaily ? (
-        <View style={styles.label}>
-          <Ionicons name="sparkles-outline" size={13} color={colors.blue} />
-          <Text variant="label" style={{ color: colors.blue }}>
-            Today's question
-          </Text>
+        <View style={[styles.label, onPhoto ? styles.photoGlass : styles.glass]}>
+          <Ionicons name="sparkles" size={13} color={ink} />
+          <Text style={[styles.labelText, { color: ink }]}>Today’s question</Text>
         </View>
       ) : null}
+      <View style={[styles.bookmark, onPhoto ? styles.photoGlass : styles.glass]}>
+        <Ionicons name="bookmark-outline" size={19} color={ink} />
+      </View>
       <View style={styles.inner}>
-        <Text style={styles.question}>{question.text}</Text>
-        {question.tags.length > 0 ? (
-          <Text variant="caption" soft style={styles.tags}>
-            {question.tags.map((tag) => "# " + tag).join("   ")}
-          </Text>
-        ) : null}
+        <Text style={[styles.question, { color: ink }, onPhoto && styles.onPhoto]}>{question.text}</Text>
         <View style={styles.meta}>
           <View style={styles.row}>
-            {question.isDaily ? null : (
+            {question.isDaily ? (
+              <MascotAvatar size={28} />
+            ) : (
               <Avatar
                 uri={question.author?.avatarUrl ?? null}
                 emoji={question.author?.avatarEmoji}
                 name={question.author?.name ?? null}
-                size={24}
+                size={28}
               />
             )}
-            <Text style={styles.metaText}>{question.isDaily ? "From Seal" : askedBy(question)}</Text>
+            <Text style={[styles.metaText, { color: ink }]}>{askedBy(question)}</Text>
           </View>
           <View style={styles.row}>
-            <Ionicons name="people" size={16} color={colors.ink} />
-            <Text style={styles.metaText}>{quietResponses(question.responseCount)}</Text>
+            <Ionicons name="people" size={18} color={ink} />
+            <Text style={[styles.metaText, { color: ink }]}>{quietResponses(question.responseCount)}</Text>
           </View>
         </View>
-        <View style={[styles.pill, sealed ? styles.passive : styles.primary]}>
-          <Ionicons name="lock-closed" size={16} color={sealed ? colors.ink : colors.white} />
-          <Text variant="button" style={{ color: sealed ? colors.ink : colors.white }}>
+        <View
+          style={[
+            styles.pill,
+            sealed
+              ? onPhoto
+                ? styles.sealedOnPhoto
+                : styles.sealedOnGradient
+              : onPhoto
+                ? styles.white
+                : styles.black,
+          ]}>
+          <Ionicons name="lock-closed" size={17} color={sealed ? ink : onPhoto ? colors.ink : colors.white} />
+          <Text variant="button" style={{ color: sealed ? ink : onPhoto ? colors.ink : colors.white }}>
             {sealed ? "Your answer is sealed" : "Answer privately"}
           </Text>
         </View>
@@ -93,14 +138,37 @@ export function QuestionCard({ question, onPress, testID }: QuestionCardProps) {
 }
 
 const styles = StyleSheet.create({
-  card: {
-    minHeight: 340,
-    borderRadius: radius.feed,
-    justifyContent: "flex-end",
-    boxShadow: shadows.feed,
+  daily: { height: 226, borderRadius: 26, justifyContent: "flex-end", padding: 16, boxShadow: shadows.feed },
+  dailyFill: { borderRadius: 26 },
+  dailyLabel: { backgroundColor: "rgba(20, 20, 30, 0.24)", borderWidth: 1, borderColor: "rgba(255, 255, 255, 0.35)" },
+  dailyQuestion: {
+    maxWidth: 290,
+    fontSize: 23,
+    lineHeight: 25,
+    fontWeight: "700",
+    letterSpacing: -0.7,
+    color: colors.white,
+    marginHorizontal: 4,
+    marginBottom: 12,
   },
+  dailyRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginHorizontal: 4 },
+  dailyCount: { flexDirection: "row", alignItems: "center", gap: 6 },
+  dailyCountText: { fontSize: 14, lineHeight: 18, fontWeight: "500", color: colors.white },
+  dailyPill: {
+    height: 40,
+    paddingHorizontal: 16,
+    borderRadius: radius.pill,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 7,
+  },
+  dailyPillText: { fontSize: 15, lineHeight: 20, fontWeight: "600", letterSpacing: -0.2 },
+  card: { height: 520, borderRadius: radius.feed, boxShadow: shadows.feed },
   fill: { borderRadius: radius.feed },
-  pressed: { opacity: 0.85 },
+  pressed: { opacity: 0.9 },
+  mascot: { alignItems: "center", justifyContent: "center", backgroundColor: colors.white },
+  glass: { backgroundColor: "rgba(255, 255, 255, 0.62)", borderWidth: 1, borderColor: "rgba(255, 255, 255, 0.9)" },
+  photoGlass: { backgroundColor: "rgba(255, 255, 255, 0.18)", borderWidth: 1, borderColor: "rgba(255, 255, 255, 0.42)" },
   label: {
     position: "absolute",
     top: 18,
@@ -111,22 +179,40 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 6,
-    backgroundColor: "rgba(255, 255, 255, 0.8)",
   },
-  inner: { paddingTop: 70, paddingHorizontal: space.md, paddingBottom: space.md },
-  question: { fontSize: 31, lineHeight: 34, fontWeight: "700", letterSpacing: -0.9, color: colors.ink, marginHorizontal: 6 },
-  tags: { marginHorizontal: 6, marginTop: space.sm },
-  meta: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", margin: 6, marginVertical: space.md },
+  labelText: { fontSize: 13, lineHeight: 16, fontWeight: "600" },
+  bookmark: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  inner: { position: "absolute", left: 0, right: 0, bottom: 0, paddingHorizontal: space.md, paddingBottom: space.md },
+  question: { fontSize: 31, lineHeight: 34, fontWeight: "700", letterSpacing: -0.93, marginHorizontal: 6, marginBottom: 16 },
+  onPhoto: { textShadowColor: "rgba(0, 0, 0, 0.18)", textShadowRadius: 16, textShadowOffset: { width: 0, height: 1 } },
+  meta: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginHorizontal: 6,
+    marginBottom: 16,
+  },
   row: { flexDirection: "row", alignItems: "center", gap: space.sm },
-  metaText: { fontSize: 15, lineHeight: 20, fontWeight: "500", color: colors.ink },
+  metaText: { fontSize: 15, lineHeight: 20, fontWeight: "500" },
   pill: {
     height: 56,
     borderRadius: radius.pill,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: space.sm,
+    gap: 9,
   },
-  primary: { backgroundColor: colors.ink, boxShadow: shadows.blackPill },
-  passive: { backgroundColor: "rgba(255, 255, 255, 0.6)", borderWidth: 1, borderColor: colors.white },
+  black: { backgroundColor: colors.ink, boxShadow: shadows.blackPill },
+  white: { backgroundColor: colors.white, boxShadow: shadows.whitePill },
+  sealedOnPhoto: { backgroundColor: "rgba(255, 255, 255, 0.22)", borderWidth: 1, borderColor: "rgba(255, 255, 255, 0.5)" },
+  sealedOnGradient: { backgroundColor: "rgba(255, 255, 255, 0.6)", borderWidth: 1, borderColor: colors.white },
 });
