@@ -18,6 +18,7 @@ npx expo start               # in a second terminal
 - **On your phone:** install Expo Go, then scan the QR code that "npx expo start" prints. Everything in the app runs in Expo Go.
 - **On a Revyl cloud device:** run "revyl dev --platform ios". It installs the development build, connects it to your local Metro server, and opens a live viewer with hot reload.
 - **Rebuild the development build** (only after native dependencies change): "revyl build --profile development --platform ios". The build runs on Revyl's cloud, so no local Xcode is needed.
+- **Build a standalone Release app** (JavaScript embedded, no Metro and no dev client): "revyl build --profile preview --platform ios --env EXPO_PUBLIC_CONVEX_URL=<url> --env EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=<key>", then start a device with the build id it prints: "revyl device start --platform ios --app-id <app id> --build-version-id <id>".
 
 Sign in with a Clerk test number: any of +1 (201) 555-0100 to 555-0199, with the code 424242. No SMS is sent for these. The phone field is US-only (+1).
 
