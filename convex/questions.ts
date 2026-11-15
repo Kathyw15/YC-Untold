@@ -116,9 +116,7 @@ export const answer = mutation({
       questionId: question._id,
     });
     await ctx.db.patch(question._id, { responseCount: question.responseCount + 1 });
-    if (!question.isDaily) {
-      await ctx.scheduler.runAfter(0, internal.matching.onEntryCreated, { entryId });
-    }
+    await ctx.scheduler.runAfter(0, internal.matching.onEntryCreated, { entryId });
     return null;
   },
 });

@@ -8,10 +8,14 @@
  * @module
  */
 
+import type * as chat from "../chat.js";
 import type * as crons from "../crons.js";
 import type * as daily from "../daily.js";
+import type * as devSeed from "../devSeed.js";
 import type * as lib_authz from "../lib/authz.js";
+import type * as lib_participants from "../lib/participants.js";
 import type * as lib_phone from "../lib/phone.js";
+import type * as matches from "../matches.js";
 import type * as matching from "../matching.js";
 import type * as questions from "../questions.js";
 import type * as seed from "../seed.js";
@@ -24,10 +28,14 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  chat: typeof chat;
   crons: typeof crons;
   daily: typeof daily;
+  devSeed: typeof devSeed;
   "lib/authz": typeof lib_authz;
+  "lib/participants": typeof lib_participants;
   "lib/phone": typeof lib_phone;
+  matches: typeof matches;
   matching: typeof matching;
   questions: typeof questions;
   seed: typeof seed;
