@@ -1,8 +1,14 @@
-import { Tabs } from "expo-router";
+import { Redirect, Tabs } from "expo-router";
 
 import { QuietTabBar } from "@/components/QuietTabBar";
+import { useSession } from "@/lib/session";
 
 export default function TabsLayout() {
+  const { status } = useSession();
+
+  if (status === "loading") return null;
+  if (status !== "ready") return <Redirect href={status === "needsProfile" ? "/profile-setup" : "/phone"} />;
+
   return (
     <Tabs screenOptions={{ headerShown: false }} tabBar={(props) => <QuietTabBar {...props} />}>
       <Tabs.Screen name="index" options={{ title: "Home" }} />
