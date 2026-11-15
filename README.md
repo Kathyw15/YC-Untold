@@ -37,13 +37,17 @@ revyl build --profile preview --platform ios \
 revyl device start --platform ios --build-version-id <id the build prints>
 ```
 
-The build runs on Revyl's cloud, so no local Xcode is needed. It takes about 4 minutes with a warm cache. Rebuild after every change you want on the device. The preview profile sets EXPO_PUBLIC_DEMO_MODE=1, which shows "Load sample contacts" on People.
+The build runs on Revyl's cloud, so no local Xcode is needed. It takes about 4 minutes with a warm cache. Rebuild after every change you want on the device. The preview profile sets EXPO_PUBLIC_DEMO_MODE=1 (see "Two accounts at once").
 
 For hot reload instead, "revyl dev --platform ios" installs the development build and connects it to your local Metro server; rebuild that build with "revyl build --profile development --platform ios" after native dependencies change. Taps are sometimes dropped under "revyl dev", so use the Release build for demos.
 
 ### Two accounts at once
 
-Sign in with a different test number on each device, for example 555-0100 on a Revyl iPhone and 555-0101 in Expo Go. To write to the other account, open People and either tap "Load sample contacts" (the six sample contacts are 555-0100 to 555-0105) or tap "Write to a phone number" and enter the other number. Both devices must use the same Convex deployment.
+Sign in with a different test number on each device, for example 555-0100 on a Revyl iPhone and 555-0101 in Expo Go. Both devices must use the same Convex deployment.
+
+With EXPO_PUBLIC_DEMO_MODE=1, People skips the contacts permission and loads six sample contacts: 555-0100 as Chloe, 555-0101 as Kathy, and 555-0102 to 555-0105. So each of those two accounts finds the other under "On Untold" with no setup. The Revyl preview profile sets the flag; for Expo Go, add EXPO_PUBLIC_DEMO_MODE=1 to .env.local and restart "npx expo start --go". Without the flag, a development build shows a "Load sample contacts (dev)" link instead, and any build can reach another account through "Write to a phone number".
+
+To start a demo from a clean slate, run "npx convex run devSeed:resetDemo". It deletes everything people wrote (sealed messages, answers, their questions, invitations, conversations, synced contacts) and keeps the accounts, today's question, and the seeded questions. Run it before opening the apps.
 
 ## Environment variables
 
@@ -51,7 +55,7 @@ Sign in with a different test number on each device, for example 555-0100 on a R
 |---|---|---|
 | EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY | .env.local, or "--env" on a Revyl build | Clerk publishable key for the app |
 | EXPO_PUBLIC_CONVEX_URL | .env.local (written by Convex), or "--env" on a Revyl build | Convex deployment URL for the app |
-| EXPO_PUBLIC_DEMO_MODE | .env.local, optional; set by the Revyl preview profile | "1" shows "Load sample contacts" in a Release build |
+| EXPO_PUBLIC_DEMO_MODE | .env.local, optional; set by the Revyl preview profile | "1" makes People load the sample contacts instead of the device's contacts |
 | CONVEX_DEPLOYMENT | .env.local (written by Convex) | Which deployment "npx convex dev" targets |
 | CLERK_JWT_ISSUER_DOMAIN | Convex ("npx convex env set") | Clerk Frontend API URL that Convex trusts |
 | OPENAI_API_KEY | Convex | Used by the matching and sticker actions |

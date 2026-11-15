@@ -25,6 +25,8 @@ import {
 } from "@/lib/contacts";
 import { space } from "@/theme";
 
+const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE === "1";
+
 export default function PeopleScreen() {
   const router = useRouter();
   const myPhone = useUser().user?.primaryPhoneNumber?.phoneNumber;
@@ -55,6 +57,7 @@ export default function PeopleScreen() {
   }
 
   useEffect(() => {
+    if (DEMO_MODE) return void bring(SAMPLE_CONTACTS);
     void getContactsAccess().then(async (status) => {
       setAccess(status);
       if (status === "granted") await bring(await readDeviceContacts());
@@ -128,8 +131,8 @@ export default function PeopleScreen() {
       {contacts === null && access === "denied" ? (
         <QuietLink testID="contacts-settings" label="Turn on contacts in Settings" onPress={() => void Linking.openSettings()} />
       ) : null}
-      {__DEV__ || process.env.EXPO_PUBLIC_DEMO_MODE === "1" ? (
-        <QuietLink testID="load-sample-contacts" label="Load sample contacts" onPress={() => void bring(SAMPLE_CONTACTS)} />
+      {__DEV__ && !DEMO_MODE ? (
+        <QuietLink testID="load-sample-contacts" label="Load sample contacts (dev)" onPress={() => void bring(SAMPLE_CONTACTS)} />
       ) : null}
     </View>
   );

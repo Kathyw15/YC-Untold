@@ -8,8 +8,8 @@ export type ContactsAccess = "undetermined" | "granted" | "denied";
 export const SYNC_BATCH_SIZE = 500;
 
 export const SAMPLE_CONTACTS: DeviceContact[] = [
-  { name: "Alex Rivera", phone: "+12015550100" },
-  { name: "Sam Okafor", phone: "+12015550101" },
+  { name: "Chloe", phone: "+12015550100" },
+  { name: "Kathy", phone: "+12015550101" },
   { name: "Maya Lindqvist", phone: "+12015550102" },
   { name: "Jordan Bell", phone: "+12015550103" },
   { name: "Grandma Rose", phone: "+12015550104" },
