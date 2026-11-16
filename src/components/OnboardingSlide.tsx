@@ -7,7 +7,9 @@ import { Rise } from "./Rise";
 import { Text } from "./Text";
 
 type OnboardingSlideProps = {
+  eyebrow: string;
   headline: string;
+  body: string;
   index: number;
   count: number;
   nextLabel?: string;
@@ -15,13 +17,15 @@ type OnboardingSlideProps = {
   disabled?: boolean;
 };
 
-export function OnboardingSlide({ headline, index, count, nextLabel, onNext, disabled = false }: OnboardingSlideProps) {
+export function OnboardingSlide({ eyebrow, headline, body, index, count, nextLabel, onNext, disabled = false }: OnboardingSlideProps) {
   return (
     <View style={styles.root} testID={"onboarding-page-" + (index + 1)}>
       <Rise key={"headline-" + index} order={1}>
+        <Text style={styles.eyebrow}>{eyebrow}</Text>
         <Text variant="hero" testID="onboarding-headline" style={styles.headline}>
           {headline}
         </Text>
+        <Text style={styles.body}>{body}</Text>
       </Rise>
       <View style={styles.footer}>
         <View style={styles.dots} accessibilityLabel={"Page " + (index + 1) + " of " + count}>
@@ -53,8 +57,25 @@ export function OnboardingSlide({ headline, index, count, nextLabel, onNext, dis
 const NEXT_SIZE = 56;
 
 const styles = StyleSheet.create({
-  root: { flex: 1, justifyContent: "flex-end", gap: space.xl },
-  headline: { maxWidth: 320, textShadowColor: "rgba(0, 0, 0, 0.18)", textShadowRadius: 16, textShadowOffset: { width: 0, height: 1 } },
+  root: { flex: 1, justifyContent: "flex-end", gap: 28, paddingHorizontal: 6 },
+  eyebrow: {
+    fontSize: 12,
+    lineHeight: 16,
+    fontWeight: "700",
+    letterSpacing: 1.92,
+    textTransform: "uppercase",
+    color: "rgba(255, 255, 255, 0.82)",
+    marginBottom: 12,
+  },
+  headline: {
+    fontSize: 38,
+    lineHeight: 42,
+    letterSpacing: -1.33,
+    textShadowColor: "rgba(0, 0, 0, 0.18)",
+    textShadowRadius: 18,
+    textShadowOffset: { width: 0, height: 2 },
+  },
+  body: { fontSize: 17, lineHeight: 24, letterSpacing: -0.17, color: "rgba(255, 255, 255, 0.88)", marginTop: 12 },
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: NEXT_SIZE },
   dots: { flexDirection: "row", alignItems: "center", gap: 6 },
   dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "rgba(255, 255, 255, 0.5)" },

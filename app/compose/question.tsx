@@ -231,7 +231,7 @@ export default function ComposeQuestionScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { paddingHorizontal: 0, paddingTop: space.md },
+  screen: { paddingHorizontal: 0 },
   fill: { flex: 1 },
   nav: { height: 52, flexDirection: "row", alignItems: "center", paddingHorizontal: 16 },
   navSide: { width: 90 },
