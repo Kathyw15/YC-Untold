@@ -15,6 +15,7 @@ import { Screen } from "@/components/Screen";
 import { Text } from "@/components/Text";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { CHLOE_PHONE, KATHY_PHONE } from "@/convex/demoCast";
 import {
   type ContactsAccess,
   type DeviceContact,
@@ -135,7 +136,12 @@ export default function PeopleScreen() {
       return {
         ...contact,
         person,
-        rank: person && talkedWith.has(person.userId) ? 0 : ((contactId && sealOrder.get(contactId)) ?? null),
+        rank:
+          FAKE_CONTACTS && (contact.phone === CHLOE_PHONE || contact.phone === KATHY_PHONE)
+            ? -1
+            : person && talkedWith.has(person.userId)
+              ? 0
+              : ((contactId && sealOrder.get(contactId)) ?? null),
       };
     })
     .sort((a, b) => a.name.localeCompare(b.name));

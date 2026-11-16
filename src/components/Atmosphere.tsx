@@ -15,7 +15,7 @@ export function ToneProvider({ tone, children }: { tone: Tone; children: ReactNo
   return <ToneContext value={tone}>{children}</ToneContext>;
 }
 
-const SCRIM = ["rgba(6, 10, 26, 0.2)", "rgba(6, 10, 26, 0.04)", "rgba(6, 10, 26, 0.06)", "rgba(6, 10, 26, 0.48)"] as const;
+const SCRIM = ["rgba(0, 0, 0, 0.16)", "rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0)", "rgba(6, 8, 22, 0.78)"] as const;
 
 type AtmosphereProps = {
   scene: SceneName;
@@ -30,7 +30,7 @@ export function Atmosphere({ scene, children, style }: AtmosphereProps) {
       <View style={[styles.root, { backgroundColor: tones[tone].ground }, style]}>
         {source ? <Image source={source} style={StyleSheet.absoluteFill} contentFit={fit} transition={300} /> : null}
         {tone === "dark" ? (
-          <LinearGradient colors={SCRIM} locations={[0, 0.26, 0.52, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
+          <LinearGradient colors={SCRIM} locations={[0, 0.2, 0.36, 1]} style={StyleSheet.absoluteFill} pointerEvents="none" />
         ) : null}
         {children}
       </View>

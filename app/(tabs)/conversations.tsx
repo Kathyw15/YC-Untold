@@ -115,7 +115,7 @@ export default function ConversationsScreen() {
                       onPress={() => enter(match)}
                       left={<Badged match={match} />}
                       title={match.sticker?.title ?? match.other?.name ?? ""}
-                      subtitle={firstName(match) + ": " + (match.lastMessage ?? "Conversation open")}
+                      subtitle={(match.lastMessageMine ? "You" : firstName(match)) + ": " + (match.lastMessage ?? "Conversation open")}
                       subtitleTestID={match.lastMessage ? "conversation-last-message" : undefined}
                       right={<TimeLeft expiresAt={match.conversation.expiresAt} />}
                     />

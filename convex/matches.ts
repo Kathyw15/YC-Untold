@@ -91,6 +91,7 @@ export const list = query({
         other: revealed ? await publicProfile(ctx, otherParticipant(match, me)) : null,
         conversation: conversation && { id: conversation._id, expiresAt: conversation.expiresAt },
         lastMessage: lastMessage?.body ?? null,
+        lastMessageMine: lastMessage?.senderId === me,
         sticker: sticker && {
           id: sticker._id,
           key: sticker.key ?? null,
