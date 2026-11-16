@@ -13,7 +13,7 @@ const DEMO_MODE = process.env.EXPO_PUBLIC_DEMO_MODE === "1";
 
 const PAGES = [
   {
-    scene: "clouds",
+    scene: "sky",
     eyebrow: "Private expression",
     headline: "Speak first. Stay sealed.",
     body: "Say what you really think or feel. No one else sees it yet.",

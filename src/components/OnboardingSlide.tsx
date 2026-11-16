@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { colors, radius, shadows, space } from "@/theme";
 
+import { useTone } from "./Atmosphere";
 import { Rise } from "./Rise";
 import { Text } from "./Text";
 
@@ -18,19 +19,23 @@ type OnboardingSlideProps = {
 };
 
 export function OnboardingSlide({ eyebrow, headline, body, index, count, nextLabel, onNext, disabled = false }: OnboardingSlideProps) {
+  const light = useTone() === "light";
   return (
     <View style={styles.root} testID={"onboarding-page-" + (index + 1)}>
       <Rise key={"headline-" + index} order={1}>
-        <Text style={styles.eyebrow}>{eyebrow}</Text>
-        <Text variant="hero" testID="onboarding-headline" style={styles.headline}>
+        <Text style={[styles.eyebrow, light && styles.eyebrowOnLight]}>{eyebrow}</Text>
+        <Text variant="hero" testID="onboarding-headline" style={[styles.headline, light ? styles.headlineOnLight : styles.shadowed]}>
           {headline}
         </Text>
-        <Text style={styles.body}>{body}</Text>
+        <Text style={[styles.body, light && styles.bodyOnLight]}>{body}</Text>
       </Rise>
       <View style={styles.footer}>
         <View style={styles.dots} accessibilityLabel={"Page " + (index + 1) + " of " + count}>
           {Array.from({ length: count }, (_, dot) => (
-            <View key={dot} style={[styles.dot, dot === index && styles.current]} />
+            <View
+              key={dot}
+              style={[styles.dot, light && styles.dotOnLight, dot === index && styles.current, dot === index && light && styles.inkFill]}
+            />
           ))}
         </View>
         <Pressable
@@ -41,13 +46,18 @@ export function OnboardingSlide({ eyebrow, headline, body, index, count, nextLab
           disabled={disabled}
           hitSlop={space.sm}
           onPress={onNext}
-          style={({ pressed }) => [styles.next, nextLabel ? styles.labelled : styles.arrow, (pressed || disabled) && styles.pressed]}>
+          style={({ pressed }) => [
+            styles.next,
+            nextLabel ? styles.labelled : styles.arrow,
+            light && !nextLabel && styles.inkFill,
+            (pressed || disabled) && styles.pressed,
+          ]}>
           {nextLabel ? (
             <Text variant="button" style={styles.nextLabel}>
               {nextLabel}
             </Text>
           ) : null}
-          <Ionicons name="arrow-forward" size={nextLabel ? 18 : 22} color={colors.ink} />
+          <Ionicons name="arrow-forward" size={nextLabel ? 18 : 22} color={light && !nextLabel ? colors.white : colors.ink} />
         </Pressable>
       </View>
     </View>
@@ -67,14 +77,13 @@ const styles = StyleSheet.create({
     color: "rgba(255, 255, 255, 0.82)",
     marginBottom: 12,
   },
-  headline: {
-    fontSize: 38,
-    lineHeight: 42,
-    letterSpacing: -1.33,
-    textShadowColor: "rgba(0, 0, 0, 0.18)",
-    textShadowRadius: 18,
-    textShadowOffset: { width: 0, height: 2 },
-  },
+  eyebrowOnLight: { color: "rgba(14, 15, 20, 0.62)" },
+  headline: { fontSize: 38, lineHeight: 42, letterSpacing: -1.33 },
+  headlineOnLight: { color: "#0E0F14" },
+  shadowed: { textShadowColor: "rgba(0, 0, 0, 0.18)", textShadowRadius: 18, textShadowOffset: { width: 0, height: 2 } },
+  bodyOnLight: { color: "rgba(14, 15, 20, 0.78)" },
+  dotOnLight: { backgroundColor: "rgba(14, 15, 20, 0.28)" },
+  inkFill: { backgroundColor: "#0E0F14" },
   body: { fontSize: 17, lineHeight: 24, letterSpacing: -0.17, color: "rgba(255, 255, 255, 0.88)", marginTop: 12 },
   footer: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", minHeight: NEXT_SIZE },
   dots: { flexDirection: "row", alignItems: "center", gap: 6 },
