@@ -233,8 +233,7 @@
       const wide = window.matchMedia("(min-width: 1000px)");
       const frames = [...document.querySelectorAll("iframe")];
       const insets =
-        'body > div[style*="safe-area-inset"] { padding-top: 54px !important; padding-bottom: 30px !important; }' +
-        '[data-testid="home-screen"] { padding-top: 54px !important; }';
+        'body > div[style*="safe-area-inset"] { padding-top: 54px !important; padding-bottom: 30px !important; }';
 
       function fit() {
         const scale = Math.min(1, (window.innerHeight - 62) / 867, (window.innerWidth - 402) / 826);

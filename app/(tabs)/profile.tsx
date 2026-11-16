@@ -25,7 +25,6 @@ const TABS = [
   { value: "badges", label: "Badges" },
 ] as const;
 
-const HERO_HEIGHT = 500;
 const TILTS = ["-6deg", "5deg", "-3deg", "7deg", "-5deg", "4deg", "-7deg"];
 
 function collectedOn(time: number) {
@@ -56,7 +55,7 @@ export default function ProfileScreen() {
             source={{ uri: me.avatarUrl }}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
-            contentPosition={{ top: "30%", left: "50%" }}
+            contentPosition={{ top: "40%", left: "50%" }}
             transition={400}
             accessibilityLabel="Profile photo"
           />
@@ -83,7 +82,7 @@ export default function ProfileScreen() {
             "rgba(255, 255, 255, 0.85)",
             colors.white,
           ]}
-          locations={[0, 0.18, 0.66, 0.92, 1]}
+          locations={[0, 0.18, 0.9, 0.97, 1]}
           style={StyleSheet.absoluteFill}
         />
       </View>
@@ -225,7 +224,7 @@ function Stat({ value, label, divided, testID }: { value?: number; label: string
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.white },
-  hero: { position: "absolute", top: 0, left: 0, right: 0, height: HERO_HEIGHT, pointerEvents: "none" },
+  hero: { position: "absolute", top: 0, left: 0, right: 0, aspectRatio: 1, pointerEvents: "none" },
   heroBlank: { alignItems: "center", paddingTop: 120 },
   heroMonogram: {
     width: 124,
@@ -241,7 +240,7 @@ const styles = StyleSheet.create({
   heroInitial: { fontSize: 54, lineHeight: 62, fontWeight: "800", letterSpacing: -1.5, color: colors.ink },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 12 },
-  spacer: { height: 300 },
+  spacer: { aspectRatio: 1 },
   panel: { paddingTop: 22, paddingHorizontal: 18, paddingBottom: 10 },
   gear: { position: "absolute", right: 18 },
   glass: {

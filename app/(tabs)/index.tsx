@@ -26,7 +26,8 @@ const PIN_AFTER = 96;
 export default function HomeScreen() {
   const me = useProfile();
   const router = useRouter();
-  const tabBar = useSafeAreaInsets().bottom + layout.tabBarHeight;
+  const insets = useSafeAreaInsets();
+  const tabBar = insets.bottom + layout.tabBarHeight;
   const today = useQuery(api.questions.today);
   const feed = usePaginatedQuery(api.questions.feed, {}, { initialNumItems: PAGE_SIZE });
   const [filter, setFilter] = useState<(typeof FILTERS)[number]>("For You");
@@ -47,7 +48,7 @@ export default function HomeScreen() {
   }
 
   return (
-    <Screen scene="base" testID="home-screen" contentStyle={styles.screen}>
+    <Screen scene="base" testID="home-screen" contentStyle={[styles.screen, { paddingTop: insets.top }]}>
       <View style={styles.head}>
         <Text style={styles.title} testID="home-greeting">
           Seal
@@ -164,7 +165,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  screen: { paddingHorizontal: 0, paddingBottom: 0, paddingTop: 0 },
+  screen: { paddingHorizontal: 0, paddingBottom: 0 },
   head: {
     flexDirection: "row",
     alignItems: "center",

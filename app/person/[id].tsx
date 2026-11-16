@@ -29,7 +29,6 @@ const TABS = [
   { value: "badges", label: "Badges" },
 ] as const;
 
-const HERO_HEIGHT = 500;
 const TILTS = [-6, 5, -3, 7, -5, 4, -7];
 
 function dayLabel(time: number) {
@@ -89,7 +88,7 @@ function Person() {
             source={{ uri: person.avatarUrl }}
             style={StyleSheet.absoluteFill}
             contentFit="cover"
-            contentPosition={{ left: "50%", top: "30%" }}
+            contentPosition={{ left: "50%", top: "40%" }}
             transition={300}
             accessibilityLabel={name}
           />
@@ -110,7 +109,7 @@ function Person() {
         )}
         <LinearGradient
           colors={["rgba(255, 255, 255, 0.35)", "rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0)", "rgba(255, 255, 255, 0.85)", "#FFFFFF"]}
-          locations={[0, 0.18, 0.66, 0.92, 1]}
+          locations={[0, 0.18, 0.9, 0.97, 1]}
           style={StyleSheet.absoluteFill}
           pointerEvents="none"
         />
@@ -119,7 +118,7 @@ function Person() {
         style={styles.fill}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 130 }]}
         showsVerticalScrollIndicator={false}>
-        <View style={{ height: Math.max(insets.top, 47) + 300 }} />
+        <View style={styles.spacer} />
         <Rise>
           <View style={styles.panel}>
             <BlurView intensity={40} tint="light" style={StyleSheet.absoluteFill} />
@@ -300,7 +299,7 @@ const styles = StyleSheet.create({
   fill: { flex: 1 },
   pressed: { opacity: 0.6 },
   centered: { textAlign: "center" },
-  hero: { position: "absolute", left: 0, right: 0, top: 0, height: HERO_HEIGHT, overflow: "hidden" },
+  hero: { position: "absolute", left: 0, right: 0, top: 0, aspectRatio: 1, overflow: "hidden" },
   heroPlain: { alignItems: "center", paddingTop: 120 },
   heroMonogram: {
     width: 124,
@@ -323,6 +322,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   content: { paddingHorizontal: 12 },
+  spacer: { aspectRatio: 1 },
   panel: {
     borderRadius: 34,
     borderWidth: 1,
