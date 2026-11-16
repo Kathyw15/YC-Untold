@@ -4,7 +4,7 @@ import type { Id } from "./_generated/dataModel";
 import { internalMutation } from "./_generated/server";
 import { publishDaily } from "./daily";
 import { CAST } from "./demoCast";
-import { FEED, OWNERS } from "./demoWorld";
+import { DAILY_QUESTION, FEED, OWNERS } from "./demoWorld";
 import { hmacPhone } from "./lib/phone";
 import { pickSticker } from "./stickerSet";
 
@@ -96,7 +96,7 @@ export const resetDemo = internalMutation({
       if (question.isDaily) await ctx.db.patch(question._id, { responseCount: 0 });
       else await ctx.db.delete(question._id);
     }
-    await publishDaily(ctx);
+    await ctx.db.patch(await publishDaily(ctx), { text: DAILY_QUESTION });
 
     const now = Date.now();
     const people = new Map<string, Id<"users">>();
@@ -248,6 +248,16 @@ export const resetDemo = internalMutation({
         });
       }
     }
+    return null;
+  },
+});
+
+// scripts/seed-daily-cover.mjs gives today's question its cover with this, after an upload through
+// avatarUploadUrl. The image is served from storage, so builds already installed show it.
+export const setDailyCover = internalMutation({
+  args: { storageId: v.id("_storage") },
+  handler: async (ctx, { storageId }) => {
+    await ctx.db.patch(await publishDaily(ctx), { imageId: storageId });
     return null;
   },
 });
