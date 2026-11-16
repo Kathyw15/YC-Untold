@@ -37,8 +37,13 @@ export const TIMELY_QUESTIONS: FeedQuestion[] = [
   },
 ];
 
+// Today's question in the demo world. A reset writes it over the daily question and leaves its cover alone;
+// scripts/seed-daily-cover.mjs sets the cover.
+export const DAILY_QUESTION = "What's your best hack for surviving 4:45pm sunsets?";
+
 // The Social feed, top of the list first.
 export const FEED: FeedQuestion[] = [
+  ...TIMELY_QUESTIONS,
   {
     key: "chocolate",
     by: "taylor",
@@ -58,7 +63,6 @@ export const FEED: FeedQuestion[] = [
       "Yes. My brother and I stopped talking after our dad's birthday. I have typed the first line a dozen times and deleted it every time.",
     responses: 4,
   },
-  TIMELY_QUESTIONS[0],
   {
     key: "pigeons",
     by: "jonah",
@@ -95,7 +99,6 @@ export const FEED: FeedQuestion[] = [
     answer: "The long way home along the river, with my phone in my bag. Twenty minutes and I can hear myself think.",
     responses: 5,
   },
-  TIMELY_QUESTIONS[1],
   {
     key: "nineteen",
     photo: "golden",
