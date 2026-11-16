@@ -13,6 +13,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { useHoldMatchPopup } from "@/lib/sealing";
 import { colors, layout } from "@/theme";
 
 import { ToneProvider, useTone } from "./Atmosphere";
@@ -40,6 +41,7 @@ type SealingProps = {
 export function Sealing({ sealed, children, title, body, onDone }: SealingProps) {
   const toneName = useTone();
   const progress = useSharedValue(0);
+  useHoldMatchPopup(sealed);
 
   useEffect(() => {
     if (!sealed) return;
@@ -72,7 +74,7 @@ export function Sealing({ sealed, children, title, body, onDone }: SealingProps)
             </View>
             <View style={styles.afterword}>
               <View style={styles.mascot}>
-                <Image source={MASCOT} style={[{ height: 240, width: 240 * MASCOT_RATIO }, styles.shadow]} contentFit="contain" />
+                <Image source={MASCOT} style={[{ height: 150, width: 150 * MASCOT_RATIO }, styles.shadow]} contentFit="contain" />
               </View>
               <Text variant="hero" style={styles.centered}>
                 {title}
@@ -108,7 +110,7 @@ const styles = StyleSheet.create({
   },
   nav: { height: 52, justifyContent: "center", alignItems: "flex-start", marginHorizontal: -4 },
   afterword: { flex: 1, alignItems: "center" },
-  mascot: { height: 320, marginTop: 10, justifyContent: "flex-end", paddingBottom: 40 },
+  mascot: { height: 210, marginTop: 40, justifyContent: "flex-end", paddingBottom: 28 },
   shadow: { filter: "drop-shadow(0 12px 22px rgba(0, 0, 0, 0.12))" } as object,
   centered: { textAlign: "center" },
   body: { maxWidth: 300, marginTop: 12 },
