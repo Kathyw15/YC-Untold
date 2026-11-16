@@ -9,9 +9,10 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 import { Platform, useWindowDimensions, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { MatchPopup } from "@/components/MatchPopup";
 import { QuietLoading } from "@/components/QuietLoading";
@@ -62,8 +63,9 @@ export default function RootLayout() {
 function RootNavigator() {
   const session = useSession();
   const ready = session.status === "ready";
+  const Insets = Platform.OS === "web" ? SafeAreaProvider : Fragment;
   return (
-    <>
+    <Insets>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -77,6 +79,6 @@ function RootNavigator() {
       </Stack>
       {ready ? <MatchPopup /> : null}
       {session.status === "loading" ? <QuietLoading stalled={session.stalled} /> : null}
-    </>
+    </Insets>
   );
 }

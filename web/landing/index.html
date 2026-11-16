@@ -233,8 +233,8 @@
       const wide = window.matchMedia("(min-width: 1000px)");
       const frames = [...document.querySelectorAll("iframe")];
       const insets =
-        '[data-testid$="-screen"], [data-testid="match-popup"] { padding-top: 76px !important; }' +
-        'div:has(> [data-testid="tab-ask"]) { height: 82px !important; padding-bottom: 18px !important; }';
+        'body > div[style*="safe-area-inset"] { padding-top: 54px !important; padding-bottom: 30px !important; }' +
+        '[data-testid="home-screen"] { padding-top: 54px !important; }';
 
       function fit() {
         const scale = Math.min(1, (window.innerHeight - 62) / 867, (window.innerWidth - 402) / 826);
@@ -248,7 +248,7 @@
           delete frame.dataset.src;
         }
       }
-      // The app has no safe area on the web, so keep each screen's content clear of the island and the home bar.
+      // A browser reports no safe area, so tell each frame's safe-area probe where the island and the home bar are.
       function pad() {
         for (const frame of frames) {
           const inner = frame.contentDocument;
