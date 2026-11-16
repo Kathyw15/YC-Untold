@@ -6,6 +6,7 @@ import { Keyboard, StyleSheet, View } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 
 import { api } from "@/convex/_generated/api";
+import { useSealingOpen } from "@/lib/sealing";
 import { useSession } from "@/lib/session";
 import { colors, space } from "@/theme";
 
@@ -22,10 +23,12 @@ export function MatchPopup() {
   const pathname = usePathname();
   const router = useRouter();
   const [handled, setHandled] = useState<string[]>([]);
+  const sealing = useSealingOpen();
+  const respond = useMutation(api.matches.respond);
 
   const pending = proposals?.filter((proposal) => !handled.includes(proposal.id)) ?? [];
   const onItsOwnScreen = pending.find((proposal) => pathname === "/match/" + proposal.matchId);
-  const current = pending.find((proposal) => proposal !== onItsOwnScreen);
+  const current = sealing ? undefined : pending.find((proposal) => proposal !== onItsOwnScreen);
 
   function settle(proposal: Proposal) {
     setHandled((ids) => [...ids, proposal.id]);
@@ -44,9 +47,12 @@ export function MatchPopup() {
       social={current.type === "social"}
       onOpen={() => {
         settle(current);
-        router.push(`/match/${current.matchId}`);
+        void respond({ matchId: current.matchId, decision: "accept" }).finally(() => router.push(`/match/${current.matchId}`));
       }}
-      onLater={() => settle(current)}
+      onLater={() => {
+        settle(current);
+        void respond({ matchId: current.matchId, decision: "decline" });
+      }}
     />
   );
 }
@@ -114,8 +120,8 @@ function Celebration({ social, onOpen, onLater }: CelebrationProps) {
           </Animated.View>
         </View>
         <Animated.View style={[styles.actions, rising]}>
-          <Pill testID="match-popup-open" label="See the invitation" arrow onPress={onOpen} />
-          <TextLink testID="match-popup-later" label="Later" onPress={onLater} />
+          <Pill testID="match-popup-open" label="Reveal & Chat" arrow onPress={onOpen} />
+          <TextLink testID="match-popup-later" label="Not now" onPress={onLater} />
           <Text variant="caption" soft style={styles.centered}>
             We only show who it is if you both say yes.
           </Text>

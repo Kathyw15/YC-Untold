@@ -29,7 +29,7 @@ export default function NoticeScreen() {
         <Rise style={styles.mascot}>
           <Image
             source={MASCOT}
-            style={[{ height: 180, width: 180 * MASCOT_RATIO }, styles.shadow]}
+            style={[{ height: 130, width: 130 * MASCOT_RATIO }, styles.shadow]}
             contentFit="contain"
             accessibilityLabel="Seal"
           />
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   scroll: { flex: 1, marginHorizontal: -layout.screenPadding },
   nav: { height: 52, justifyContent: "center", marginHorizontal: -4 },
   body: { paddingHorizontal: layout.screenPadding, paddingBottom: 16 },
-  mascot: { height: 220, alignItems: "center", justifyContent: "center", paddingTop: 20 },
+  mascot: { height: 150, alignItems: "center", justifyContent: "center", paddingTop: 10 },
   shadow: { filter: "drop-shadow(0 10px 18px rgba(0, 0, 0, 0.12))" } as object,
   title: { marginVertical: 12 },
   paragraph: { marginBottom: 14 },
